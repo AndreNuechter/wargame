@@ -1,1 +1,1 @@
-export const app = document.getElementById('app');
+export const board = document.getElementById('board');
