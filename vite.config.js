@@ -30,7 +30,7 @@ export default defineConfig({
     },
     define: {
         // these vars are used to bust the browser cache after a new build
-        'process.env.appName': JSON.stringify('#NAME#'),
+        'process.env.appName': JSON.stringify('wargame'),
         'process.env.appVersion': JSON.stringify(Date.now()),
     }
 });

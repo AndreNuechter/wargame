@@ -1,13 +1,13 @@
 {
-    "name": "#NAME#",
+    "name": "wargame",
     "version": "1.0.0",
-    "description": "#DESCRIPTION#",
+    "description": "Wargame",
     "main": "src/main.js",
-    "author": "#AUTHOR#",
+    "author": "AndreNuechter",
     "license": "ISC",
     "repository": {
         "type": "git",
-        "url": "https: //github.com/#AUTHOR#/#NAME#"
+        "url": "https: //github.com/AndreNuechter/wargame"
     },
     "devDependencies": {
         "eslint": "^8.40.0",
