@@ -27,7 +27,7 @@
             2,
             "1tbs"
         ],
-        "camelcase": 1,
+        "camelcase": 0,
         "comma-dangle": [
             "warn",
             "only-multiline"

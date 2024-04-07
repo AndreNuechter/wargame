@@ -27,21 +27,51 @@ p, h1, h2, h3, h4, h5, h6 {
     overflow-wrap: break-word;
 }
 
+.offset-coord {
+    opacity: 0;
+}
+body.use-offset-coords {
+    .cube-coord {
+        opacity: 0;
+    }
+
+    .offset-coord {
+        opacity: 1;
+    }
+}
+
 .cell {
     cursor: pointer;
 
-    &:hover {
+    &:hover,
+    &.adjacent-to-clicked {
         filter: brightness(2);
+    }
+
+    &.clicked .outer-cell {
+        fill: yellow;
+    }
+
+    &::after {
+        content: attr(data-cube-coords);
+    }
+
+    & text {
+        font-size: 1.5px;
+        font-weight: lighter;
+        fill: blue
     }
 }
 
 .outer-cell {
     stroke: #000;
-    fill: #fff;
+    stroke-width: 0.5;
+    /* TODO base this on player color */
+    fill: green;
 }
 
 .inner-cell {
-    fill: transparent;
-    stroke: green;
-    stroke-width: 1;
+    /* TODO base this on biom */
+    fill: white;
+    stroke: none;
 }
