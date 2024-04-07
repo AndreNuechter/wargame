@@ -52,10 +52,6 @@ body.use-offset-coords {
         fill: yellow;
     }
 
-    &::after {
-        content: attr(data-cube-coords);
-    }
-
     & text {
         font-size: 1.5px;
         font-weight: lighter;
@@ -71,7 +67,5 @@ body.use-offset-coords {
 }
 
 .inner-cell {
-    /* TODO base this on biom */
-    fill: white;
     stroke: none;
 }
