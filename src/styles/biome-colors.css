@@ -1,0 +1,17 @@
+:root {
+    --sea: blue;
+    --mountain: #404040;
+    --high_mountain: #A9A9A9;
+    --ice: lightblue;
+    --tundra: #45b39d;
+    --grassland: lightgreen;
+    --savanna: #DAF7A6;
+    --boreal_forest: #387e62;
+    --forest: #175616;
+    --tropical_rainforest: #0a260a;
+    --cold_swamp: #bed69e;
+    --swamp: #828c51;
+    --tropical_swamp: #494f28;
+    --desert: #e8ac4b;
+    --extreme_desert: #f9e79f;
+}

@@ -1,6 +1,13 @@
+import board_dimensions from './board-dimensions';
 import { is_even } from './helper-functions';
 
-export default function get_neighboring_cells({
+export default function compute_neighbors(hex_arr) {
+    hex_arr.forEach((hex_obj) => {
+        hex_obj.neighbors = get_neighboring_cells(hex_obj, hex_arr, board_dimensions);
+    });
+}
+
+function get_neighboring_cells({
     q, r, s, x, y
 }, cells, board_dimensions) {
     const direction_vectors = [
@@ -13,7 +20,7 @@ export default function get_neighboring_cells({
     ];
     const neighbors = direction_vectors.map((vec) =>
         cells.find(
-            ([, cell]) =>
+            (cell) =>
                 cell.q === q + vec.q &&
                 cell.r === r + vec.r &&
                 cell.s === s + vec.s
@@ -24,7 +31,7 @@ export default function get_neighboring_cells({
     if (x === 0) {
         // add the rightmost cell on the same row
         neighbors.push(
-            cells.find(([, cell]) => y === cell.y && cell.x === board_dimensions.width - 1)
+            cells.find((cell) => y === cell.y && cell.x === board_dimensions.width - 1)
         );
 
         // add the, at most two, cells above and below that as well
@@ -33,10 +40,10 @@ export default function get_neighboring_cells({
             neighbors.push(
                 ...[
                     y < board_dimensions.height - 1
-                        ? cells.find(([, cell]) => y + 1 === cell.y && cell.x === board_dimensions.width - 1)
+                        ? cells.find((cell) => y + 1 === cell.y && cell.x === board_dimensions.width - 1)
                         : null,
                     y > 0
-                        ? cells.find(([, cell]) => y - 1 === cell.y && cell.x === board_dimensions.width - 1)
+                        ? cells.find((cell) => y - 1 === cell.y && cell.x === board_dimensions.width - 1)
                         : null
                 ].filter(Boolean)
             );
@@ -46,7 +53,7 @@ export default function get_neighboring_cells({
     // wrap around right edge
     if (x === board_dimensions.width - 1) {
         // add the leftmost cell on the same row
-        neighbors.push(cells.find(([, cell]) => y === cell.y && cell.x === 0));
+        neighbors.push(cells.find((cell) => y === cell.y && cell.x === 0));
 
         // add the, at most two, cells above and below that as well
         // NOTE: rightmost cells on even rows only have the one neighbor already added
@@ -54,15 +61,15 @@ export default function get_neighboring_cells({
             neighbors.push(
                 ...[
                     y < board_dimensions.height - 1
-                        ? cells.find(([, cell]) => y + 1 === cell.y && cell.x === 0)
+                        ? cells.find((cell) => y + 1 === cell.y && cell.x === 0)
                         : null,
                     y > 0
-                        ? cells.find(([, cell]) => y - 1 === cell.y && cell.x === 0)
+                        ? cells.find((cell) => y - 1 === cell.y && cell.x === 0)
                         : null
                 ].filter(Boolean)
             );
         }
     }
 
-    return neighbors.map(([cell_element]) => cell_element);
+    return neighbors;
 }

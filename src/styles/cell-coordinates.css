@@ -1,0 +1,24 @@
+.cell-coord {
+    display: none;
+    font-size: 1.5px;
+    font-weight: lighter;
+    fill: blue
+}
+
+.offset-coord {
+    opacity: 0;
+}
+
+body.use-offset-coords {
+    .cube-coord {
+        opacity: 0;
+    }
+
+    .offset-coord {
+        opacity: 1;
+    }
+}
+
+#toogle-coord-system-btn {
+    display: none;
+}

@@ -1,20 +1,33 @@
-import BIOMS from './bioms.js';
-import get_neighboring_cells from './get-neighboring-cells.js';
-import { is_even, random_pick } from './helper-functions.js';
+import compute_neighbors from './compute-neighbors.js';
+import generate_landmasses from './map-generation/generate-landmasses.js';
+import get_temperatures from './map-generation/get-temperature.js';
+import assign_biomes, { create_ice_and_sea } from './biomes.js';
+import assign_humidity from './map-generation/assign-humidity.js';
+import { is_even } from './helper-functions.js';
 import { Hex_cell } from './hex-cell.js';
 
 export default function Hex_grid(board_dimensions) {
-    const hex_map = create_hex_grid(board_dimensions)
-        .reduce((hex_cell_map, hex) => {
-            hex_cell_map.set(hex.render(hex), hex);
-            return hex_cell_map;
-        }, new Map());
-    // precompute neighbors
-    [...hex_map.values()].forEach((hex_obj) => {
-        hex_obj.neighbors = get_neighboring_cells(hex_obj, [...hex_map], board_dimensions);
-    });
+    // create hexgrid
+    const hex_arr = create_hex_grid(board_dimensions);
 
-    return hex_map;
+    // compute neighbors
+    compute_neighbors(hex_arr);
+    // assign temperatures
+    get_temperatures(hex_arr);
+    // create landmasses
+    generate_landmasses(hex_arr);
+    // create waterbodies
+    create_ice_and_sea(hex_arr);
+    // assign humidity
+    assign_humidity(hex_arr);
+    // pick biome
+    assign_biomes(hex_arr);
+
+    // return map of svg-elements to hexes
+    return hex_arr.reduce((map, hex) => {
+        map.set(hex.cell, hex);
+        return map;
+    }, new Map());
 }
 
 function create_hex_grid({ height, width }) {
@@ -25,13 +38,6 @@ function create_hex_grid({ height, width }) {
 
         for (let col = 0; col < width; col += 1) {
             const q = col - (row - (row & 1)) / 2;
-            const biom = row === 0 || row === height - 1
-                ? BIOMS.ice.name
-                // TODO put some more logic behind what biom gets picked.
-                // see Rimworld, for more bioms.
-                // give bioms (configurable) probability (eg water is the most common form one on earth)
-                // use a row based (configurable?) temperature scale to decide what type of land to use (ie poles are coldest, midline hottest...)
-                : random_pick(Object.values(BIOMS).slice(1).map(({ name }) => name));
 
             hex_grid.push(new Hex_cell(
                 (col * 6) + (odd_row * 3),
@@ -40,8 +46,7 @@ function create_hex_grid({ height, width }) {
                 row,
                 q,
                 row,
-                -q - row,
-                biom
+                -q - row
             ));
         }
     }

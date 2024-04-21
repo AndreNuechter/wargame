@@ -1,43 +1,11 @@
-*, *::before, *::after {
-    box-sizing: border-box;
-}
+@import url("styles/base.css");
+@import url("styles/cell-coordinates.css");
+@import url("styles/biome-colors.css");
 
-* {
-    margin: 0;
-}
-
-html, body {
+svg {
+    aspect-ratio: 4 / 3;
+    width: 100%;
     height: 100%;
-}
-
-html {
-    line-height: 1.15;
-    -webkit-font-smoothing: antialiased;
-}
-
-button,
-input,
-optgroup,
-select,
-textarea {
-    font: inherit;
-}
-
-p, h1, h2, h3, h4, h5, h6 {
-    overflow-wrap: break-word;
-}
-
-.offset-coord {
-    opacity: 0;
-}
-body.use-offset-coords {
-    .cube-coord {
-        opacity: 0;
-    }
-
-    .offset-coord {
-        opacity: 1;
-    }
 }
 
 .cell {
@@ -45,27 +13,35 @@ body.use-offset-coords {
 
     &:hover,
     &.adjacent-to-clicked {
-        filter: brightness(2);
+        /* TODO find better way to highlight */
+        filter: brightness(1.5);
     }
 
     &.clicked .outer-cell {
         fill: yellow;
     }
-
-    & text {
-        font-size: 1.5px;
-        font-weight: lighter;
-        fill: blue
-    }
 }
 
 .outer-cell {
-    stroke: #000;
-    stroke-width: 0.5;
-    /* TODO base this on player color */
-    fill: green;
+    stroke: #2c2c2c;
+    stroke-width: 0.1px;
+    /* TODO base fill on player color (when owned) */
 }
 
 .inner-cell {
     stroke: none;
 }
+
+#info-popover {
+    position: absolute;
+    pointer-events: none;
+    background-color: white;
+    border: 1px solid black;
+    padding: 4px 8px;
+    display: none;
+
+    &.visible {
+        display: block;
+    }
+}
+
