@@ -15,9 +15,7 @@ export default function get_temperature(hex_arr) {
     hex_arr.forEach((hex_obj) => {
         const random_num = Math.random();
         // add bias to mimick axial tilt
-        const bias = hex_obj.y < (board_dimensions.height / 2)
-            ? -1
-            : 1;
+        const bias = -1;
         // add some random noise
         const noise = is_num_between(random_num, 0.3, 0.7)
             ? 0

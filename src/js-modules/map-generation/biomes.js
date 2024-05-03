@@ -1,6 +1,6 @@
-import board_dimensions from './board-dimensions.js';
-import { TEMPERATURES } from './map-generation/get-temperature.js';
-import { HUMIDITY_LEVELS } from './map-generation/assign-humidity.js';
+import board_dimensions from '../board-dimensions.js';
+import { TEMPERATURES } from './get-temperature.js';
+import { HUMIDITY_LEVELS } from './assign-humidity.js';
 
 // for more see https://rimworldwiki.com/wiki/Biomes
 export const BIOMES = {
@@ -11,7 +11,7 @@ export const BIOMES = {
     tundra: new Biome('tundra'),
     grassland: new Biome('grassland'),
     savanna: new Biome('savanna'),
-    boreal_forest: new Biome('boreal_forest'),
+    boreal_forest: new Biome('boreal_forest'), // taiga, should be most common
     forest: new Biome('forest'),
     tropical_rainforest: new Biome('tropical_rainforest'),
     cold_swamp: new Biome('cold_swamp'),
@@ -22,29 +22,29 @@ export const BIOMES = {
 };
 const biome_matrix = {
     [TEMPERATURES.freezing]: {
-        [HUMIDITY_LEVELS.arid]: BIOMES.ice.name,
-        [HUMIDITY_LEVELS.dry]: BIOMES.ice.name,
-        [HUMIDITY_LEVELS.moderate]: BIOMES.ice.name,
-        [HUMIDITY_LEVELS.moist]: BIOMES.ice.name,
-        [HUMIDITY_LEVELS.wet]: BIOMES.ice.name,
+        [HUMIDITY_LEVELS.arid]: BIOMES.tundra.name,
+        [HUMIDITY_LEVELS.dry]: BIOMES.tundra.name,
+        [HUMIDITY_LEVELS.moderate]: BIOMES.tundra.name,
+        [HUMIDITY_LEVELS.moist]: BIOMES.boreal_forest.name,
+        [HUMIDITY_LEVELS.wet]: BIOMES.boreal_forest.name,
     },
     [TEMPERATURES.cold]: {
         [HUMIDITY_LEVELS.arid]: BIOMES.tundra.name,
         [HUMIDITY_LEVELS.dry]: BIOMES.tundra.name,
         [HUMIDITY_LEVELS.moderate]: BIOMES.boreal_forest.name,
         [HUMIDITY_LEVELS.moist]: BIOMES.boreal_forest.name,
-        [HUMIDITY_LEVELS.wet]: BIOMES.cold_swamp.name,
+        [HUMIDITY_LEVELS.wet]: BIOMES.boreal_forest.name,
     },
     [TEMPERATURES.temperate]: {
         [HUMIDITY_LEVELS.arid]: BIOMES.tundra.name,
-        [HUMIDITY_LEVELS.dry]: BIOMES.grassland.name,
-        [HUMIDITY_LEVELS.moderate]: BIOMES.grassland.name,
+        [HUMIDITY_LEVELS.dry]: BIOMES.forest.name,
+        [HUMIDITY_LEVELS.moderate]: BIOMES.forest.name,
         [HUMIDITY_LEVELS.moist]: BIOMES.forest.name,
         [HUMIDITY_LEVELS.wet]: BIOMES.swamp.name,
     },
     [TEMPERATURES.warm]: {
-        [HUMIDITY_LEVELS.arid]: BIOMES.extreme_desert.name,
-        [HUMIDITY_LEVELS.dry]: BIOMES.desert.name,
+        [HUMIDITY_LEVELS.arid]: BIOMES.desert.name,
+        [HUMIDITY_LEVELS.dry]: BIOMES.grassland.name,
         [HUMIDITY_LEVELS.moderate]: BIOMES.savanna.name,
         [HUMIDITY_LEVELS.moist]: BIOMES.forest.name,
         [HUMIDITY_LEVELS.wet]: BIOMES.tropical_swamp.name,
@@ -52,13 +52,14 @@ const biome_matrix = {
     [TEMPERATURES.hot]: {
         [HUMIDITY_LEVELS.arid]: BIOMES.extreme_desert.name,
         [HUMIDITY_LEVELS.dry]: BIOMES.desert.name,
-        [HUMIDITY_LEVELS.moderate]: BIOMES.savanna.name,
+        [HUMIDITY_LEVELS.moderate]: BIOMES.grassland.name,
         [HUMIDITY_LEVELS.moist]: BIOMES.savanna.name,
         [HUMIDITY_LEVELS.wet]: BIOMES.tropical_rainforest.name,
     },
 };
 
 function Biome(name) {
+    // TODO other properties, such as movement speed, ressource production...
     return { name };
 }
 
@@ -113,7 +114,6 @@ function pick_biome(hex) {
 
     if (hex.elevation > 1) {
         if (hex.elevation > 2) return BIOMES.high_mountain.name;
-        // TODO turn cells adjacent to high mountains into mountains?
         // TODO give mountains small chance to be volcano?
         return BIOMES.mountain.name;
     }

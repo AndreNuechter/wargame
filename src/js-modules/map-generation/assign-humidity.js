@@ -1,4 +1,4 @@
-import { BIOMES } from '../biomes';
+import { BIOMES } from './biomes';
 
 export const HUMIDITY_LEVELS = {
     arid: 'arid',

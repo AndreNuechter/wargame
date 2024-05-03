@@ -3,7 +3,7 @@ import { cellGroupTmpl } from './dom-creations.js';
 import { TEMPERATURES } from './map-generation/get-temperature.js';
 import { HUMIDITY_LEVELS } from './map-generation/assign-humidity.js';
 
-export function Hex_cell(cx, cy, x, y, q, r, s) {
+export function create_hex_cell(cx, cy, x, y, q, r, s) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);
     let biome_name = '';
 
@@ -33,7 +33,7 @@ export function Hex_cell(cx, cy, x, y, q, r, s) {
     };
 }
 
-export function render_hex_cell(
+function render_hex_cell(
     cx, cy, x, y, q, r, s
 ) {
     const cellWrapper = cellGroupTmpl.cloneNode(true);

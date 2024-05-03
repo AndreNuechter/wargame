@@ -15,7 +15,7 @@
 
 <body>
     <button id="toogle-coord-system-btn">Switch coord system</button>
-    <svg viewBox="0 0 200 200">
+    <svg viewBox="0 0 200 200" preserveAspectRatio="xMinYMin slice">
         <defs>
             <polygon id="inner-hex" points="0.25,1.65 3,0.3 5.75,1.65 5.75,4.35 3,5.75 0.25,4.35" />
             <polygon id="outer-hex" points="0,1.5 3,0 6,1.5 6,4.5 3,6 0,4.5" />
@@ -24,6 +24,12 @@
         <g id="board"></g>
     </svg>
     <div id="info-popover"></div>
+    <dialog id="start-game-overlay">
+        <form id="start-game-form">
+            <button id="continue-btn">Continue</button>
+            <button id="new-game-btn">New Game</button>
+        </form>
+    </dialog>
 </body>
 
 </html>

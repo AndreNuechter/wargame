@@ -1,11 +1,18 @@
 @import url("styles/base.css");
 @import url("styles/cell-coordinates.css");
+@import url("styles/start-game-popover.css");
 @import url("styles/biome-colors.css");
 
+body {
+    overflow: hidden;
+}
+
 svg {
-    aspect-ratio: 4 / 3;
-    width: 100%;
-    height: 100%;
+    /* make space for bar above map */
+    max-height: calc(100vh - 80px);
+    transform: translateY(40px);
+    /* leave space for panel on the right side of the map */
+    width: 80%;
 }
 
 .cell {

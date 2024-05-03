@@ -1,0 +1,27 @@
+dialog#start-game-overlay {
+    top: 50%;
+    left: 50%;
+
+    &:focus-visible {
+        outline: none;
+    }
+
+    &::backdrop {
+        background-image: linear-gradient(
+            45deg,
+            var(--sea),
+            var(--tundra),
+            var(--tropical_rainforest),
+            var(--desert)
+        );
+        opacity: 0.75;
+        pointer-events: none;
+    }
+}
+
+[data-prior-save="false"] {
+    #continue-btn {
+        pointer-events: none;
+        /* TODO visually disable btn as well */
+    }
+}
