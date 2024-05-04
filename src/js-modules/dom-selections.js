@@ -3,3 +3,7 @@ export const info_popover = document.getElementById('info-popover');
 export const coord_system_toggle_btn = document.getElementById('toogle-coord-system-btn');
 export const start_game_overlay = document.getElementById('start-game-overlay');
 export const start_game_form = document.getElementById('start-game-form');
+export const config_game_form = document.getElementById('config-game-form');
+export const reroll_map_btn = document.getElementById('reroll-map-btn');
+export const player_setup = document.getElementById('player-setup');
+export const add_player_btn = document.getElementById('add-player-btn');

@@ -13,3 +13,5 @@ export const cellGroupTmpl = (() => {
 
     return cellWrapper;
 })();
+
+export const player_config_tmpl = document.getElementById('player-config-tmpl').content;

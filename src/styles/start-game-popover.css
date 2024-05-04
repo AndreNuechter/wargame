@@ -1,6 +1,7 @@
 dialog#start-game-overlay {
     top: 50%;
     left: 50%;
+    transform: translate(-50%, -50%);
 
     &:focus-visible {
         outline: none;
@@ -17,6 +18,16 @@ dialog#start-game-overlay {
         opacity: 0.75;
         pointer-events: none;
     }
+
+    &.game-config {
+        #config-game-form {
+            display: block;
+        }
+
+        #start-game-form {
+            display: none;
+        }
+    }
 }
 
 [data-prior-save="false"] {
@@ -24,4 +35,8 @@ dialog#start-game-overlay {
         pointer-events: none;
         /* TODO visually disable btn as well */
     }
+}
+
+#config-game-form {
+    display: none;
 }

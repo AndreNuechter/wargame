@@ -2,8 +2,17 @@ import './js-modules/service-worker-init.js';
 import { create_hex_map, reinstate_hex_map, reroll_map } from './js-modules/hex-grid.js';
 import board_dimensions from './js-modules/board-dimensions.js';
 import {
-    board, info_popover, coord_system_toggle_btn, start_game_overlay, start_game_form
+    add_player_btn,
+    board,
+    config_game_form,
+    coord_system_toggle_btn,
+    info_popover,
+    player_setup,
+    reroll_map_btn,
+    start_game_form,
+    start_game_overlay,
 } from './js-modules/dom-selections.js';
+import create_player from './js-modules/player.js';
 
 // credits to https://www.redblobgames.com/grids/hexagons/
 
@@ -16,7 +25,16 @@ import {
 // movement execution phase enacts plans made in the phase before. conflicts between players may happen in this phase
 // TODO add way to config map gen
 
-let hex_map;
+const ROUND_PHASES = {
+    land_grab: 'land_grab',
+    development: 'development',
+    movement_planning: 'movement_planning',
+};
+const game = {
+    players: [],
+    round: 0,
+    phase: ROUND_PHASES.landgrab
+};
 
 // set up board
 window.addEventListener('DOMContentLoaded', () => {
@@ -27,7 +45,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     start_game_overlay.showModal();
 
-    hex_map = previously_saved_game
+    game.board = previously_saved_game
         ? reinstate_hex_map(game_data)
         : create_hex_map(board_dimensions);
 }, { once: true });
@@ -36,8 +54,7 @@ window.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('beforeunload', () => {
     localStorage.setItem(
         'wargame-board-state',
-        JSON.stringify([...hex_map
-            .values()]
+        JSON.stringify([...game.board.values()]
             .map(({
                 cx, cy, x, y, q, r, s,
                 biome,
@@ -55,7 +72,8 @@ window.addEventListener('beforeunload', () => {
                 biome,
                 elevation,
                 humidity,
-                temperature
+                temperature,
+                // TODO game and player data
             }))
         )
     );
@@ -65,12 +83,68 @@ window.addEventListener('beforeunload', () => {
 start_game_form.addEventListener('submit', (event) => {
     event.preventDefault();
 
-    // pressing new-game-btn, when there's a prior save, rerolls the map
-    if (event.submitter.id === 'new-game-btn' && start_game_overlay.dataset.priorSave === 'true') {
-        hex_map = reroll_map(hex_map);
-    }
+    if (event.submitter.id === 'new-game-btn') {
+        // if there's a prior save, reroll the map
+        if (start_game_overlay.dataset.priorSave === 'true') {
+            game.board = reroll_map(game.board);
+        }
 
+        // switch to game-config
+        start_game_overlay.classList.add('game-config');
+
+        game.players = Array.from({ length: 2 }, (_, id) => {
+            create_player(id + 1);
+        });
+    } else {
+        start_game_overlay.close();
+    }
+});
+
+reroll_map_btn.addEventListener('click', () => {
+    game.board = reroll_map(game.board);
+});
+
+config_game_form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    // TODO check for valid config
     start_game_overlay.close();
+});
+
+add_player_btn.addEventListener('click', () => {
+    if (game.players.length === 5) return;
+
+    game.players.push(create_player(game.players.length + 1));
+});
+
+// delete player
+player_setup.addEventListener('click', ({ target }) => {
+    if (!target.closest('.delete-player-btn')) return;
+    if (game.players.length === 2) return;
+
+    const player_config = target.closest('.player-config');
+    const player_id = Number(player_config.dataset.playerId) - 1;
+
+    // rm player-obj
+    game.players.splice(player_id, 1);
+    // rm config
+    player_config.remove();
+    // rewrite names etc on other player-configs
+    player_setup
+        .querySelectorAll('.player-config')
+        .forEach((config, id) => {
+            id = id + 1;
+            config.dataset.playerId = id;
+            Object.assign(
+                config.querySelector('.player-name-input'),
+                {
+                    name: `player-${id}-name`,
+                    value: `Player ${id}`
+                }
+            );
+            config.querySelectorAll('.player-type-select').forEach((radio) => {
+                radio.name = `player-${id}-type`;
+            });
+        });
 });
 
 // prevent closing dialog wo making a choice (ie pressing esc)
@@ -87,7 +161,7 @@ board.addEventListener('click', ({ target }) => {
     if (!cell_element) return;
 
     const previously_selected_cell = board.querySelector('.clicked');
-    const hex_obj = hex_map.get(cell_element);
+    const hex_obj = game.board.get(cell_element);
 
     if (previously_selected_cell) {
         previously_selected_cell.classList.remove('clicked');
@@ -110,7 +184,7 @@ board.addEventListener('pointerover', ({ target, x, y }) => {
 
     if (!cell_element) return;
 
-    const hex_obj = hex_map.get(cell_element);
+    const hex_obj = game.board.get(cell_element);
 
     info_popover.textContent = `
         biome: ${hex_obj.biome},

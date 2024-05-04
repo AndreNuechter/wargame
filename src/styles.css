@@ -7,12 +7,31 @@ body {
     overflow: hidden;
 }
 
-svg {
+svg#defs {
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+svg#board {
     /* make space for bar above map */
     max-height: calc(100vh - 80px);
     transform: translateY(40px);
     /* leave space for panel on the right side of the map */
     width: 80%;
+}
+
+.icon {
+    fill: black;
+    stroke: black;
+    width: 16px;
+    height: 16px;
+}
+
+.icon-btn {
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
 }
 
 .cell {
