@@ -30,6 +30,21 @@ dialog#start-game-overlay {
     }
 }
 
+#config-game-form > * {
+    margin-bottom: 16px;
+}
+
+.player-config {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#landgrab-type label {
+    display: block;
+}
+
 [data-prior-save="false"] {
     #continue-btn {
         /* TODO visually disable btn as well */
@@ -42,6 +57,6 @@ dialog#start-game-overlay {
 
     input[placeholder] {
         width: 124px;
-        height: 40px;
+        height: 32px;
     }
 }
