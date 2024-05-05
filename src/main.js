@@ -14,10 +14,6 @@ import {
 } from './js-modules/dom-selections.js';
 import create_player from './js-modules/player.js';
 
-// credits to https://www.redblobgames.com/grids/hexagons/
-
-// TODO add way to config new game (player count [min 2], define player as human or ai, type of game start [see below], reroll map) and start game
-// TODO on game start, let players choose starting point or assign randomnly
 // TODO impl game loop:
 // ea round consists of 3 phases: development, movement planning and movement execution phase
 // development phase is used to develop owned cells/settlements and population thereof (see "age of exploration" android game)
@@ -106,7 +102,7 @@ reroll_map_btn.addEventListener('click', () => {
 
 config_game_form.addEventListener('submit', (event) => {
     event.preventDefault();
-    // TODO check for valid config
+    // TODO let players choose starting point or assign randomnly, according to event.target.landgrab-type
     start_game_overlay.close();
 });
 

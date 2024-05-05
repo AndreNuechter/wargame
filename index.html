@@ -40,6 +40,7 @@
 
     <svg id="board" viewBox="0 0 200 200" preserveAspectRatio="xMinYMin slice"></svg>
 
+    <!-- TODO mv this next to the board -->
     <div id="info-popover"></div>
 
     <dialog id="start-game-overlay">
@@ -82,13 +83,13 @@
                 <input class="player-name-input" placeholder="Enter a Name">
             </label>
             <!-- TODO color selection -->
-            <!-- TODO hide radio -->
+            <!-- TODO hide radios and underline selected type -->
             <input class="player-type-select" type="radio" value="human">
-            <svg class="icon">
+            <svg class="icon" title="Human Player">
                 <use href="#human-player"></use>
             </svg>
             <input class="player-type-select" type="radio" value="ai">
-            <svg class="icon">
+            <svg class="icon" title="AI Player">
                 <use href="#ai-player"></use>
             </svg>
             <button type="button" class="icon-btn delete-player-btn" title="Delete Player">

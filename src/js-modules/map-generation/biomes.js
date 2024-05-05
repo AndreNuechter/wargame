@@ -122,14 +122,13 @@ function pick_biome(hex) {
 }
 
 // TODO find a better way to do this
-const styleSheet = window.document.styleSheets[0];
-Object.values(BIOMES).forEach((biome) => {
-    styleSheet.insertRule(
-        `[data-biome="${biome.name}"] {
-            .outer-cell:not(.owned),
-            .inner-cell {
-                fill: var(--${biome.name});
-            }
-        }`
-    );
-});
+const style_sheet = document.createElement('style');
+style_sheet.textContent = Object.values(BIOMES).map((biome) =>
+    `[data-biome="${biome.name}"] {
+        .outer-cell:not(.owned),
+        .inner-cell {
+            fill: var(--${biome.name});
+        }
+    }`
+).join('\n');
+document.body.append(style_sheet);

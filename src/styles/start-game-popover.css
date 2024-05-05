@@ -32,11 +32,16 @@ dialog#start-game-overlay {
 
 [data-prior-save="false"] {
     #continue-btn {
-        pointer-events: none;
         /* TODO visually disable btn as well */
+        pointer-events: none;
     }
 }
 
 #config-game-form {
     display: none;
+
+    input[placeholder] {
+        width: 124px;
+        height: 40px;
+    }
 }

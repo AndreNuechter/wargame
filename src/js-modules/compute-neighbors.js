@@ -7,6 +7,7 @@ export default function compute_neighbors(hex_arr) {
     });
 }
 
+// credits to https://www.redblobgames.com/grids/hexagons/
 function get_neighboring_cells({
     q, r, s, x, y
 }, cells, board_dimensions) {
