@@ -13,24 +13,9 @@ import {
     start_game_overlay,
 } from './js-modules/dom-selections.js';
 import create_player from './js-modules/player.js';
+import game from './js-modules/game.js';
 
-// TODO impl game loop:
-// ea round consists of 3 phases: development, movement planning and movement execution phase
-// development phase is used to develop owned cells/settlements and population thereof (see "age of exploration" android game)
-// movement planning phase can be used to move population to adjacent cells
-// movement execution phase enacts plans made in the phase before. conflicts between players may happen in this phase
 // TODO add way to config map gen
-
-const ROUND_PHASES = {
-    land_grab: 'land_grab',
-    development: 'development',
-    movement_planning: 'movement_planning',
-};
-const game = {
-    players: [],
-    round: 0,
-    phase: ROUND_PHASES.landgrab
-};
 
 // set up board
 window.addEventListener('DOMContentLoaded', () => {
@@ -41,6 +26,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     start_game_overlay.showModal();
 
+    // TODO use the map already inside game.board
     game.board = previously_saved_game
         ? reinstate_hex_map(game_data)
         : create_hex_map(board_dimensions);
@@ -91,6 +77,7 @@ start_game_form.addEventListener('submit', (event) => {
         // create player incl. ui elements
         game.players = Array.from({ length: 2 }, (_, id) => create_player(id + 1));
     } else {
+        // TODO continue game
         start_game_overlay.close();
     }
 });
@@ -101,6 +88,8 @@ reroll_map_btn.addEventListener('click', () => {
 
 config_game_form.addEventListener('submit', (event) => {
     event.preventDefault();
+    // TODO create player objects only now?
+    // TODO start game
     // TODO let players choose starting point or assign randomnly, according to event.target.landgrab-type... just assign randomly for now?
     start_game_overlay.close();
 });
@@ -149,7 +138,7 @@ coord_system_toggle_btn.addEventListener('click', () => {
     document.body.classList.toggle('use-offset-coords');
 });
 
-// highlight neighbors on click on cell
+// highlight neighboring cells on click
 board.addEventListener('click', ({ target }) => {
     const cell_element = target.closest('.cell');
 
@@ -173,7 +162,7 @@ board.addEventListener('click', ({ target }) => {
     );
 });
 
-// show info popover on hover
+// show cell info on hover
 board.addEventListener('pointerover', ({ target }) => {
     const cell_element = target.closest('.cell');
 

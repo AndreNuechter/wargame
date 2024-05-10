@@ -1,4 +1,4 @@
-dialog#start-game-overlay {
+#start-game-overlay {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -28,10 +28,10 @@ dialog#start-game-overlay {
             display: none;
         }
     }
-}
 
-#config-game-form > * {
+    form > * {
     margin-bottom: 16px;
+}
 }
 
 .player-config {

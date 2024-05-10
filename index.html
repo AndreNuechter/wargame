@@ -14,12 +14,15 @@
 </head>
 
 <body>
-    <button id="toogle-coord-system-btn">Switch coord system</button>
-    {{> defs }}
+    <div id="top-bar" class="info-bar">
+        <button id="toogle-coord-system-btn">Switch coord system</button>
+    </div>
     <svg id="board" preserveAspectRatio="xMinYMin meet" viewBox="0 0 185 110"></svg>
     <div id="cell-info"></div>
+    <div id="bottom-bar" class="info-bar"></div>
     {{> start-game-overlay }}
-    {{> player-config }}
+    {{> player-config-tmpl }}
+    {{> defs }}
 </body>
 
 </html>

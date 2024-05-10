@@ -1,12 +1,13 @@
 @import url("styles/base.css");
 @import url("styles/cell-coordinates.css");
-@import url("styles/start-game-popover.css");
+@import url("styles/start-game-overlay.css");
 @import url("styles/biome-colors.css");
 
 body {
     overflow: hidden;
     display: grid;
     grid-template-columns: 1fr 240px;
+    grid-template-rows: 40px 1fr 40px;
     grid-template-areas:
         "header header"
         "board cellInfo"
@@ -16,17 +17,35 @@ body {
     #board {
         grid-area: board;
         align-self: center;
+        justify-self: center;
     }
 
     #cell-info {
         grid-area: cellInfo;
     }
+
+    #top-bar {
+        grid-area: header;
+    }
+
+    #bottom-bar {
+        grid-area: footer;
+    }
 }
 
-svg#defs {
+.info-bar {
+    height: 40px;
+    border: 1px solid black;
+}
+
+#defs {
     width: 0;
     height: 0;
     position: absolute;
+}
+
+#board {
+    height: 100%;
 }
 
 .icon {
@@ -68,7 +87,7 @@ svg#defs {
 
 #cell-info {
     pointer-events: none;
-    border: 1px solid black;
+    border-left: 1px solid black;
     padding: 4px 8px;
 }
 
