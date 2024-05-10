@@ -15,90 +15,12 @@
 
 <body>
     <button id="toogle-coord-system-btn">Switch coord system</button>
-    <svg id="defs">
-        <defs>
-            <polygon id="inner-hex" points="0.25,1.65 3,0.3 5.75,1.65 5.75,4.35 3,5.75 0.25,4.35" />
-            <polygon id="outer-hex" points="0,1.5 3,0 6,1.5 6,4.5 3,6 0,4.5" />
-            <symbol id="human-player" viewBox="0 2 12 12" stroke-width="0">
-                <circle cx="6" cy="6" r="2"></circle>
-                <rect x="2" y="8.5" width="8" height="15" rx="2"></rect>
-            </symbol>
-            <symbol id="ai-player" viewBox="0 0 12 12" stroke-width="0">
-                <rect x="1" y="3" width="9" height="7" stroke-width="1" fill="none"></rect>
-                <rect x="2" y="4" width="7" height="4"></rect>
-                <circle cx="8" cy="8.75" r="0.5" fill="red"></circle>
-                <rect x="4" y="11" width="3" height="1"></rect>
-            </symbol>
-            <symbol id="plus" viewBox="1 -1 10 11">
-                <path d="M2 6 h8 M6 2 v8"></path>
-            </symbol>
-            <symbol id="x" viewBox="0 -1 10 10">
-                <path d="M2 2 L8 8 M8 2 L 2 8"></path>
-            </symbol>
-        </defs>
-    </svg>
-
-    <svg id="board" preserveAspectRatio="xMidYMid meet" viewBox="60 0 100 110"></svg>
-
+    {{> defs }}
+    <svg id="board" preserveAspectRatio="xMinYMin meet" viewBox="0 0 185 110"></svg>
     <!-- TODO mv this next to the board -->
     <div id="info-popover"></div>
-
-    <dialog id="start-game-overlay">
-        <form id="start-game-form">
-            <button id="continue-btn">Continue</button>
-            <button id="new-game-btn">New Game</button>
-        </form>
-
-        <form id="config-game-form">
-            <h2>Game setup</h2>
-            <button id="reroll-map-btn" type="button">Generate new Map</button>
-            <fieldset id="landgrab-type">
-                <legend>How are starting positions determined?</legend>
-                <label>
-                    <span class="label-text">By random Assignment</span>
-                    <input type="radio" name="landgrab-type" value="random" checked>
-                </label>
-                <label>
-                    <span class="label-text">By Player Choice</span>
-                    <input type="radio" name="landgrab-type" value="pick">
-                </label>
-            </fieldset>
-            <fieldset id="player-setup">
-                <legend>Player setup</legend>
-
-                <button id="add-player-btn" class="icon-btn" type="button" title="Add player">
-                    <svg class="icon">
-                        <use href="#plus"></use>
-                    </svg>
-                </button>
-            </fieldset>
-            <button>Start Game</button>
-        </form>
-    </dialog>
-
-    <template id="player-config-tmpl">
-        <div class="player-config">
-            <label>
-                <span class="label-text">Name:</span>
-                <input class="player-name-input" placeholder="Enter a Name">
-            </label>
-            <!-- TODO color selection -->
-            <!-- TODO hide radios and underline selected type -->
-            <input class="player-type-select" type="radio" value="human">
-            <svg class="icon" title="Human Player">
-                <use href="#human-player"></use>
-            </svg>
-            <input class="player-type-select" type="radio" value="ai">
-            <svg class="icon" title="AI Player">
-                <use href="#ai-player"></use>
-            </svg>
-            <button type="button" class="icon-btn delete-player-btn" title="Delete Player">
-                <svg class="icon">
-                    <use href="#x"></use>
-                </svg>
-            </button>
-        </div>
-    </template>
+    {{> start-game-overlay }}
+    {{> player-config }}
 </body>
 
 </html>

@@ -1,0 +1,32 @@
+<dialog id="start-game-overlay">
+    <form id="start-game-form">
+        <button id="continue-btn">Continue</button>
+        <button id="new-game-btn">New Game</button>
+    </form>
+
+    <form id="config-game-form">
+        <h2>Game setup</h2>
+        <button id="reroll-map-btn" type="button">Generate new Map</button>
+        <fieldset id="landgrab-type">
+            <legend>How are starting positions determined?</legend>
+            <label>
+                <span class="label-text">By random Assignment</span>
+                <input type="radio" name="landgrab-type" value="random" checked>
+            </label>
+            <label>
+                <span class="label-text">By Player Choice</span>
+                <input type="radio" name="landgrab-type" value="pick">
+            </label>
+        </fieldset>
+        <fieldset id="player-setup">
+            <legend>Player setup</legend>
+
+            <button id="add-player-btn" class="icon-btn" type="button" title="Add player">
+                <svg class="icon">
+                    <use href="#plus"></use>
+                </svg>
+            </button>
+        </fieldset>
+        <button>Start Game</button>
+    </form>
+</dialog>

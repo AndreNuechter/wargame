@@ -1,8 +1,14 @@
 import { defineConfig } from 'vite';
-import { ViteMinifyPlugin } from 'vite-plugin-minify';
+import { ViteMinifyPlugin as minifyHTML } from 'vite-plugin-minify';
+import handlebars from 'vite-plugin-handlebars';
 
 export default defineConfig({
-    plugins: [ViteMinifyPlugin({})],
+    plugins: [
+        minifyHTML({}),
+        handlebars({
+            partialDirectory: 'src/partials',
+        })
+    ],
     build: {
         emptyOutDir: true,
         outDir: './docs',
