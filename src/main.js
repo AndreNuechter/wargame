@@ -4,9 +4,9 @@ import board_dimensions from './js-modules/board-dimensions.js';
 import {
     add_player_btn,
     board,
+    cell_info,
     config_game_form,
     coord_system_toggle_btn,
-    info_popover,
     player_setup,
     reroll_map_btn,
     start_game_form,
@@ -88,9 +88,8 @@ start_game_form.addEventListener('submit', (event) => {
         // switch to game-config
         start_game_overlay.classList.add('game-config');
 
-        game.players = Array.from({ length: 2 }, (_, id) => {
-            create_player(id + 1);
-        });
+        // create player incl. ui elements
+        game.players = Array.from({ length: 2 }, (_, id) => create_player(id + 1));
     } else {
         start_game_overlay.close();
     }
@@ -102,7 +101,7 @@ reroll_map_btn.addEventListener('click', () => {
 
 config_game_form.addEventListener('submit', (event) => {
     event.preventDefault();
-    // TODO let players choose starting point or assign randomnly, according to event.target.landgrab-type
+    // TODO let players choose starting point or assign randomnly, according to event.target.landgrab-type... just assign randomly for now?
     start_game_overlay.close();
 });
 
@@ -143,7 +142,7 @@ player_setup.addEventListener('click', ({ target }) => {
         });
 });
 
-// prevent closing dialog wo making a choice (ie pressing esc)
+// prevent closing dialog wo making a choice (ie by pressing esc)
 start_game_overlay.addEventListener('cancel', (event) => event.preventDefault());
 
 coord_system_toggle_btn.addEventListener('click', () => {
@@ -175,20 +174,17 @@ board.addEventListener('click', ({ target }) => {
 });
 
 // show info popover on hover
-board.addEventListener('pointerover', ({ target, x, y }) => {
+board.addEventListener('pointerover', ({ target }) => {
     const cell_element = target.closest('.cell');
 
     if (!cell_element) return;
 
     const hex_obj = game.board.get(cell_element);
 
-    info_popover.textContent = `
+    cell_info.textContent = `
         biome: ${hex_obj.biome},
         temperature: ${hex_obj.temperature},
         humidity: ${hex_obj.humidity},
         elevation: ${hex_obj.elevation}
     `;
-    info_popover.classList.add('visible');
-    info_popover.style.top = `${y}px`;
-    info_popover.style.left = `${x}px`;
 });

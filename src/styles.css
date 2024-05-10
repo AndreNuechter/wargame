@@ -5,21 +5,28 @@
 
 body {
     overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    grid-template-areas:
+        "header header"
+        "board cellInfo"
+        "footer footer"
+    ;
+
+    #board {
+        grid-area: board;
+        align-self: center;
+    }
+
+    #cell-info {
+        grid-area: cellInfo;
+    }
 }
 
 svg#defs {
     width: 0;
     height: 0;
     position: absolute;
-}
-
-svg#board {
-    /* FIXME bottom is cutoff on mobile */
-    /* make space for bar above map */
-    max-height: calc(100dvh - 80px);
-    transform: translateY(40px);
-    /* leave space for panel on the right side of the map */
-    width: 80%;
 }
 
 .icon {
@@ -59,16 +66,9 @@ svg#board {
     stroke: none;
 }
 
-#info-popover {
-    position: absolute;
+#cell-info {
     pointer-events: none;
-    background-color: white;
     border: 1px solid black;
     padding: 4px 8px;
-    display: none;
-
-    &.visible {
-        display: block;
-    }
 }
 
