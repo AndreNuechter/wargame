@@ -30,8 +30,8 @@
     }
 
     form > * {
-    margin-bottom: 16px;
-}
+        margin-bottom: 16px;
+    }
 }
 
 .player-config {
@@ -39,6 +39,23 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.player-name-input {
+    padding: 16px;
+}
+
+.player-type-select {
+    cursor: pointer;
+
+    input {
+        display: none;
+    }
+
+    :checked + .icon {
+        fill: var(--tundra);
+        stroke: var(--tundra);
+    }
 }
 
 #landgrab-type label {

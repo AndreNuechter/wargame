@@ -2,6 +2,8 @@
 @import url("styles/cell-coordinates.css");
 @import url("styles/start-game-overlay.css");
 @import url("styles/biome-colors.css");
+@import url("styles/buttons.css");
+@import url("styles/top-bar.css");
 
 body {
     overflow: hidden;

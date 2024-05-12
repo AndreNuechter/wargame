@@ -5,15 +5,18 @@
             <input class="player-name-input" placeholder="Enter a Name">
         </label>
         <!-- TODO color selection -->
-        <!-- TODO hide radios and underline selected type -->
-        <input class="player-type-select" type="radio" value="human">
-        <svg class="icon" title="Human Player">
-            <use href="#human-player"></use>
-        </svg>
-        <input class="player-type-select" type="radio" value="ai">
-        <svg class="icon" title="AI Player">
-            <use href="#ai-player"></use>
-        </svg>
+        <label class="player-type-select">
+            <input class="player-type-select-radio" type="radio" value="human">
+            <svg class="icon" title="Human Player">
+                <use href="#human-player"></use>
+            </svg>
+        </label>
+        <label class="player-type-select">
+            <input class="player-type-select-radio" type="radio" value="ai" checked>
+            <svg class="icon" title="AI Player">
+                <use href="#ai-player"></use>
+            </svg>
+        </label>
         <button type="button" class="icon-btn delete-player-btn" title="Delete Player">
             <svg class="icon">
                 <use href="#x"></use>

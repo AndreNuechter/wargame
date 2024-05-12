@@ -7,12 +7,13 @@ import {
     cell_info,
     config_game_form,
     coord_system_toggle_btn,
+    player_configs,
     player_setup,
     reroll_map_btn,
     start_game_form,
     start_game_overlay,
 } from './js-modules/dom-selections.js';
-import create_player from './js-modules/player.js';
+import create_player, { make_player_config } from './js-modules/player.js';
 import game from './js-modules/game.js';
 
 // TODO add way to config map gen
@@ -55,7 +56,7 @@ window.addEventListener('beforeunload', () => {
                 elevation,
                 humidity,
                 temperature,
-                // TODO game and player data
+                // TODO store game and player data as well
             }))
         )
     );
@@ -71,13 +72,14 @@ start_game_form.addEventListener('submit', (event) => {
             game.board = reroll_map(game.board);
         }
 
+        // create player creation ui elements
+        Array.from({ length: 2 }, (_, id) => make_player_config(id + 1));
+
         // switch to game-config
         start_game_overlay.classList.add('game-config');
-
-        // create player incl. ui elements
-        game.players = Array.from({ length: 2 }, (_, id) => create_player(id + 1));
     } else {
         // TODO continue game
+        // game.run();
         start_game_overlay.close();
     }
 });
@@ -88,36 +90,41 @@ reroll_map_btn.addEventListener('click', () => {
 
 config_game_form.addEventListener('submit', (event) => {
     event.preventDefault();
-    // TODO create player objects only now?
-    // TODO start game
-    // TODO let players choose starting point or assign randomnly, according to event.target.landgrab-type... just assign randomly for now?
+    // create player objects
+    game.players.push(
+        ...Array.from(
+            player_configs,
+            (config, id) => {
+                const name = config.querySelector('.player-name-input').value;
+                const type = config.querySelector('.player-type-select-radio:checked').value;
+                return create_player(id + 1, name, type);
+            }
+        )
+    );
+    // start game
+    game.run();
     start_game_overlay.close();
 });
 
 add_player_btn.addEventListener('click', () => {
-    if (game.players.length === 5) return;
+    // allow at max 5 players
+    if (player_configs.length === 5) return;
 
-    game.players.push(create_player(game.players.length + 1));
+    make_player_config(player_configs.length + 1);
 });
 
 // delete player
 player_setup.addEventListener('click', ({ target }) => {
     if (!target.closest('.delete-player-btn')) return;
-    if (game.players.length === 2) return;
+    // enforce a minimum of at least 2 players
+    if (player_configs.length === 2) return;
 
-    const player_config = target.closest('.player-config');
-    const player_id = Number(player_config.dataset.playerId) - 1;
-
-    // rm player-obj
-    game.players.splice(player_id, 1);
     // rm config
-    player_config.remove();
+    target.closest('.player-config').remove();
     // rewrite names etc on other player-configs
-    player_setup
-        .querySelectorAll('.player-config')
+    [...player_configs]
         .forEach((config, id) => {
             id = id + 1;
-            config.dataset.playerId = id;
             Object.assign(
                 config.querySelector('.player-name-input'),
                 {
@@ -125,9 +132,10 @@ player_setup.addEventListener('click', ({ target }) => {
                     value: `Player ${id}`
                 }
             );
-            config.querySelectorAll('.player-type-select').forEach((radio) => {
-                radio.name = `player-${id}-type`;
-            });
+            config.querySelectorAll('.player-type-select-radio')
+                .forEach((radio) => {
+                    radio.name = `player-${id}-type`;
+                });
         });
 });
 

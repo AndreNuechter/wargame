@@ -7,3 +7,5 @@ export const config_game_form = document.getElementById('config-game-form');
 export const reroll_map_btn = document.getElementById('reroll-map-btn');
 export const player_setup = document.getElementById('player-setup');
 export const add_player_btn = document.getElementById('add-player-btn');
+export const round_info = document.getElementById('round-info');
+export const player_configs = document.getElementsByClassName('player-config');
