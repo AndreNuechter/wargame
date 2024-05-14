@@ -65,10 +65,17 @@ export default (() => {
             }
         },
         run() {
-            // TODO iterate thru phases and players
             // TODO for starters...let players choose starting point or assign randomnly, according to event.target.landgrab-type... just assign randomly for now?
-            console.log(13, current_phase, players);
-            round_info.textContent = `${players[current_player_id].name} ${current_phase}`;
+            // TODO iterate thru phases and players, for exmpl...
+            // for (const phase of ROUND_PHASES) {
+            //     for (const player of players) {
+            //         yield ROUND_ACTIONS[phase](player);
+            //         if (game.is_over) return;
+            //     }
+            // }
+
+            document.getElementById('round-label').textContent = current_phase;
+            document.getElementById('player-name').textContent = players[current_player_id].name;
         }
     };
 })();
