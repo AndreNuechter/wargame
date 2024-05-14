@@ -1,4 +1,5 @@
 import './js-modules/service-worker-init.js';
+import wakeLock from './js-modules/wakelock.js';
 import { create_hex_map, reroll_map } from './js-modules/hex-grid.js';
 import board_dimensions from './js-modules/board-dimensions.js';
 import {
@@ -24,8 +25,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const previously_saved_game = game_data !== null;
 
     start_game_overlay.dataset.priorSave = previously_saved_game;
-
     start_game_overlay.showModal();
+
+    wakeLock.request();
 
     if (previously_saved_game) {
         apply_savegame(game, game_data);
@@ -36,6 +38,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // save game before closing page
 window.addEventListener('beforeunload', () => {
+    wakeLock.release();
+
     // dont save incomplete state (ie when closing page while still in the game_config_form)
     if (game.players.length === 0) {
         localStorage.removeItem('wargame-savegame');
