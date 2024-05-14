@@ -1,5 +1,5 @@
 import './js-modules/service-worker-init.js';
-import { create_hex_map, reinstate_hex_map, reroll_map } from './js-modules/hex-grid.js';
+import { create_hex_map, reroll_map } from './js-modules/hex-grid.js';
 import board_dimensions from './js-modules/board-dimensions.js';
 import {
     add_player_btn,
@@ -14,51 +14,63 @@ import {
     start_game_overlay,
 } from './js-modules/dom-selections.js';
 import create_player, { make_player_config } from './js-modules/player.js';
-import game from './js-modules/game.js';
+import game, { apply_savegame } from './js-modules/game.js';
 
 // TODO add way to config map gen
 
 // set up board
 window.addEventListener('DOMContentLoaded', () => {
-    const game_data = localStorage.getItem('wargame-board-state');
+    const game_data = localStorage.getItem('wargame-savegame');
     const previously_saved_game = game_data !== null;
 
     start_game_overlay.dataset.priorSave = previously_saved_game;
 
     start_game_overlay.showModal();
 
-    // TODO use the map already inside game.board
-    game.board = previously_saved_game
-        ? reinstate_hex_map(game_data)
-        : create_hex_map(board_dimensions);
+    if (previously_saved_game) {
+        apply_savegame(game, game_data);
+    } else {
+        game.board = create_hex_map(board_dimensions, game.board);
+    }
 }, { once: true });
 
 // save game before closing page
 window.addEventListener('beforeunload', () => {
+    // dont save incomplete state (ie when closing page while still in the game_config_form)
+    if (game.players.length === 0) {
+        localStorage.removeItem('wargame-savegame');
+        return;
+    }
+
     localStorage.setItem(
-        'wargame-board-state',
-        JSON.stringify([...game.board.values()]
-            .map(({
-                cx, cy, x, y, q, r, s,
-                biome,
-                elevation,
-                humidity,
-                temperature
-            }) => ({
-                cx,
-                cy,
-                x,
-                y,
-                q,
-                r,
-                s,
-                biome,
-                elevation,
-                humidity,
-                temperature,
-                // TODO store game and player data as well
-            }))
-        )
+        'wargame-savegame',
+        JSON.stringify({
+            round: game.round,
+            current_phase: game.current_phase,
+            current_player_id: game.current_player_id,
+            players: game.players.map(({ name, type, color }) => ({ name, type, color })),
+            board: [...game.board.values()]
+                .map(({
+                    cx, cy, x, y, q, r, s,
+                    biome,
+                    elevation,
+                    humidity,
+                    temperature
+                }) => ({
+                    cx,
+                    cy,
+                    x,
+                    y,
+                    q,
+                    r,
+                    s,
+                    biome,
+                    elevation,
+                    humidity,
+                    temperature,
+                    owner: -1
+                }))
+        })
     );
 });
 
@@ -67,9 +79,10 @@ start_game_form.addEventListener('submit', (event) => {
     event.preventDefault();
 
     if (event.submitter.id === 'new-game-btn') {
-        // if there's a prior save, reroll the map
+        // if there's a prior save, reroll the map and delete players
         if (start_game_overlay.dataset.priorSave === 'true') {
             game.board = reroll_map(game.board);
+            game.clear_players();
         }
 
         // create player creation ui elements
@@ -78,8 +91,8 @@ start_game_form.addEventListener('submit', (event) => {
         // switch to game-config
         start_game_overlay.classList.add('game-config');
     } else {
-        // TODO continue game
-        // game.run();
+        // continue game
+        game.run();
         start_game_overlay.close();
     }
 });
@@ -90,16 +103,16 @@ reroll_map_btn.addEventListener('click', () => {
 
 config_game_form.addEventListener('submit', (event) => {
     event.preventDefault();
+    // TODO use other config options
     // create player objects
-    game.players.push(
-        ...Array.from(
-            player_configs,
-            (config, id) => {
-                const name = config.querySelector('.player-name-input').value;
-                const type = config.querySelector('.player-type-select-radio:checked').value;
-                return create_player(id + 1, name, type);
-            }
-        )
+    // TODO prevent duplicate player names
+    game.players = Array.from(
+        player_configs,
+        (config) => {
+            const name = config.querySelector('.player-name-input').value;
+            const type = config.querySelector('.player-type-select-radio:checked').value;
+            return create_player(name, type);
+        }
     );
     // start game
     game.run();

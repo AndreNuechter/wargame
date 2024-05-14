@@ -23,9 +23,8 @@ export function make_player_config(id) {
     player_setup.append(config);
 }
 
-export default function create_player(id, name) {
-    // TODO prevent duplicate names?!
-    let player_name = name || `Player ${id}`;
+export default function create_player(name, type = PLAYER_TYPES.ai, color = '') {
+    let player_name = name;
 
     return {
         get name() {
@@ -36,8 +35,8 @@ export default function create_player(id, name) {
                 player_name = value;
             }
         },
-        color: '',
-        type: PLAYER_TYPES.ai,
+        color,
+        type,
         cells: []
     };
 }

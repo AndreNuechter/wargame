@@ -5,6 +5,8 @@
 // movement execution phase enacts plans made in the phase before. conflicts between players may happen in this phase
 
 import { round_info } from './dom-selections';
+import { reinstate_hex_map } from './hex-grid';
+import create_player from './player';
 
 const ROUND_PHASES = {
     land_grab: 'land_grab',
@@ -21,16 +23,34 @@ export default (() => {
     return {
         board: new Map,
         round: 0,
-        players,
+        get players() {
+            return players;
+        },
+        set players(values) {
+            players.push(...values);
+        },
         get current_player_id() {
             return current_player_id;
+        },
+        set current_player_id(id) {
+            if (id > -1 && id < players.length) {
+                current_player_id = id;
+            }
         },
         next_player() {
             current_player_id = Math.min(current_player_id + 1, players.length - 1);
             return current_player_id;
         },
+        clear_players() {
+            players.length = 0;
+        },
         get current_phase() {
             return current_phase;
+        },
+        set current_phase(phase) {
+            if (phase in ROUND_PHASES) {
+                current_phase = phase;
+            }
         },
         increment_phase() {
             switch (current_phase) {
@@ -52,3 +72,15 @@ export default (() => {
         }
     };
 })();
+
+export function apply_savegame(game, game_data) {
+    const previous_game = JSON.parse(game_data);
+
+    Object.assign(game, {
+        round: previous_game.round,
+        current_phase: previous_game.current_phase,
+        current_player_id: previous_game.current_player_id,
+        players: previous_game.players.map(({ name, type, color }) => create_player(name, type, color)),
+        board: reinstate_hex_map(previous_game.board, game.board)
+    });
+}

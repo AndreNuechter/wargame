@@ -26,8 +26,8 @@ export function reroll_map(hex_map) {
 }
 
 // recreate previous boardstate after reload
-export function reinstate_hex_map(game_data) {
-    const hex_arr = JSON.parse(game_data)
+export function reinstate_hex_map(board_state, board_map) {
+    const hex_arr = board_state
         .map(({
             cx, cy, x, y, q, r, s,
             biome,
@@ -50,10 +50,10 @@ export function reinstate_hex_map(game_data) {
     return hex_arr.reduce((map, hex) => {
         map.set(hex.cell, hex);
         return map;
-    }, new Map());
+    }, board_map);
 }
 
-export function create_hex_map(board_dimensions) {
+export function create_hex_map(board_dimensions, board_map) {
     // create hexgrid
     const hex_arr = create_hex_grid(board_dimensions);
 
@@ -74,7 +74,7 @@ export function create_hex_map(board_dimensions) {
     return hex_arr.reduce((map, hex) => {
         map.set(hex.cell, hex);
         return map;
-    }, new Map());
+    }, board_map);
 }
 
 function create_hex_grid({ height, width }) {
