@@ -14,7 +14,8 @@ export function reroll_map(hex_map) {
         biome: '',
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
-        temperature: TEMPERATURES.freezing
+        temperature: TEMPERATURES.freezing,
+        owner_id: -1
     }));
     get_temperatures(hex_arr);
     generate_landmasses(hex_arr);
@@ -33,14 +34,16 @@ export function reinstate_hex_map(board_state, board_map) {
             biome,
             elevation,
             humidity,
-            temperature
+            temperature,
+            owner_id
         }) => Object.assign(
             create_hex_cell(cx, cy, x, y, q, r, s),
             {
                 biome,
                 elevation,
                 humidity,
-                temperature
+                temperature,
+                owner_id
             }
         ));
 

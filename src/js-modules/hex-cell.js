@@ -6,6 +6,7 @@ import { HUMIDITY_LEVELS } from './map-generation/assign-humidity.js';
 export function create_hex_cell(cx, cy, x, y, q, r, s) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);
     let biome_name = '';
+    let owner_id = -1;
 
     return {
         // for positioning in grid
@@ -29,6 +30,19 @@ export function create_hex_cell(cx, cy, x, y, q, r, s) {
         set biome(name) {
             biome_name = name;
             cell.dataset.biome = name;
+        },
+        get owner_id() {
+            return owner_id;
+        },
+        set owner_id(id) {
+            owner_id = id;
+            // TODO signal ownership via path around the cells instead of css
+            if (id === -1) {
+                cell.firstChild.classList.remove('owned');
+                return;
+            }
+            cell.dataset.owner_id = id;
+            cell.firstChild.classList.add('owned');
         }
     };
 }

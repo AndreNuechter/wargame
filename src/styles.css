@@ -81,6 +81,15 @@ body {
     stroke: #2c2c2c;
     stroke-width: 0.1px;
     /* TODO base fill on player color (when owned) */
+
+    /* TODO finish this and use variables for the fill */
+    [data-owner_id="0"] & {
+        fill: red;
+    }
+
+    [data-owner_id="1"] & {
+        fill: yellow;
+    }
 }
 
 .inner-cell {

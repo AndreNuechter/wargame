@@ -77,6 +77,7 @@ export function create_ice_and_sea(hex_arr) {
 }
 
 function pick_water_based_tile(hex, height = board_dimensions.height) {
+    // TODO set humidity based on temperature
     // TODO programmatically determine ranges
     const random_num = Math.random();
 

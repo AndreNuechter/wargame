@@ -77,3 +77,7 @@
         height: 32px;
     }
 }
+
+input.invalid {
+    border: 1px solid red;
+}

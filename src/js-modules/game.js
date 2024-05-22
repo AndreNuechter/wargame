@@ -1,28 +1,37 @@
-// TODO impl game loop:
-// ea round consists of 3 phases: development, movement planning and movement execution phase
-// development phase is used to develop owned cells/settlements and population thereof (see "age of exploration" android game)
-// movement planning phase can be used to move population to adjacent cells
-// movement execution phase enacts plans made in the phase before. conflicts between players may happen in this phase
-
-import { round_info } from './dom-selections';
-import { reinstate_hex_map } from './hex-grid';
-import create_player from './player';
-
-const ROUND_PHASES = {
-    land_grab: 'land_grab',
-    development: 'development',
-    movement_planning: 'movement_planning',
-    movement_execution: 'movement_execution'
-};
+import { reinstate_hex_map } from './hex-grid.js';
+import ROUND_PHASES from './round-phases.js';
+import create_player from './player.js';
 
 export default (() => {
     const players = [];
-    let current_phase = ROUND_PHASES.land_grab;
+    let round = 0;
+    let current_phase = ROUND_PHASES.land_grab.name;
     let current_player_id = 0;
+
+    function set_up_phase() {
+        adjust_ui_to_phase();
+        prompt_player();
+    }
+
+    function adjust_ui_to_phase() {
+        // TODO give end-turn-btn turn-specific label
+        // TODO display a round based call to action
+        document.getElementById('phase-label').textContent = ROUND_PHASES[current_phase].call_to_action;
+        document.getElementById('player-name').textContent = players[current_player_id].name;
+    }
+
+    function prompt_player() {
+        players[current_player_id].take_turn(current_phase);
+    }
 
     return {
         board: new Map,
-        round: 0,
+        get round() {
+            return round;
+        },
+        set round(num) {
+            round = num;
+        },
         get players() {
             return players;
         },
@@ -37,10 +46,6 @@ export default (() => {
                 current_player_id = id;
             }
         },
-        next_player() {
-            current_player_id = Math.min(current_player_id + 1, players.length - 1);
-            return current_player_id;
-        },
         clear_players() {
             players.length = 0;
         },
@@ -52,31 +57,27 @@ export default (() => {
                 current_phase = phase;
             }
         },
-        increment_phase() {
-            switch (current_phase) {
-                case ROUND_PHASES.development:
-                    current_phase = ROUND_PHASES.movement_planning;
-                    break;
-                case ROUND_PHASES.movement_planning:
-                    current_phase = ROUND_PHASES.movement_execution;
-                    break;
-                default:
-                    ROUND_PHASES.development;
+        next_turn() {
+            if (current_player_id === players.length - 1) {
+                round += 1;
+                current_player_id = 0;
+                current_phase = (() => {
+                    switch (current_phase) {
+                        case ROUND_PHASES.development.name:
+                            return ROUND_PHASES.movement_planning.name;
+                        case ROUND_PHASES.movement_planning.name:
+                            return ROUND_PHASES.movement_execution.name;
+                        default:
+                            return ROUND_PHASES.development.name;
+                    }
+                })();
+            } else {
+                current_player_id += 1;
             }
-        },
-        run() {
-            // TODO for starters...let players choose starting point or assign randomnly, according to event.target.landgrab-type... just assign randomly for now?
-            // TODO iterate thru phases and players, for exmpl...
-            // for (const phase of ROUND_PHASES) {
-            //     for (const player of players) {
-            //         yield ROUND_ACTIONS[phase](player);
-            //         if (game.is_over) return;
-            //     }
-            // }
 
-            document.getElementById('round-label').textContent = current_phase;
-            document.getElementById('player-name').textContent = players[current_player_id].name;
-        }
+            set_up_phase();
+        },
+        run: set_up_phase
     };
 })();
 
@@ -89,5 +90,10 @@ export function apply_savegame(game, game_data) {
         current_player_id: previous_game.current_player_id,
         players: previous_game.players.map(({ name, type, color }) => create_player(name, type, color)),
         board: reinstate_hex_map(previous_game.board, game.board)
+    });
+
+    // give players their cells
+    game.players.forEach((player, id) => {
+        player.cells = [...game.board.values()].filter((cell) => cell.owner_id === id).map(({ cell }) => cell);
     });
 }
