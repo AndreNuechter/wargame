@@ -35,6 +35,7 @@ export function create_hex_cell(cx, cy, x, y, q, r, s) {
             return owner_id;
         },
         set owner_id(id) {
+            if (id === undefined) return;
             owner_id = id;
             // TODO signal ownership via path around the cells instead of css
             if (id === -1) {
@@ -60,14 +61,14 @@ function render_hex_cell(
     const r_coord = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     const s_coord = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     const offset_coords = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    q_coord.textContent = `${q}`;
-    r_coord.textContent = `${r}`;
-    s_coord.textContent = `${s}`;
+    q_coord.textContent = q;
+    r_coord.textContent = r;
+    s_coord.textContent = s;
     offset_coords.textContent = `${x}, ${y}`;
-    q_coord.setAttribute('transform', `translate(${1.5}, ${2})`);
-    r_coord.setAttribute('transform', `translate(${4.5}, ${3.5})`);
-    s_coord.setAttribute('transform', `translate(${2}, ${5})`);
-    offset_coords.setAttribute('transform', `translate(${1.5}, ${3.5})`);
+    q_coord.setAttribute('transform', 'translate(1.5, 2)');
+    r_coord.setAttribute('transform', 'translate(4.5, 3.5)');
+    s_coord.setAttribute('transform', 'translate(2, 5)');
+    offset_coords.setAttribute('transform', 'translate(1.5, 3.5)');
     text_group.classList.add('cell-coord');
     q_coord.classList.add('cube-coord');
     r_coord.classList.add('cube-coord');
@@ -78,7 +79,7 @@ function render_hex_cell(
 
     // TODO biome icon or texture
 
-    board.append(cellWrapper);
+    board.prepend(cellWrapper);
 
     return cellWrapper;
 }

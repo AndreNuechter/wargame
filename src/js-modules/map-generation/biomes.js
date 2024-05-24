@@ -58,9 +58,20 @@ const biome_matrix = {
     },
 };
 
-function Biome(name) {
-    // TODO other properties, such as movement speed, ressource production...
-    return { name };
+function Biome(
+    name = '',
+    movement_resistance = 0,
+    resource_production = {
+        wood: [1, 5],
+        stone: [1, 5],
+        food: [1, 5]
+    }
+) {
+    return {
+        name,
+        movement_resistance,
+        resource_production
+    };
 }
 
 export default function assign_biomes(hex_arr) {
@@ -126,10 +137,7 @@ function pick_biome(hex) {
 const style_sheet = document.createElement('style');
 style_sheet.textContent = Object.values(BIOMES).map((biome) =>
     `[data-biome="${biome.name}"] {
-        .outer-cell:not(.owned),
-        .inner-cell {
-            fill: var(--${biome.name});
-        }
+        fill: var(--${biome.name});
     }`
 ).join('\n');
 document.body.append(style_sheet);

@@ -49,11 +49,7 @@ export function reinstate_hex_map(board_state, board_map) {
 
     compute_neighbors(hex_arr);
 
-    // return map of svg-elements to hexes
-    return hex_arr.reduce((map, hex) => {
-        map.set(hex.cell, hex);
-        return map;
-    }, board_map);
+    return hex_arr_to_map(hex_arr, board_map);
 }
 
 export function create_hex_map(board_dimensions, board_map) {
@@ -73,6 +69,10 @@ export function create_hex_map(board_dimensions, board_map) {
     // pick biome
     assign_biomes(hex_arr);
 
+    return hex_arr_to_map(hex_arr, board_map);
+}
+
+function hex_arr_to_map(hex_arr, board_map) {
     // return map of svg-elements to hexes
     return hex_arr.reduce((map, hex) => {
         map.set(hex.cell, hex);

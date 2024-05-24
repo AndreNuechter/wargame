@@ -19,6 +19,13 @@ body.use-offset-coords {
     }
 }
 
-#toogle-coord-system-btn {
+#toggle-coord-system-btn {
     display: none;
+}
+
+.debug {
+    #toggle-coord-system-btn,
+    .cell-coord {
+        display: initial;
+    }
 }

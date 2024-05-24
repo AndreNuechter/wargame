@@ -1,15 +1,12 @@
 export const cellGroupTmpl = (() => {
-    const outerHex = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    const innerHex = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    const cell = document.createElementNS('http://www.w3.org/2000/svg', 'use');
     const cellWrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
-    innerHex.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#inner-hex');
-    outerHex.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#outer-hex');
-    innerHex.classList.add('inner-cell');
-    outerHex.classList.add('outer-cell');
+    cell.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#outer-hex');
+    cell.classList.add('outer-cell');
     cellWrapper.classList.add('cell');
 
-    cellWrapper.append(outerHex, innerHex);
+    cellWrapper.append(cell);
 
     return cellWrapper;
 })();

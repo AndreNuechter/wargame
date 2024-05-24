@@ -6,17 +6,20 @@
 @import url("styles/top-bar.css");
 
 body {
+    --cell-info-width: 240px;
+    --info-bar-height: 40px;
+
     overflow: hidden;
     display: grid;
-    grid-template-columns: 1fr 240px;
-    grid-template-rows: 40px 1fr 40px;
+    grid-template-columns: 1fr var(--cell-info-width);
+    grid-template-rows: var(--info-bar-height) 1fr var(--info-bar-height);
     grid-template-areas:
         "header header"
         "board cellInfo"
         "footer footer"
     ;
 
-    #board {
+    #board-container {
         grid-area: board;
         align-self: center;
         justify-self: center;
@@ -36,8 +39,16 @@ body {
 }
 
 .info-bar {
-    height: 40px;
-    border: 1px solid black;
+    height: var(--info-bar-height);
+    border: 0px solid black;
+
+    &:first-of-type {
+        border-bottom-width: 1px;
+    }
+
+    &:last-of-type {
+        border-top-width: 1px;
+    }
 }
 
 #defs {
@@ -46,8 +57,15 @@ body {
     position: absolute;
 }
 
-#board {
+#board,
+#board-container {
     height: 100%;
+}
+
+#board-container {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    width: calc(100vw - var(--cell-info-width));
 }
 
 .icon {
@@ -66,34 +84,14 @@ body {
 .cell {
     cursor: pointer;
 
-    &:hover,
-    &.adjacent-to-clicked {
-        /* TODO find better way to highlight */
+    &:hover {
         filter: brightness(1.5);
-    }
-
-    &.clicked .outer-cell {
-        fill: yellow;
     }
 }
 
 .outer-cell {
     stroke: #2c2c2c;
     stroke-width: 0.1px;
-    /* TODO base fill on player color (when owned) */
-
-    /* TODO finish this and use variables for the fill */
-    [data-owner_id="0"] & {
-        fill: red;
-    }
-
-    [data-owner_id="1"] & {
-        fill: yellow;
-    }
-}
-
-.inner-cell {
-    stroke: none;
 }
 
 #cell-info {

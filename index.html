@@ -16,14 +16,18 @@
 <body>
     <div id="top-bar" class="info-bar">
         <h1>War</h1>
-        <button id="toogle-coord-system-btn">Switch coord system</button>
+        <button id="toggle-coord-system-btn">Switch coord system</button>
         <div id="turn-info">
             <span id="player-name"></span>
             <span id="phase-label"></span>
         </div>
         <button id="end-turn-btn">End Turn</button>
     </div>
-    <svg id="board" preserveAspectRatio="xMinYMin meet" viewBox="0 0 185 110"></svg>
+    <div id="board-container">
+        <svg id="board" preserveAspectRatio="xMinYMin meet" viewBox="0 0 185 110">
+            <g id="borders"></g>
+        </svg>
+    </div>
     <div id="cell-info"></div>
     <div id="bottom-bar" class="info-bar"></div>
     {{> start-game-overlay }}

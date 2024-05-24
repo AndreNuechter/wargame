@@ -5,9 +5,11 @@ import board_dimensions from './js-modules/board-dimensions.js';
 import {
     add_player_btn,
     board,
+    borders,
     cell_info,
     config_game_form,
     coord_system_toggle_btn,
+    end_turn_btn,
     player_configs,
     player_setup,
     reroll_map_btn,
@@ -18,8 +20,14 @@ import create_player, { make_player_config } from './js-modules/player.js';
 import game, { apply_savegame } from './js-modules/game.js';
 import ROUND_PHASES from './js-modules/round-phases.js';
 import { BIOMES } from './js-modules/map-generation/biomes.js';
+import outline_hexregion from './js-modules/outline-hexregion.js';
 
 // TODO add way to config map gen
+
+// ea round consists of 3 phases: development, movement planning and movement execution phase
+// development phase is used to develop owned cells/settlements and population thereof (see "age of exploration" android game)
+// movement planning phase can be used to move population to adjacent cells
+// movement execution phase enacts plans made in the phase before. conflicts between players may happen in this phase
 
 let start_position_candidate = null;
 
@@ -90,7 +98,6 @@ start_game_form.addEventListener('submit', (event) => {
     if (event.submitter.id === 'new-game-btn') {
         // if there's a prior save, reroll the map and delete players
         if (start_game_overlay.dataset.priorSave === 'true') {
-            // TODO reset other fields as well
             Object.assign(game, {
                 round: 0,
                 current_phase: ROUND_PHASES.land_grab.name,
@@ -106,6 +113,7 @@ start_game_form.addEventListener('submit', (event) => {
         // switch to game-config
         start_game_overlay.classList.add('game-config');
     } else {
+        if (start_game_overlay.dataset.priorSave === 'false') return;
         // continue game
         game.run();
         start_game_overlay.close();
@@ -116,13 +124,19 @@ reroll_map_btn.addEventListener('click', () => {
     game.board = reroll_map(game.board);
 });
 
-document.getElementById('end-turn-btn').addEventListener('click', () => {
+end_turn_btn.addEventListener('click', () => {
     if (game.current_phase === ROUND_PHASES.land_grab.name) {
         // TODO let player know he needs to pick a non-sea starting position
         if (start_position_candidate === null) return;
 
         game.board.get(start_position_candidate).owner_id = game.current_player_id;
         game.players[game.current_player_id].cells.push(start_position_candidate);
+        // FIXME this clears to much
+        borders.replaceChildren();
+        outline_hexregion(
+            game.players[game.current_player_id].cells.map((cell) => game.board.get(cell)),
+            game.players[game.current_player_id].color
+        );
 
         start_position_candidate = null;
     }
@@ -138,7 +152,9 @@ config_game_form.addEventListener('submit', (event) => {
 
     name_inputs
         .reduce((name_count, { value }) => {
-            name_count[value] = value in name_count ? name_count[value] + 1 : 1;
+            name_count[value] = value in name_count
+                ? name_count[value] + 1
+                : 1;
 
             if (name_count[value] > 1) {
                 duplicate_names.add(value);
@@ -159,16 +175,20 @@ config_game_form.addEventListener('submit', (event) => {
         return;
     }
 
-    // TODO use other config options
+    const player_colors = ['tomato', 'rebeccapurple', 'gold', 'aquamarine', 'hotpink'];
+
     // create player objects
     game.players = Array.from(
         player_configs,
-        (config) => {
+        (config, id) => {
             const name = config.querySelector('.player-name-input').value;
             const type = config.querySelector('.player-type-select-radio:checked').value;
-            return create_player(name, type);
+            return create_player(name, type, player_colors[id]);
         }
     );
+
+    // TODO use other config options
+
     // start game
     game.run();
     start_game_overlay.close();
@@ -214,7 +234,6 @@ coord_system_toggle_btn.addEventListener('click', () => {
     document.body.classList.toggle('use-offset-coords');
 });
 
-// highlight neighboring cells on click
 board.addEventListener('click', ({ target }) => {
     const cell_element = target.closest('.cell');
 
@@ -225,25 +244,30 @@ board.addEventListener('click', ({ target }) => {
 
     if (previously_selected_cell) {
         previously_selected_cell.classList.remove('clicked');
-        board.querySelectorAll('.adjacent-to-clicked').forEach(
-            (cell) => cell.classList.remove('adjacent-to-clicked')
-        );
+        // FIXME this replaces too much
+        borders.replaceChildren();
 
         start_position_candidate = null;
 
+        // player de-selected a cell
         if (previously_selected_cell === cell_element) return;
     }
+
+    // highlight clicked cell and its neighbors
+    cell_element.classList.add('clicked');
+    outline_hexregion([hex_obj], 'yellow');
+    outline_hexregion(hex_obj.neighbors, 'white');
 
     if (game.current_phase === ROUND_PHASES.land_grab.name) {
         if (hex_obj.owner_id !== -1 || hex_obj.biome === BIOMES.sea.name) return;
 
         start_position_candidate = cell_element;
-    }
+    } else if (game.current_phase === ROUND_PHASES.development.name) {
+        if (hex_obj.owner_id !== game.current_player_id) return;
 
-    cell_element.classList.add('clicked');
-    hex_obj.neighbors.forEach(
-        ({ cell }) => cell.classList.add('adjacent-to-clicked')
-    );
+        // TODO generate resources/population based on owned cells and their population (display in bottom-bar)
+        // TODO enable building/expanding constructions in owned cells
+    }
 });
 
 // show cell info on hover
