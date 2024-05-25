@@ -1,5 +1,6 @@
-import { player_setup } from './dom-selections.js';
-import { player_config_tmpl } from './dom-creations.js';
+import { board, player_setup } from './dom-selections.js';
+import { player_border_path, player_config_tmpl } from './dom-creations.js';
+import outline_hexregion from './outline-hexregion.js';
 
 const PLAYER_TYPES = {
     human: 'human',
@@ -24,19 +25,26 @@ export function make_player_config(id) {
 }
 
 export default function create_player(name, type = PLAYER_TYPES.ai, color) {
-    let player_name = name;
+    const cells = [];
+    const border_path_container = player_border_path.cloneNode(true);
+
+    board.append(border_path_container);
 
     return {
-        get name() {
-            return player_name;
-        },
-        set name(value) {
-            if (value !== '') {
-                player_name = value;
-            }
-        },
+        name,
         color,
         type,
-        cells: []
+        border_path_container,
+        get cells() {
+            return cells;
+        },
+        set cells(value) {
+            cells.push(...value);
+            outline_hexregion(cells, color, border_path_container);
+        },
+        destroy() {
+            cells.length = 0;
+            border_path_container.remove();
+        }
     };
 }

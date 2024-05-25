@@ -5,7 +5,6 @@ import board_dimensions from './js-modules/board-dimensions.js';
 import {
     add_player_btn,
     board,
-    borders,
     cell_info,
     config_game_form,
     coord_system_toggle_btn,
@@ -13,6 +12,7 @@ import {
     player_configs,
     player_setup,
     reroll_map_btn,
+    selection_highlight,
     start_game_form,
     start_game_overlay,
 } from './js-modules/dom-selections.js';
@@ -113,6 +113,7 @@ start_game_form.addEventListener('submit', (event) => {
         // switch to game-config
         start_game_overlay.classList.add('game-config');
     } else {
+        // the continue-btn does nothing if there's no prior save
         if (start_game_overlay.dataset.priorSave === 'false') return;
         // continue game
         game.run();
@@ -130,13 +131,7 @@ end_turn_btn.addEventListener('click', () => {
         if (start_position_candidate === null) return;
 
         game.board.get(start_position_candidate).owner_id = game.current_player_id;
-        game.players[game.current_player_id].cells.push(start_position_candidate);
-        // FIXME this clears to much
-        borders.replaceChildren();
-        outline_hexregion(
-            game.players[game.current_player_id].cells.map((cell) => game.board.get(cell)),
-            game.players[game.current_player_id].color
-        );
+        game.players[game.current_player_id].cells = [game.board.get(start_position_candidate)];
 
         start_position_candidate = null;
     }
@@ -175,6 +170,7 @@ config_game_form.addEventListener('submit', (event) => {
         return;
     }
 
+    // TODO find better way to store colors
     const player_colors = ['tomato', 'rebeccapurple', 'gold', 'aquamarine', 'hotpink'];
 
     // create player objects
@@ -230,10 +226,6 @@ player_setup.addEventListener('click', ({ target }) => {
 // prevent closing dialog wo making a choice (ie by pressing esc)
 start_game_overlay.addEventListener('cancel', (event) => event.preventDefault());
 
-coord_system_toggle_btn.addEventListener('click', () => {
-    document.body.classList.toggle('use-offset-coords');
-});
-
 board.addEventListener('click', ({ target }) => {
     const cell_element = target.closest('.cell');
 
@@ -244,8 +236,8 @@ board.addEventListener('click', ({ target }) => {
 
     if (previously_selected_cell) {
         previously_selected_cell.classList.remove('clicked');
-        // FIXME this replaces too much
-        borders.replaceChildren();
+        // clear focus highlighting
+        selection_highlight.replaceChildren();
 
         start_position_candidate = null;
 
@@ -255,8 +247,7 @@ board.addEventListener('click', ({ target }) => {
 
     // highlight clicked cell and its neighbors
     cell_element.classList.add('clicked');
-    outline_hexregion([hex_obj], 'yellow');
-    outline_hexregion(hex_obj.neighbors, 'white');
+    outline_hexregion([...hex_obj.neighbors, hex_obj], 'white', selection_highlight);
 
     if (game.current_phase === ROUND_PHASES.land_grab.name) {
         if (hex_obj.owner_id !== -1 || hex_obj.biome === BIOMES.sea.name) return;
@@ -284,4 +275,8 @@ board.addEventListener('pointerover', ({ target }) => {
         humidity: ${hex_obj.humidity},
         elevation: ${hex_obj.elevation}
     `;
+});
+
+coord_system_toggle_btn.addEventListener('click', () => {
+    document.body.classList.toggle('use-offset-coords');
 });

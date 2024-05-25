@@ -84,9 +84,14 @@ body {
 .cell {
     cursor: pointer;
 
-    &:hover {
+    &:hover,
+    &.clicked {
         filter: brightness(1.5);
     }
+}
+
+path {
+    stroke-linecap: round;
 }
 
 .outer-cell {

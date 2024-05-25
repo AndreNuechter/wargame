@@ -1,6 +1,4 @@
-import { borders } from './dom-selections';
-
-export default function outline_hexregion(cells, color) {
+export default function outline_hexregion(cells, color, path_container) {
     const line_segments = [];
 
     // for ea cell, return edges to neighbors not in cells
@@ -10,7 +8,7 @@ export default function outline_hexregion(cells, color) {
         const bottom = bottom_point(hex);
         const bottom_right = right_bottom_point(hex);
         const bottom_left = left_bottom_point(hex);
-        // TODO wrap around edge of map
+        // TODO tweak this so the outline is drawn inside the hex and not on top of its outline
         // left
         if (neighbors.find(
             (neighbor) =>
@@ -69,7 +67,7 @@ export default function outline_hexregion(cells, color) {
     path.setAttribute('stroke', color);
     path.setAttribute('stroke-width', '0.3');
 
-    borders.append(path);
+    path_container.append(path);
 }
 
 function top_point(hex) {

@@ -1,7 +1,7 @@
 import { reinstate_hex_map } from './hex-grid.js';
+import { end_turn_btn } from './dom-selections.js';
 import ROUND_PHASES from './round-phases.js';
 import create_player from './player.js';
-import { end_turn_btn } from './dom-selections.js';
 
 export default (() => {
     const players = [];
@@ -36,6 +36,7 @@ export default (() => {
             current_player_id = id;
         },
         clear_players() {
+            players.forEach((player) => player.destroy());
             players.length = 0;
         },
         get current_phase() {
@@ -82,6 +83,6 @@ export function apply_savegame(game, game_data) {
 
     // give players their cells
     game.players.forEach((player, id) => {
-        player.cells = [...game.board.values()].filter((cell) => cell.owner_id === id).map(({ cell }) => cell);
+        player.cells = [...game.board.values()].filter((cell) => cell.owner_id === id);
     });
 }

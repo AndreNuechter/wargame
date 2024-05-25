@@ -1,6 +1,5 @@
 export const add_player_btn = document.getElementById('add-player-btn');
 export const board = document.getElementById('board');
-export const borders = document.getElementById('borders');
 export const cell_info = document.getElementById('cell-info');
 export const coord_system_toggle_btn = document.getElementById('toggle-coord-system-btn');
 export const config_game_form = document.getElementById('config-game-form');
@@ -9,5 +8,6 @@ export const player_configs = document.getElementsByClassName('player-config');
 export const player_setup = document.getElementById('player-setup');
 export const reroll_map_btn = document.getElementById('reroll-map-btn');
 export const round_info = document.getElementById('round-info');
+export const selection_highlight = document.getElementById('selection-highlight');
 export const start_game_form = document.getElementById('start-game-form');
 export const start_game_overlay = document.getElementById('start-game-overlay');

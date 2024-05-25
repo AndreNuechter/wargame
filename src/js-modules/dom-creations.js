@@ -10,5 +10,10 @@ export const cellGroupTmpl = (() => {
 
     return cellWrapper;
 })();
+export const player_border_path = (() => {
+    const path_wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    path_wrapper.classList.add('player-border');
+    return path_wrapper;
+})();
 
 export const player_config_tmpl = document.getElementById('player-config-tmpl').content;
