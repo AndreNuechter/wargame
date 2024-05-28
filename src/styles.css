@@ -3,7 +3,7 @@
 @import url("styles/start-game-overlay.css");
 @import url("styles/biome-colors.css");
 @import url("styles/buttons.css");
-@import url("styles/top-bar.css");
+@import url("styles/info-bar.css");
 
 body {
     --cell-info-width: 240px;
@@ -38,17 +38,8 @@ body {
     }
 }
 
-.info-bar {
-    height: var(--info-bar-height);
-    border: 0px solid black;
-
-    &:first-of-type {
-        border-bottom-width: 1px;
-    }
-
-    &:last-of-type {
-        border-top-width: 1px;
-    }
+h1 {
+    padding-left: 8px;
 }
 
 #defs {

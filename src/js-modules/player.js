@@ -34,6 +34,16 @@ export default function create_player(name, type = PLAYER_TYPES.ai, color) {
         name,
         color,
         type,
+        resources: {
+            people: 5,
+            gold: 5,
+            cloth: 25,
+            wood: 25,
+            stone: 25,
+            iron: 0,
+            food: 50,
+            alcohol: 5
+        },
         border_path_container,
         get cells() {
             return cells;

@@ -1,0 +1,16 @@
+.info-bar {
+    height: var(--info-bar-height);
+    border: 0px solid black;
+    display: flex;
+    align-items: center;
+
+    &:first-of-type {
+        border-bottom-width: 1px;
+        justify-content: space-between;
+    }
+
+    &:last-of-type {
+        border-top-width: 1px;
+        justify-content: space-around;
+    }
+}

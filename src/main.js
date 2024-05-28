@@ -27,7 +27,7 @@ import outline_hexregion from './js-modules/outline-hexregion.js';
 // ea round consists of 3 phases: development, movement planning and movement execution phase
 // development phase is used to develop owned cells/settlements and population thereof (see "age of exploration" android game)
 // movement planning phase can be used to move population to adjacent cells
-// movement execution phase enacts plans made in the phase before. conflicts between players may happen in this phase
+// movement execution phase enacts plans made in the phase before. conflicts between players may happen in this phase. at end of this phase: generate resources
 
 let start_position_candidate = null;
 
@@ -256,25 +256,38 @@ board.addEventListener('click', ({ target }) => {
     } else if (game.current_phase === ROUND_PHASES.development.name) {
         if (hex_obj.owner_id !== game.current_player_id) return;
 
-        // TODO generate resources/population based on owned cells and their population (display in bottom-bar)
-        // TODO enable building/expanding constructions in owned cells
+        // TODO enable building/expanding constructions in owned cell (when selected, and adjust production forecast)
+        // TODO enable turning population into soldiers
     }
 });
 
-// show cell info on hover
-board.addEventListener('pointerover', ({ target }) => {
+// show cell info
+// TODO move this into the listener above
+board.addEventListener('click', ({ target }) => {
     const cell_element = target.closest('.cell');
 
     if (!cell_element) return;
 
     const hex_obj = game.board.get(cell_element);
+    let text_to_display = '';
 
-    cell_info.textContent = `
-        biome: ${hex_obj.biome},
-        temperature: ${hex_obj.temperature},
-        humidity: ${hex_obj.humidity},
-        elevation: ${hex_obj.elevation}
-    `;
+    if (game.current_phase === ROUND_PHASES.land_grab.name) {
+        text_to_display = `
+            biome: ${hex_obj.biome},
+            temperature: ${hex_obj.temperature},
+            humidity: ${hex_obj.humidity},
+            elevation: ${hex_obj.elevation}
+        `;
+    } else if (game.current_phase === ROUND_PHASES.development.name) {
+        if (hex_obj.owner_id !== game.current_player_id) {
+            // TODO show calculated values
+            text_to_display = 'expect this production ... overall';
+        } else {
+            text_to_display = 'expect this production ... from this cell';
+        }
+    }
+
+    cell_info.textContent = text_to_display;
 });
 
 coord_system_toggle_btn.addEventListener('click', () => {

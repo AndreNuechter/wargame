@@ -1,5 +1,5 @@
 import { reinstate_hex_map } from './hex-grid.js';
-import { end_turn_btn } from './dom-selections.js';
+import { bottom_bar, end_turn_btn, phase_label, player_name } from './dom-selections.js';
 import ROUND_PHASES from './round-phases.js';
 import create_player from './player.js';
 
@@ -10,9 +10,23 @@ export default (() => {
     let current_player_id = 0;
 
     function adjust_ui_to_phase() {
+        // TODO use player colors in some way
         end_turn_btn.textContent = ROUND_PHASES[current_phase].end_turn_btn_label;
-        document.getElementById('phase-label').textContent = ROUND_PHASES[current_phase].call_to_action;
-        document.getElementById('player-name').textContent = players[current_player_id].name;
+        phase_label.textContent = ROUND_PHASES[current_phase].call_to_action;
+        player_name.textContent = players[current_player_id].name;
+
+        // TODO maybe empty this or hide it in other phases
+        if (current_phase === ROUND_PHASES.development.name) {
+            Object.entries(players[current_player_id].resources).forEach(([name, value]) => {
+                // TODO display population count(s) on cells
+                // TODO use icons instead of labels for resources
+                try {
+                    bottom_bar.querySelector(`[data-resource-name="${name}"]`).textContent = `${name}: ${value}`;
+                } catch {
+                    console.log('who cares rn?');
+                }
+            });
+        }
     }
 
     return {

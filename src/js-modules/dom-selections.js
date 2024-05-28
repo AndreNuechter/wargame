@@ -1,10 +1,13 @@
 export const add_player_btn = document.getElementById('add-player-btn');
 export const board = document.getElementById('board');
+export const bottom_bar = document.getElementById('bottom-bar');
 export const cell_info = document.getElementById('cell-info');
 export const coord_system_toggle_btn = document.getElementById('toggle-coord-system-btn');
 export const config_game_form = document.getElementById('config-game-form');
 export const end_turn_btn = document.getElementById('end-turn-btn');
+export const phase_label = document.getElementById('phase-label');
 export const player_configs = document.getElementsByClassName('player-config');
+export const player_name = document.getElementById('player-name');
 export const player_setup = document.getElementById('player-setup');
 export const reroll_map_btn = document.getElementById('reroll-map-btn');
 export const round_info = document.getElementById('round-info');
