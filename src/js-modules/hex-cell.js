@@ -37,13 +37,8 @@ export function create_hex_cell(cx, cy, x, y, q, r, s) {
         set owner_id(id) {
             if (id === undefined) return;
             owner_id = id;
-            // TODO signal ownership via path around the cells instead of css
-            if (id === -1) {
-                cell.firstChild.classList.remove('owned');
-                return;
-            }
+            if (id === -1) return;
             cell.dataset.owner_id = id;
-            cell.firstChild.classList.add('owned');
         }
     };
 }
