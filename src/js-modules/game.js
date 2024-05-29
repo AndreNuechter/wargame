@@ -15,8 +15,9 @@ export default (() => {
         phase_label.textContent = ROUND_PHASES[current_phase].call_to_action;
         player_name.textContent = players[current_player_id].name;
 
-        // TODO maybe empty this or hide it in other phases
         if (current_phase === ROUND_PHASES.development.name) {
+            // TODO show overall resource production
+            bottom_bar.classList.remove('content-hidden');
             Object.entries(players[current_player_id].resources).forEach(([name, value]) => {
                 // TODO display population count(s) on cells
                 // TODO use icons instead of labels for resources
@@ -26,6 +27,8 @@ export default (() => {
                     console.log('who cares rn?');
                 }
             });
+        } else {
+            bottom_bar.classList.add('content-hidden');
         }
     }
 

@@ -29,7 +29,7 @@ export default function assign_humidity(hex_arr) {
         .filter((hex) => hex.elevation > 0)
         .forEach((hex) => {
             hex.neighbors
-                .filter(({ biome }) => biome === BIOMES.sea.name)
+                .filter(({ biome }) => biome === BIOMES.sea)
                 .forEach(() => {
                     hex.humidity = increase_humidity_level(hex.humidity);
                 });

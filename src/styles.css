@@ -96,3 +96,6 @@ path {
     padding: 4px 8px;
 }
 
+.content-hidden * {
+    opacity: 0;
+}

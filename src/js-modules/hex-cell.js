@@ -1,11 +1,11 @@
 import { board } from './dom-selections.js';
 import { cellGroupTmpl } from './dom-creations.js';
-import { TEMPERATURES } from './map-generation/get-temperature.js';
+import { TEMPERATURES } from './map-generation/assign-temperature.js';
 import { HUMIDITY_LEVELS } from './map-generation/assign-humidity.js';
 
 export function create_hex_cell(cx, cy, x, y, q, r, s) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);
-    let biome_name = '';
+    let biome = null;
     let owner_id = -1;
 
     return {
@@ -25,11 +25,13 @@ export function create_hex_cell(cx, cy, x, y, q, r, s) {
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
         get biome() {
-            return biome_name;
+            if (!biome) return '';
+            return biome;
         },
-        set biome(name) {
-            biome_name = name;
-            cell.dataset.biome = name;
+        set biome(new_biome) {
+            biome = new_biome;
+            if (!new_biome) return;
+            cell.dataset.biome = biome.name;
         },
         get owner_id() {
             return owner_id;

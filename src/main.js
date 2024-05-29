@@ -16,7 +16,7 @@ import {
     start_game_form,
     start_game_overlay,
 } from './js-modules/dom-selections.js';
-import create_player, { make_player_config } from './js-modules/player.js';
+import create_player, { calculate_resource_production, make_player_config } from './js-modules/player.js';
 import game, { apply_savegame } from './js-modules/game.js';
 import ROUND_PHASES from './js-modules/round-phases.js';
 import { BIOMES } from './js-modules/map-generation/biomes.js';
@@ -68,7 +68,7 @@ window.addEventListener('beforeunload', () => {
             board: [...game.board.values()]
                 .map(({
                     cx, cy, x, y, q, r, s,
-                    biome,
+                    biome: { name },
                     elevation,
                     humidity,
                     temperature,
@@ -81,7 +81,7 @@ window.addEventListener('beforeunload', () => {
                     q,
                     r,
                     s,
-                    biome,
+                    biome_name: name,
                     elevation,
                     humidity,
                     temperature,
@@ -249,42 +249,31 @@ board.addEventListener('click', ({ target }) => {
     cell_element.classList.add('clicked');
     outline_hexregion([...hex_obj.neighbors, hex_obj], 'white', selection_highlight);
 
-    if (game.current_phase === ROUND_PHASES.land_grab.name) {
-        if (hex_obj.owner_id !== -1 || hex_obj.biome === BIOMES.sea.name) return;
-
-        start_position_candidate = cell_element;
-    } else if (game.current_phase === ROUND_PHASES.development.name) {
-        if (hex_obj.owner_id !== game.current_player_id) return;
-
-        // TODO enable building/expanding constructions in owned cell (when selected, and adjust production forecast)
-        // TODO enable turning population into soldiers
-    }
-});
-
-// show cell info
-// TODO move this into the listener above
-board.addEventListener('click', ({ target }) => {
-    const cell_element = target.closest('.cell');
-
-    if (!cell_element) return;
-
-    const hex_obj = game.board.get(cell_element);
     let text_to_display = '';
 
     if (game.current_phase === ROUND_PHASES.land_grab.name) {
+        if (hex_obj.owner_id === -1 && hex_obj.biome !== BIOMES.sea) {
+            start_position_candidate = cell_element;
+        }
         text_to_display = `
-            biome: ${hex_obj.biome},
-            temperature: ${hex_obj.temperature},
-            humidity: ${hex_obj.humidity},
-            elevation: ${hex_obj.elevation}
-        `;
+                biome: ${hex_obj.biome.name},
+                temperature: ${hex_obj.temperature},
+                humidity: ${hex_obj.humidity},
+                elevation: ${hex_obj.elevation}
+            `;
     } else if (game.current_phase === ROUND_PHASES.development.name) {
         if (hex_obj.owner_id !== game.current_player_id) {
             // TODO show calculated values
-            text_to_display = 'expect this production ... overall';
+            text_to_display = `in total you will gain ${ JSON.stringify(
+                calculate_resource_production(game.players[game.current_player_id].cells)
+            )}`;
         } else {
-            text_to_display = 'expect this production ... from this cell';
+            text_to_display = `expect ${JSON.stringify(calculate_resource_production([hex_obj]))} from this cell`;
         }
+
+        // TODO enable building/expanding constructions in owned cell (when selected, and adjust production forecast)
+        // TODO enable turning population into soldiers
+        // TODO enable raising/lowering taxes & planing events (to lower chance of pop revolting over taxes)
     }
 
     cell_info.textContent = text_to_display;

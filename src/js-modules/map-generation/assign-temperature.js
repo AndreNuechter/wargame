@@ -11,7 +11,7 @@ export const TEMPERATURES = {
     hot: 'hot'
 };
 
-export default function get_temperature(hex_arr) {
+export default function assign_temperature(hex_arr) {
     hex_arr.forEach((hex_obj) => {
         const random_num = Math.random();
         // add bias to mimick axial tilt
@@ -27,12 +27,12 @@ export default function get_temperature(hex_arr) {
             return value;
         })(hex_obj.y + noise + bias);
 
-        hex_obj.temperature = assign_temperature(hex_relative_height);
+        hex_obj.temperature = get_temperature(hex_relative_height);
     });
 }
 
 // TODO derive ranges programmatically
-function assign_temperature(hex_relative_height) {
+function get_temperature(hex_relative_height) {
     switch (hex_relative_height) {
         case 0:
         case 1:

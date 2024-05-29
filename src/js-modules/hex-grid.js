@@ -1,7 +1,7 @@
 import compute_neighbors from './compute-neighbors.js';
 import generate_landmasses from './map-generation/generate-landmasses.js';
-import get_temperatures, { TEMPERATURES } from './map-generation/get-temperature.js';
-import assign_biomes, { create_ice_and_sea } from './map-generation/biomes.js';
+import assign_temperatures, { TEMPERATURES } from './map-generation/assign-temperature.js';
+import assign_biomes, { BIOMES, create_ice_and_sea } from './map-generation/biomes.js';
 import assign_humidity, { HUMIDITY_LEVELS } from './map-generation/assign-humidity.js';
 import { is_even } from './helper-functions.js';
 import { create_hex_cell } from './hex-cell.js';
@@ -11,13 +11,13 @@ export function reroll_map(hex_map) {
     const hex_arr = [...hex_map.values()];
 
     hex_arr.forEach((hex_obj) => Object.assign(hex_obj, {
-        biome: '',
+        biome: null,
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
         owner_id: -1
     }));
-    get_temperatures(hex_arr);
+    assign_temperatures(hex_arr);
     generate_landmasses(hex_arr);
     create_ice_and_sea(hex_arr);
     assign_humidity(hex_arr);
@@ -31,7 +31,7 @@ export function reinstate_hex_map(board_state, board_map) {
     const hex_arr = board_state
         .map(({
             cx, cy, x, y, q, r, s,
-            biome,
+            biome_name,
             elevation,
             humidity,
             temperature,
@@ -39,7 +39,7 @@ export function reinstate_hex_map(board_state, board_map) {
         }) => Object.assign(
             create_hex_cell(cx, cy, x, y, q, r, s),
             {
-                biome,
+                biome: BIOMES[biome_name],
                 elevation,
                 humidity,
                 temperature,
@@ -59,7 +59,7 @@ export function create_hex_map(board_dimensions, board_map) {
     // compute neighbors
     compute_neighbors(hex_arr);
     // assign temperatures
-    get_temperatures(hex_arr);
+    assign_temperatures(hex_arr);
     // create landmasses
     generate_landmasses(hex_arr);
     // create waterbodies

@@ -58,3 +58,29 @@ export default function create_player(name, type = PLAYER_TYPES.ai, color) {
         }
     };
 }
+
+export function calculate_resource_production(cells) {
+    const result = {
+        people: 0,
+        gold: 0,
+        cloth: 0,
+        wood: 0,
+        stone: 0,
+        iron: 0,
+        food: 0,
+        alcohol: 0,
+    };
+
+    cells.forEach((cell) =>{
+        // add default production
+        Object.entries(cell.biome.resource_production).forEach(([resource_name, gain]) => {
+            result[resource_name] += gain;
+        });
+        // TODO add construction based production
+    });
+
+    // TODO calculate pop growth
+    // TODO calculate gold/taxes
+
+    return result;
+}
