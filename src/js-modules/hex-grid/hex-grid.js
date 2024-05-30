@@ -1,9 +1,9 @@
 import compute_neighbors from './compute-neighbors.js';
-import generate_landmasses from './map-generation/generate-landmasses.js';
-import assign_temperatures, { TEMPERATURES } from './map-generation/assign-temperature.js';
-import assign_biomes, { BIOMES, create_ice_and_sea } from './map-generation/biomes.js';
-import assign_humidity, { HUMIDITY_LEVELS } from './map-generation/assign-humidity.js';
-import { is_even } from './helper-functions.js';
+import generate_landmasses from '../map-generation/generate-landmasses.js';
+import assign_temperatures, { TEMPERATURES } from '../map-generation/assign-temperature.js';
+import assign_biomes, { BIOMES, create_ice_and_sea } from '../map-generation/biomes.js';
+import assign_humidity, { HUMIDITY_LEVELS } from '../map-generation/assign-humidity.js';
+import { is_even } from '../helper-functions.js';
 import { create_hex_cell } from './hex-cell.js';
 
 // clear previous config and create new map, while leaving the DOM intact

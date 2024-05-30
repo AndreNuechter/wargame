@@ -1,4 +1,4 @@
-import board_dimensions from '../board-dimensions.js';
+import board_dimensions from './board-dimensions.js';
 import { random_int, random_pick } from '../helper-functions.js';
 import { decrease_temperature, increase_temperature } from './assign-temperature.js';
 

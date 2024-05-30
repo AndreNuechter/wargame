@@ -1,6 +1,6 @@
 import { board, player_setup } from './dom-selections.js';
 import { player_border_path, player_config_tmpl } from './dom-creations.js';
-import outline_hexregion from './outline-hexregion.js';
+import outline_hexregion from './hex-grid/outline-hexregion.js';
 
 const PLAYER_TYPES = {
     human: 'human',

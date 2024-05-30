@@ -1,4 +1,4 @@
-import { reinstate_hex_map } from './hex-grid.js';
+import { reinstate_hex_map } from './hex-grid/hex-grid.js';
 import { bottom_bar, end_turn_btn, phase_label, player_name } from './dom-selections.js';
 import ROUND_PHASES from './round-phases.js';
 import create_player from './player.js';

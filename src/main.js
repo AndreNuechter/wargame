@@ -1,7 +1,7 @@
 import './js-modules/service-worker-init.js';
 import wakeLock from './js-modules/wakelock.js';
-import { create_hex_map, reroll_map } from './js-modules/hex-grid.js';
-import board_dimensions from './js-modules/board-dimensions.js';
+import { create_hex_map, reroll_map } from './js-modules/hex-grid/hex-grid.js';
+import board_dimensions from './js-modules/map-generation/board-dimensions.js';
 import {
     add_player_btn,
     board,
@@ -20,7 +20,7 @@ import create_player, { calculate_resource_production, make_player_config } from
 import game, { apply_savegame } from './js-modules/game.js';
 import ROUND_PHASES from './js-modules/round-phases.js';
 import { BIOMES } from './js-modules/map-generation/biomes.js';
-import outline_hexregion from './js-modules/outline-hexregion.js';
+import outline_hexregion from './js-modules/hex-grid/outline-hexregion.js';
 
 // TODO add way to config map gen
 

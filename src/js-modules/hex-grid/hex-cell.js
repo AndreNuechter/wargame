@@ -1,7 +1,7 @@
-import { board } from './dom-selections.js';
-import { cellGroupTmpl } from './dom-creations.js';
-import { TEMPERATURES } from './map-generation/assign-temperature.js';
-import { HUMIDITY_LEVELS } from './map-generation/assign-humidity.js';
+import { board } from '../dom-selections.js';
+import { cellGroupTmpl } from '../dom-creations.js';
+import { TEMPERATURES } from '../map-generation/assign-temperature.js';
+import { HUMIDITY_LEVELS } from '../map-generation/assign-humidity.js';
 
 export function create_hex_cell(cx, cy, x, y, q, r, s) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);

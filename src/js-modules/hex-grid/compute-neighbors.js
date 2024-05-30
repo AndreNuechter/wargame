@@ -1,5 +1,5 @@
-import board_dimensions from './board-dimensions';
-import { is_even } from './helper-functions';
+import board_dimensions from '../map-generation/board-dimensions';
+import { is_even } from '../helper-functions';
 
 export default function compute_neighbors(hex_arr) {
     hex_arr.forEach((hex_obj) => {

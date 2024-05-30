@@ -1,4 +1,4 @@
-import board_dimensions from '../board-dimensions.js';
+import board_dimensions from './board-dimensions.js';
 import { TEMPERATURES } from './assign-temperature.js';
 import { HUMIDITY_LEVELS } from './assign-humidity.js';
 
@@ -206,7 +206,7 @@ function pick_biome(hex) {
 
 // TODO find a better way to do this
 const style_sheet = document.createElement('style');
-style_sheet.textContent = Object.values(BIOMES).map(({ name }) =>
+style_sheet.textContent = Object.keys(BIOMES).map((name) =>
     `[data-biome="${name}"] {
         fill: var(--${name});
     }`

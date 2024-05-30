@@ -1,4 +1,4 @@
-import board_dimensions from '../board-dimensions.js';
+import board_dimensions from './board-dimensions.js';
 import { is_num_between } from '../helper-functions.js';
 
 // NOTE: we want our world map to be "freezing" on the poles and "hot" along the equator
