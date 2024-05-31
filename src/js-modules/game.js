@@ -1,7 +1,9 @@
 import { reinstate_hex_map } from './hex-grid/hex-grid.js';
-import { bottom_bar, end_turn_btn, phase_label, player_name } from './dom-selections.js';
+import {
+    bottom_bar, end_turn_btn, phase_label, player_name
+} from './dom-selections.js';
 import ROUND_PHASES from './round-phases.js';
-import create_player from './player.js';
+import create_player, { calculate_resource_production } from './player.js';
 
 export default (() => {
     const players = [];
@@ -16,7 +18,10 @@ export default (() => {
         player_name.textContent = players[current_player_id].name;
 
         if (current_phase === ROUND_PHASES.development.name) {
-            // TODO show overall resource production
+            // show overall resource production
+            // cell_info.textContent = `in total you will gain ${JSON.stringify(
+            //     calculate_resource_production(players[current_player_id].cells, players[current_player_id].tax_rate)
+            // )} next round`;
             bottom_bar.classList.remove('content-hidden');
             Object.entries(players[current_player_id].resources).forEach(([name, value]) => {
                 // TODO display population count(s) on cells

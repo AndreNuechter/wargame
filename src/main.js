@@ -5,7 +5,6 @@ import board_dimensions from './js-modules/map-generation/board-dimensions.js';
 import {
     add_player_btn,
     board,
-    cell_info,
     config_game_form,
     coord_system_toggle_btn,
     end_turn_btn,
@@ -226,6 +225,24 @@ player_setup.addEventListener('click', ({ target }) => {
 // prevent closing dialog wo making a choice (ie by pressing esc)
 start_game_overlay.addEventListener('cancel', (event) => event.preventDefault());
 
+function output_cell_info({
+    biome: { name: biome_name },
+    temperature,
+    humidity,
+    elevation
+}) {
+    // TODO rather dump entire json of cell?
+    const biome_name_display = document.getElementById('biome-name').querySelector('.value-text');
+    const temperature_display = document.getElementById('temperature').querySelector('.value-text');
+    const humidity_display = document.getElementById('humidity').querySelector('.value-text');
+    const elevation_display = document.getElementById('elevation').querySelector('.value-text');
+
+    biome_name_display.textContent = biome_name;
+    temperature_display.textContent = temperature;
+    humidity_display.textContent = humidity;
+    elevation_display.textContent = elevation;
+}
+
 board.addEventListener('click', ({ target }) => {
     const cell_element = target.closest('.cell');
 
@@ -245,38 +262,41 @@ board.addEventListener('click', ({ target }) => {
         if (previously_selected_cell === cell_element) return;
     }
 
-    // highlight clicked cell and its neighbors
-    cell_element.classList.add('clicked');
-    outline_hexregion([...hex_obj.neighbors, hex_obj], 'white', selection_highlight);
+    output_cell_info(hex_obj);
 
-    let text_to_display = '';
+    const overall_production_forecast = document.getElementById('cell-production-forecast');
+    const cell_production_forecast = document.getElementById('cell-production-forecast');
 
     if (game.current_phase === ROUND_PHASES.land_grab.name) {
         if (hex_obj.owner_id === -1 && hex_obj.biome !== BIOMES.sea) {
             start_position_candidate = cell_element;
+            // highlight clicked cell and its neighbors
+            cell_element.classList.add('clicked');
+            outline_hexregion([...hex_obj.neighbors, hex_obj], 'white', selection_highlight);
         }
-        text_to_display = `
-                biome: ${hex_obj.biome.name},
-                temperature: ${hex_obj.temperature},
-                humidity: ${hex_obj.humidity},
-                elevation: ${hex_obj.elevation}
-            `;
+        // TODO prettify this and build required ui + logic
     } else if (game.current_phase === ROUND_PHASES.development.name) {
+        // TODO enable raising/lowering taxes & planing festivities to lower chance of popultion revolting over taxes (requires gold and alcohol)
         if (hex_obj.owner_id !== game.current_player_id) {
-            // TODO show calculated values
-            text_to_display = `in total you will gain ${ JSON.stringify(
-                calculate_resource_production(game.players[game.current_player_id].cells)
-            )}`;
+            cell_production_forecast.textContent = '';
+            overall_production_forecast.textContent = `In total you will gain ${JSON.stringify(
+                calculate_resource_production(
+                    game.players[game.current_player_id].cells,
+                    game.players[game.current_player_id].tax_rate
+                )
+            )} next round`;
         } else {
-            text_to_display = `expect ${JSON.stringify(calculate_resource_production([hex_obj]))} from this cell`;
+            // TODO enable building/expanding constructions (and adjust production forecast)
+            // TODO enable turning population into other units (on cells w required structures)
+            overall_production_forecast.textContent = '';
+            cell_production_forecast.textContent = `expect ${JSON.stringify(
+                calculate_resource_production(
+                    [hex_obj],
+                    game.players[game.current_player_id].tax_rate
+                )
+            )} from this cell next round`;
         }
-
-        // TODO enable building/expanding constructions in owned cell (when selected, and adjust production forecast)
-        // TODO enable turning population into soldiers
-        // TODO enable raising/lowering taxes & planing events (to lower chance of pop revolting over taxes)
     }
-
-    cell_info.textContent = text_to_display;
 });
 
 coord_system_toggle_btn.addEventListener('click', () => {

@@ -1,87 +1,88 @@
 import board_dimensions from './board-dimensions.js';
 import { TEMPERATURES } from './assign-temperature.js';
 import { HUMIDITY_LEVELS } from './assign-humidity.js';
+import RESOURCES from '../resources.js';
 
 // for more see https://rimworldwiki.com/wiki/Biomes
 // TODO balance resource production
 export const BIOMES = {
-    sea: new Biome('sea', { food: 1 }),
+    sea: new Biome('sea', { [RESOURCES.food]: 1 }),
     mountain: new Biome('mountain', {
-        wood: 2,
-        stone: 5,
-        food: 3,
+        [RESOURCES.wood]: 2,
+        [RESOURCES.stone]: 5,
+        [RESOURCES.food]: 3,
     }),
     high_mountain: new Biome('high_mountain', {
-        stone: 5
+        [RESOURCES.stone]: 5
     }),
     ice: new Biome('ice', {
-        food: 2,
+        [RESOURCES.food]: 2,
     }),
     tundra: new Biome('tundra', {
-        cloth: 1,
-        wood: 2,
-        stone: 1,
-        food: 5,
+        [RESOURCES.cloth]: 1,
+        [RESOURCES.wood]: 2,
+        [RESOURCES.stone]: 1,
+        [RESOURCES.food]: 5,
     }),
     grassland: new Biome('grassland', {
-        cloth: 3,
-        wood: 2,
-        stone: 2,
-        food: 5,
+        [RESOURCES.cloth]: 3,
+        [RESOURCES.wood]: 2,
+        [RESOURCES.stone]: 2,
+        [RESOURCES.food]: 5,
     }),
     savanna: new Biome('savanna', {
-        cloth: 5,
-        wood: 5,
-        stone: 3,
-        food: 6,
+        [RESOURCES.cloth]: 5,
+        [RESOURCES.wood]: 5,
+        [RESOURCES.stone]: 3,
+        [RESOURCES.food]: 6,
     }),
     boreal_forest: new Biome('boreal_forest', {
-        cloth: 4,
-        wood: 10,
-        stone: 3,
-        food: 5,
+        [RESOURCES.cloth]: 4,
+        [RESOURCES.wood]: 10,
+        [RESOURCES.stone]: 3,
+        [RESOURCES.food]: 5,
     }), // taiga, should be most common
     forest: new Biome('forest', {
-        cloth: 2,
-        wood: 10,
-        stone: 2,
-        food: 5,
+        [RESOURCES.cloth]: 2,
+        [RESOURCES.wood]: 10,
+        [RESOURCES.stone]: 2,
+        [RESOURCES.food]: 5,
     }),
     tropical_rainforest: new Biome('tropical_rainforest', {
-        cloth: 3,
-        wood: 7,
-        stone: 1,
-        food: 5,
+        [RESOURCES.cloth]: 3,
+        [RESOURCES.wood]: 7,
+        [RESOURCES.stone]: 1,
+        [RESOURCES.food]: 5,
     }),
     cold_swamp: new Biome('cold_swamp', {
-        cloth: 1,
-        wood: 2,
-        stone: 1,
-        food: 2,
+        [RESOURCES.cloth]: 1,
+        [RESOURCES.wood]: 2,
+        [RESOURCES.stone]: 1,
+        [RESOURCES.food]: 2,
     }),
     swamp: new Biome('swamp', {
-        cloth: 1,
-        wood: 1,
-        stone: 0,
-        food: 3,
+        [RESOURCES.cloth]: 1,
+        [RESOURCES.wood]: 1,
+        [RESOURCES.stone]: 0,
+        [RESOURCES.food]: 3,
     }),
     tropical_swamp: new Biome('tropical_swamp', {
-        cloth: 1,
-        wood: 3,
-        stone: 1,
-        food: 3,
+        [RESOURCES.cloth]: 1,
+        [RESOURCES.wood]: 3,
+        [RESOURCES.stone]: 1,
+        [RESOURCES.food]: 3,
     }),
     desert: new Biome('desert', {
-        cloth: 1,
-        wood: 0,
-        stone: 2,
-        food: 1,
+        [RESOURCES.cloth]: 1,
+        [RESOURCES.wood]: 0,
+        [RESOURCES.stone]: 2,
+        [RESOURCES.food]: 1,
     }),
     extreme_desert: new Biome('extreme_desert', {
-        cloth: 0,
-        wood: 0,
-        stone: 1,
-        food: 0,
+        [RESOURCES.cloth]: 0,
+        [RESOURCES.wood]: 0,
+        [RESOURCES.stone]: 1,
+        [RESOURCES.food]: 0,
     }),
 };
 const biome_matrix = {
@@ -126,18 +127,18 @@ function Biome(
     name = '',
     resource_production = {},
     movement_speed = 1, // modify how fast work gets done here and how long it takes to traverse
-    pleasantness = 1 // modify population growth (and maybe maintenance)...a way to make resource rich biomes less attractive
+    pleasantness = 1 // modify population growth (and maybe maintenance)...a way to make resource rich biomes less attractive...defendability might be another aspect
 ) {
     return {
         name,
         resource_production: Object.assign({
-            gold: 0,
-            cloth: 0,
-            wood: 0,
-            stone: 0,
-            iron: 0,
-            food: 0,
-            alcohol: 0,
+            [RESOURCES.gold]: 0,
+            [RESOURCES.cloth]: 0,
+            [RESOURCES.wood]: 0,
+            [RESOURCES.stone]: 0,
+            [RESOURCES.iron]: 0,
+            [RESOURCES.food]: 0,
+            [RESOURCES.alcohol]: 0,
         }, resource_production),
         movement_speed,
         pleasantness

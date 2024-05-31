@@ -24,6 +24,9 @@ export function create_hex_cell(cx, cy, x, y, q, r, s) {
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
+        population: 0,
+        structures: {},
+        resources: {},
         get biome() {
             if (!biome) return '';
             return biome;
