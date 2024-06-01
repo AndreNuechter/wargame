@@ -72,7 +72,7 @@ h1 {
     cursor: pointer;
 }
 
-.cell {
+.cell-wrapper {
     cursor: pointer;
 
     &:hover,
@@ -94,7 +94,7 @@ path {
     stroke-linecap: round;
 }
 
-.outer-cell {
+.cell {
     stroke: #2c2c2c;
     stroke-width: 0.1px;
 }

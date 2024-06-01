@@ -231,7 +231,7 @@ function output_cell_info({
     humidity,
     elevation
 }) {
-    // TODO rather dump entire json of cell?
+    // TODO rather dump entire json of cell?...need to skip neighbors for this to work as that makes it cyclic
     const biome_name_display = document.getElementById('biome-name').querySelector('.value-text');
     const temperature_display = document.getElementById('temperature').querySelector('.value-text');
     const humidity_display = document.getElementById('humidity').querySelector('.value-text');
@@ -244,7 +244,7 @@ function output_cell_info({
 }
 
 board.addEventListener('click', ({ target }) => {
-    const cell_element = target.closest('.cell');
+    const cell_element = target.closest('.cell-wrapper');
 
     if (!cell_element) return;
 

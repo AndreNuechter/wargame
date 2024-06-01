@@ -1,19 +1,5 @@
-export const cellGroupTmpl = (() => {
-    const cell = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    const cellWrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+import { defs } from './dom-selections.js';
 
-    cell.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#outer-hex');
-    cell.classList.add('outer-cell');
-    cellWrapper.classList.add('cell');
-
-    cellWrapper.append(cell);
-
-    return cellWrapper;
-})();
-export const player_border_path = (() => {
-    const path_wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    path_wrapper.classList.add('player-border');
-    return path_wrapper;
-})();
-
+export const cell_group_tmpl = defs.querySelector('.cell-wrapper');
+export const player_border_path = defs.querySelector('.player-border');
 export const player_config_tmpl = document.getElementById('player-config-tmpl').content;

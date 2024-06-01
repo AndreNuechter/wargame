@@ -1,5 +1,5 @@
 import { board } from '../dom-selections.js';
-import { cellGroupTmpl } from '../dom-creations.js';
+import { cell_group_tmpl } from '../dom-creations.js';
 import { TEMPERATURES } from '../map-generation/assign-temperature.js';
 import { HUMIDITY_LEVELS } from '../map-generation/assign-humidity.js';
 
@@ -51,9 +51,9 @@ export function create_hex_cell(cx, cy, x, y, q, r, s) {
 function render_hex_cell(
     cx, cy, x, y, q, r, s
 ) {
-    const cellWrapper = cellGroupTmpl.cloneNode(true);
+    const cell_wrapper = cell_group_tmpl.cloneNode(true);
 
-    cellWrapper.setAttribute('transform', `translate(${cx}, ${cy})`);
+    cell_wrapper.setAttribute('transform', `translate(${cx}, ${cy})`);
 
     // render coords
     const text_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -75,11 +75,11 @@ function render_hex_cell(
     s_coord.classList.add('cube-coord');
     offset_coords.classList.add('offset-coord');
     text_group.append(q_coord, r_coord, s_coord, offset_coords);
-    cellWrapper.append(text_group);
+    cell_wrapper.append(text_group);
 
     // TODO biome icon or texture
 
-    board.prepend(cellWrapper);
+    board.prepend(cell_wrapper);
 
-    return cellWrapper;
+    return cell_wrapper;
 }

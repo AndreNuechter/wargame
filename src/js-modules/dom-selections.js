@@ -4,6 +4,7 @@ export const bottom_bar = document.getElementById('bottom-bar');
 export const cell_info = document.getElementById('cell-info');
 export const coord_system_toggle_btn = document.getElementById('toggle-coord-system-btn');
 export const config_game_form = document.getElementById('config-game-form');
+export const defs = document.getElementById('defs');
 export const end_turn_btn = document.getElementById('end-turn-btn');
 export const phase_label = document.getElementById('phase-label');
 export const player_configs = document.getElementsByClassName('player-config');
