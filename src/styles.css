@@ -83,7 +83,7 @@ h1 {
 
 #cell-info {
     display: none;
-    white-space: nowrap;
+    white-space: preserve;
 
     .debug & {
         display: block;

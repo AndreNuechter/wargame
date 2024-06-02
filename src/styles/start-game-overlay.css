@@ -45,6 +45,10 @@
 label {
     display: flex;
     align-items: center;
+
+    #cell-production-forecast & {
+        display: initial;
+    }
 }
 
 .label-text {

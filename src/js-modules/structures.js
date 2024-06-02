@@ -25,7 +25,7 @@ export default {
     forge: make_structure(),
     farm: make_structure(),
     distillery: make_structure()
-    // offensive (eg citadel, spy_academy...)/defensive structures (eg wall...)
+    // offensive (eg citadel, spy_academy...)/defensive structures (eg wall...), others like streets and storage
 };
 
 function make_structure(

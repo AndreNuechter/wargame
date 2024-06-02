@@ -5,9 +5,12 @@ import board_dimensions from './js-modules/map-generation/board-dimensions.js';
 import {
     add_player_btn,
     board,
+    cell_info,
+    cell_production_forecast,
     config_game_form,
     coord_system_toggle_btn,
     end_turn_btn,
+    overall_production_forecast,
     player_configs,
     player_setup,
     reroll_map_btn,
@@ -20,6 +23,7 @@ import game, { apply_savegame } from './js-modules/game.js';
 import ROUND_PHASES from './js-modules/round-phases.js';
 import { BIOMES } from './js-modules/map-generation/biomes.js';
 import outline_hexregion from './js-modules/hex-grid/outline-hexregion.js';
+import structures from './js-modules/structures.js';
 
 // TODO add way to config map gen
 
@@ -225,22 +229,13 @@ player_setup.addEventListener('click', ({ target }) => {
 // prevent closing dialog wo making a choice (ie by pressing esc)
 start_game_overlay.addEventListener('cancel', (event) => event.preventDefault());
 
-function output_cell_info({
-    biome: { name: biome_name },
-    temperature,
-    humidity,
-    elevation
-}) {
-    // TODO rather dump entire json of cell?...need to skip neighbors for this to work as that makes it cyclic
-    const biome_name_display = document.getElementById('biome-name').querySelector('.value-text');
-    const temperature_display = document.getElementById('temperature').querySelector('.value-text');
-    const humidity_display = document.getElementById('humidity').querySelector('.value-text');
-    const elevation_display = document.getElementById('elevation').querySelector('.value-text');
-
-    biome_name_display.textContent = biome_name;
-    temperature_display.textContent = temperature;
-    humidity_display.textContent = humidity;
-    elevation_display.textContent = elevation;
+function output_cell_info(hex_obj) {
+    cell_info.textContent = JSON.stringify(
+        hex_obj,
+        // NOTE: `neighbors` is cyclic
+        (key, value) => key === 'neighbors' ? undefined : value,
+        4
+    );
 }
 
 board.addEventListener('click', ({ target }) => {
@@ -264,37 +259,72 @@ board.addEventListener('click', ({ target }) => {
 
     output_cell_info(hex_obj);
 
-    const overall_production_forecast = document.getElementById('cell-production-forecast');
-    const cell_production_forecast = document.getElementById('cell-production-forecast');
-
     if (game.current_phase === ROUND_PHASES.land_grab.name) {
         if (hex_obj.owner_id === -1 && hex_obj.biome !== BIOMES.sea) {
+            const cell_output = hex_obj.biome.resource_production;
             start_position_candidate = cell_element;
             // highlight clicked cell and its neighbors
             cell_element.classList.add('clicked');
             outline_hexregion([...hex_obj.neighbors, hex_obj], 'white', selection_highlight);
+            // show expected production (and other cell specific factoids) on the side
+            cell_production_forecast.innerHTML = `
+            <h2>Cell Info</h2>
+            <div>Biome: ${hex_obj.biome.name}</div>
+            <div>Movement modifier: ${hex_obj.biome.movement_speed}</div>
+            <div>Pleasantness: ${hex_obj.biome.pleasantness}</div>
+            <h3>Production</h3>
+            <div>Wood: ${cell_output.wood}</div>
+            <div>Stone: ${cell_output.stone}</div>
+            <div>Cloth: ${cell_output.cloth}</div>
+            <div>Food: ${cell_output.food}</div>
+            <h3>Supported structures</h3>
+            <ul>
+            ${Object.entries(structures)
+        .filter(([, description]) => !description.unsupported_biomes.includes(hex_obj.biome))
+        .map(([label]) => `<li>${ label }</li>`)
+        .join('')}
+        </ul>
+            `;
+        } else {
+            cell_production_forecast.replaceChildren();
         }
         // TODO prettify this and build required ui + logic
     } else if (game.current_phase === ROUND_PHASES.development.name) {
-        // TODO enable raising/lowering taxes & planing festivities to lower chance of popultion revolting over taxes (requires gold and alcohol)
+        // TODO enable raising/lowering taxes
         if (hex_obj.owner_id !== game.current_player_id) {
-            cell_production_forecast.textContent = '';
-            overall_production_forecast.textContent = `In total you will gain ${JSON.stringify(
-                calculate_resource_production(
-                    game.players[game.current_player_id].cells,
-                    game.players[game.current_player_id].tax_rate
-                )
-            )} next round`;
+            const total_production = calculate_resource_production(
+                game.players[game.current_player_id].cells,
+                game.players[game.current_player_id].tax_rate
+            );
+            cell_production_forecast.replaceChildren();
+            overall_production_forecast
+                .innerHTML = `
+                <h2>Totall Output</h2>
+                <ul>
+                    ${Object.entries(total_production).map(([resource, value]) => `<li>${resource}: ${value}</li>`).join('')}
+                </ul>
+                <form>
+                    <h2>Tax Rate</h2>
+                    <input type="range">
+                </form>
+                `;
         } else {
-            // TODO enable building/expanding constructions (and adjust production forecast)
+            const cell_output = calculate_resource_production(
+                [hex_obj],
+                game.players[game.current_player_id].tax_rate
+            );
             // TODO enable turning population into other units (on cells w required structures)
-            overall_production_forecast.textContent = '';
-            cell_production_forecast.textContent = `expect ${JSON.stringify(
-                calculate_resource_production(
-                    [hex_obj],
-                    game.players[game.current_player_id].tax_rate
-                )
-            )} from this cell next round`;
+            // TODO enable building/expanding constructions (and adjust production forecast)
+            overall_production_forecast.replaceChildren();
+            cell_production_forecast.innerHTML = `
+                <h2>Cell Output</h2>
+                <ul>
+                ${Object.entries(cell_output).map(([resource, value]) => `<li>${resource}: ${value}</li>`).join('')}
+                </ul>
+                <form>
+                <h2>Build Structures</h2>
+                    ${Object.keys(structures).map((structure) => `<label><div class="label-text">${structure}: </div><input type="number"></label>`).join('')}
+                </form>`;
         }
     }
 });

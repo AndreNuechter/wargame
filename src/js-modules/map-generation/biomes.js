@@ -128,6 +128,7 @@ function Biome(
     resource_production = {},
     movement_speed = 1, // modify how fast work gets done here and how long it takes to traverse
     pleasantness = 1 // modify population growth (and maybe maintenance)...a way to make resource rich biomes less attractive...defendability might be another aspect
+    // space available for building...
 ) {
     return {
         name,
