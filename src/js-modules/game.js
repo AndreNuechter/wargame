@@ -10,6 +10,7 @@ export default (() => {
     let round = 0;
     let current_phase = ROUND_PHASES.land_grab.name;
     let current_player_id = 0;
+    let current_player_total_production = null;
 
     function adjust_ui_to_phase() {
         // TODO use player colors in some way
@@ -19,7 +20,7 @@ export default (() => {
 
         if (current_phase === ROUND_PHASES.development.name) {
             // show overall resource production
-            const total_production = calculate_resource_production(
+            current_player_total_production = calculate_resource_production(
                 players[current_player_id].cells,
                 players[current_player_id].tax_rate
             );
@@ -28,26 +29,31 @@ export default (() => {
                 .innerHTML = `
                 <h2>Totall Output</h2>
                 <ul>
-                    ${Object.entries(total_production).map(([resource, value]) => `<li>${resource}: ${value}</li>`).join('')}
+                    ${Object.entries(current_player_total_production).map(([resource, value]) => `<li>${resource}: ${value}</li>`).join('')}
                 </ul>
                 <form>
                     <h2>Tax Rate</h2>
-                    <input type="range">
+                    <input type="range" name="tax_rate">
                 </form>
                 `;
             bottom_bar.classList.remove('content-hidden');
-            Object.entries(players[current_player_id].resources).forEach(([name, value]) => {
-                // TODO display population count(s) on cells
-                // TODO use icons instead of labels for resources
-                try {
-                    bottom_bar.querySelector(`[data-resource-name="${name}"]`).textContent = `${name}: ${value}`;
-                } catch {
-                    console.log('who cares rn?');
-                }
-            });
+            // TODO display population count(s) on cells
+            update_resource_display();
         } else {
             bottom_bar.classList.add('content-hidden');
         }
+    }
+
+    function update_resource_display() {
+        bottom_bar.replaceChildren(
+            ...Object.entries(players[current_player_id].resources).map(([name, value]) => {
+                // TODO use icons instead of labels for resources
+                return Object.assign(
+                    document.createElement('div'),
+                    { textContent: `${name}: ${value}` }
+                );
+            })
+        );
     }
 
     return {
@@ -57,6 +63,9 @@ export default (() => {
         },
         set round(num) {
             round = num;
+        },
+        get active_player() {
+            return players[current_player_id];
         },
         get players() {
             return players;
@@ -70,6 +79,9 @@ export default (() => {
         set current_player_id(id) {
             current_player_id = id;
         },
+        get current_player_total_production() {
+            return current_player_total_production;
+        },
         clear_players() {
             players.forEach((player) => player.destroy());
             players.length = 0;
@@ -80,6 +92,7 @@ export default (() => {
         set current_phase(phase) {
             current_phase = phase;
         },
+        update_resource_display,
         next_turn() {
             // increase player_id and if returning to the beginning, move to the next phase
             if (current_player_id === players.length - 1) {

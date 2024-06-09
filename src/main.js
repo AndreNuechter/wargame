@@ -15,6 +15,7 @@ import {
     player_setup,
     reroll_map_btn,
     selection_highlight,
+    side_bar,
     start_game_form,
     start_game_overlay,
 } from './js-modules/dom-selections.js';
@@ -32,7 +33,7 @@ import structures from './js-modules/structures.js';
 // movement planning phase can be used to move population to adjacent cells
 // movement execution phase enacts plans made in the phase before. conflicts between players may happen in this phase. at end of this phase: generate resources
 
-let start_position_candidate = null;
+let selected_cell = null;
 
 // set up board
 window.addEventListener('DOMContentLoaded', () => {
@@ -55,7 +56,7 @@ window.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('beforeunload', () => {
     wakeLock.release();
 
-    // dont save incomplete state (ie when closing page while still in the game_config_form)
+    // prevent saving incomplete state (ie when closing page while still in the game_config_form)
     if (game.players.length === 0) {
         localStorage.removeItem('wargame-savegame');
         return;
@@ -94,10 +95,9 @@ window.addEventListener('beforeunload', () => {
     );
 });
 
-// submit game_start overlay
-start_game_form.addEventListener('submit', (event) => {
-    event.preventDefault();
+document.addEventListener('submit', (event) => event.preventDefault());
 
+start_game_form.addEventListener('submit', (event) => {
     if (event.submitter.id === 'new-game-btn') {
         // if there's a prior save, reroll the map and delete players
         if (start_game_overlay.dataset.priorSave === 'true') {
@@ -131,20 +131,20 @@ reroll_map_btn.addEventListener('click', () => {
 end_turn_btn.addEventListener('click', () => {
     if (game.current_phase === ROUND_PHASES.land_grab.name) {
         // TODO let player know he needs to pick a non-sea starting position
-        if (start_position_candidate === null) return;
+        if (selected_cell === null) return;
 
-        game.board.get(start_position_candidate).owner_id = game.current_player_id;
-        game.players[game.current_player_id].cells = [game.board.get(start_position_candidate)];
+        game.board.get(selected_cell).owner_id = game.current_player_id;
+        game.active_player.cells = [game.board.get(selected_cell)];
 
-        start_position_candidate = null;
+        selected_cell = null;
     }
 
     game.next_turn();
 });
 
-config_game_form.addEventListener('submit', (event) => {
-    event.preventDefault();
+config_game_form.addEventListener('submit', () => {
     // prevent duplicate names
+    // TODO do this on input or change
     const duplicate_names = new Set();
     const name_inputs = [...config_game_form.querySelectorAll('.player-name-input')];
 
@@ -164,7 +164,6 @@ config_game_form.addEventListener('submit', (event) => {
     if (duplicate_names.size !== 0) {
         // TODO add message below input and show toast
         // add highlight to related input field
-        // TODO do this on change
         name_inputs.forEach((input) => {
             if (duplicate_names.has(input.value)) {
                 input.classList.add('invalid');
@@ -188,7 +187,6 @@ config_game_form.addEventListener('submit', (event) => {
 
     // TODO use other config options
 
-    // start game
     game.run();
     start_game_overlay.close();
 });
@@ -238,31 +236,15 @@ function output_cell_info(hex_obj) {
     );
 }
 
-board.addEventListener('click', ({ target }) => {
-    const cell_element = target.closest('.cell-wrapper');
-
-    if (!cell_element) return;
-
-    const previously_selected_cell = board.querySelector('.clicked');
-    const hex_obj = game.board.get(cell_element);
-
-    if (previously_selected_cell) {
-        previously_selected_cell.classList.remove('clicked');
-        // clear focus highlighting
-        selection_highlight.replaceChildren();
-
-        start_position_candidate = null;
-
-        // player de-selected a cell
-        if (previously_selected_cell === cell_element) return;
-    }
-
-    output_cell_info(hex_obj);
-
-    if (game.current_phase === ROUND_PHASES.land_grab.name) {
+const game_phases = {
+    [ROUND_PHASES.land_grab.name](hex_obj, cell_element) {
         if (hex_obj.owner_id === -1 && hex_obj.biome !== BIOMES.sea) {
             const cell_output = hex_obj.biome.resource_production;
-            start_position_candidate = cell_element;
+            const supported_structures = Object.values(structures)
+                .filter((structure) => !structure.unsupported_biomes.includes(hex_obj.biome))
+                .map(({ display_name }) => `<li>${display_name}</li>`)
+                .join('');
+            selected_cell = cell_element;
             // highlight clicked cell and its neighbors
             cell_element.classList.add('clicked');
             outline_hexregion([...hex_obj.neighbors, hex_obj], 'white', selection_highlight);
@@ -272,60 +254,172 @@ board.addEventListener('click', ({ target }) => {
             <div>Biome: ${hex_obj.biome.name}</div>
             <div>Movement modifier: ${hex_obj.biome.movement_speed}</div>
             <div>Pleasantness: ${hex_obj.biome.pleasantness}</div>
+            ...
             <h3>Production</h3>
             <div>Wood: ${cell_output.wood}</div>
             <div>Stone: ${cell_output.stone}</div>
             <div>Cloth: ${cell_output.cloth}</div>
             <div>Food: ${cell_output.food}</div>
             <h3>Supported structures</h3>
-            <ul>
-            ${Object.entries(structures)
-        .filter(([, description]) => !description.unsupported_biomes.includes(hex_obj.biome))
-        .map(([label]) => `<li>${ label }</li>`)
-        .join('')}
-        </ul>
+            <ul>${supported_structures}</ul>
             `;
         } else {
             cell_production_forecast.replaceChildren();
         }
-        // TODO prettify this and build required ui + logic
-    } else if (game.current_phase === ROUND_PHASES.development.name) {
-        // TODO enable raising/lowering taxes
+    },
+    [ROUND_PHASES.development.name](hex_obj) {
         if (hex_obj.owner_id !== game.current_player_id) {
             const total_production = calculate_resource_production(
-                game.players[game.current_player_id].cells,
-                game.players[game.current_player_id].tax_rate
+                game.active_player.cells,
+                game.active_player.tax_rate
             );
+            const total_production_list = Object
+                .entries(total_production)
+                .map(([resource, value]) => `<li>${resource}: ${value}</li>`)
+                .join('');
             cell_production_forecast.replaceChildren();
             overall_production_forecast
                 .innerHTML = `
-                <h2>Totall Output</h2>
+                <h2>Empire Overview</h2>
+                <h3>Population</h3>
+                ...
+                <h3>Production</h3>
                 <ul>
-                    ${Object.entries(total_production).map(([resource, value]) => `<li>${resource}: ${value}</li>`).join('')}
+                    ${total_production_list}
                 </ul>
                 <form>
-                    <h2>Tax Rate</h2>
-                    <input type="range">
+                    <h3>Tax Rate</h3>
+                    <input
+                        type="range"
+                        name="tax_rate"
+                        min="0"
+                        step="1"
+                        value="${game.active_player.tax_rate}"
+                    >
                 </form>
                 `;
         } else {
+            const structure_builder_inputs = Object
+                .entries(structures)
+                // TODO add icon to toggle structure info
+                .map(([name, structure]) => `
+                <label>
+                    <div class="label-text">${structure.display_name}: </div>
+                    <input
+                        type="number"
+                        class="structure-builder"
+                        name="${name}"
+                        value="${hex_obj.structures.get(structure)}"
+                        min="0"
+                    >
+                </label>`)
+                .join('');
             const cell_output = calculate_resource_production(
                 [hex_obj],
-                game.players[game.current_player_id].tax_rate
+                game.active_player.tax_rate
             );
+            const output_list = Object
+                .entries(cell_output)
+                .map(([resource, value]) => `<li>${resource}: ${value}</li>`)
+                .join('');
+            selected_cell = hex_obj;
+
             // TODO enable turning population into other units (on cells w required structures)
-            // TODO enable building/expanding constructions (and adjust production forecast)
             overall_production_forecast.replaceChildren();
             cell_production_forecast.innerHTML = `
-                <h2>Cell Output</h2>
+                <h2>Cell Overview</h2>
+                <h3>Cell Output</h3>
                 <ul>
-                ${Object.entries(cell_output).map(([resource, value]) => `<li>${resource}: ${value}</li>`).join('')}
+                    ${output_list}
                 </ul>
                 <form>
-                <h2>Build Structures</h2>
-                    ${Object.keys(structures).map((structure) => `<label><div class="label-text">${structure}: </div><input type="number"></label>`).join('')}
+                    <h3>Build Structures</h3>
+                    ${structure_builder_inputs}
                 </form>`;
         }
+    }
+};
+
+board.addEventListener('click', ({ target }) => {
+    const cell_element = target.closest('.cell-wrapper');
+
+    if (!cell_element) {
+        selected_cell = null;
+        return;
+    }
+
+    const previously_selected_cell = board.querySelector('.clicked');
+    const hex_obj = game.board.get(cell_element);
+
+    if (previously_selected_cell) {
+        previously_selected_cell.classList.remove('clicked');
+        // clear focus highlighting
+        selection_highlight.replaceChildren();
+
+        selected_cell = null;
+
+        // player de-selected a cell
+        if (previously_selected_cell === cell_element) return;
+    }
+
+    // TODO toggle debug via dblclick on title
+    output_cell_info(hex_obj);
+
+    game_phases[game.current_phase](hex_obj, cell_element);
+});
+
+side_bar.addEventListener('input', ({ target }) => {
+    const entered_value = Number(target.value);
+
+    if (target.name === 'tax_rate') {
+        game.active_player.tax_rate = entered_value;
+    } else if (target.classList.contains('structure-builder')) {
+        const structure = structures[target.name];
+        const structure_current_count = selected_cell.structures.get(structure);
+
+        if (entered_value < 0) {
+            // TODO keep user from entering values by keyboard...use other ui element
+            target.value = structure_current_count;
+            return;
+        }
+
+        const structure_cost = structures[target.name].construction_cost;
+        const building_structure = entered_value > structure_current_count;
+
+        if (building_structure) {
+            const player_isnt_rich_enough = structure_cost
+                .some(({ resource_name, amount }) => amount > game.active_player.resources[resource_name]);
+
+            if (player_isnt_rich_enough) {
+                target.value = structure_current_count;
+                return;
+            }
+
+            // subtract resources
+            structure_cost.forEach(({ resource_name, amount }) => {
+                game.active_player.resources[resource_name] -= amount;
+            });
+        } else {
+            // add resources
+            structure_cost.forEach(({ resource_name, amount }) => {
+                game.active_player.resources[resource_name] += amount;
+            });
+        }
+
+        // update structure count on cell
+        selected_cell.structures.set(structure, entered_value);
+        // update cell production
+        cell_production_forecast.querySelector('ul').innerHTML = (
+            Object
+                .entries(calculate_resource_production(
+                    [selected_cell],
+                    game.active_player.tax_rate
+                ))
+                .map(([resource, value]) => `<li>${resource}: ${value}</li>`)
+                .join('')
+        );
+        // update total resources
+        game.update_resource_display();
     }
 });
 
