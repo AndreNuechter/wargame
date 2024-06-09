@@ -2,7 +2,7 @@ import { BIOMES } from './map-generation/biomes.js';
 import RESOURCES from './resources.js';
 
 // TODO finish this
-export default {
+const STRUCTURES = {
     tent: make_structure(
         'Tent',
         [
@@ -78,6 +78,8 @@ export default {
     )
     // offensive (eg citadel, spy_academy...)/defensive structures (eg wall...), others like streets and storage, schools (see Banished, trade slower pop growth for higher productivity)...
 };
+
+export default STRUCTURES;
 
 function make_structure(
     display_name = 'Pretty Structure',

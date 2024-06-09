@@ -55,6 +55,16 @@ label {
     padding-right: 4px;
 }
 
+#player-setup {
+    position: relative;
+}
+
+#add-player-btn {
+    position: absolute;
+    right: 0;
+    top: -30px;
+}
+
 .player-name-input {
     padding: 0 16px;
 }
