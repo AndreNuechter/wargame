@@ -1,0 +1,27 @@
+:root {
+    --player-1: tomato;
+    --player-2: rebeccapurple;
+    --player-3: gold;
+    --player-4: aquamarine;
+    --player-5: hotpink;
+}
+
+[data-owner_id="0"] {
+    --owner-color: var(--player-1);
+}
+
+[data-owner_id="1"] {
+    --owner-color: var(--player-2);
+}
+
+[data-owner_id="2"] {
+    --owner-color: var(--player-3);
+}
+
+[data-owner_id="3"] {
+    --owner-color: var(--player-4);
+}
+
+[data-owner_id="4"] {
+    --owner-color: var(--player-5);
+}

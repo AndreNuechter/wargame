@@ -15,6 +15,7 @@ export function reroll_map(hex_map) {
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
+        population: 0,
         owner_id: -1
     }));
     assign_temperatures(hex_arr);
@@ -35,7 +36,8 @@ export function reinstate_hex_map(board_state, board_map) {
             elevation,
             humidity,
             temperature,
-            owner_id
+            owner_id,
+            population
         }) => Object.assign(
             create_hex_cell(cx, cy, x, y, q, r, s),
             {
@@ -43,7 +45,8 @@ export function reinstate_hex_map(board_state, board_map) {
                 elevation,
                 humidity,
                 temperature,
-                owner_id
+                owner_id,
+                population
             }
         ));
 

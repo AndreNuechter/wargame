@@ -20,6 +20,7 @@ import {
 import create_player, { make_player_config } from './js-modules/game-objects/player.js';
 import game, { apply_savegame } from './js-modules/game-objects/game.js';
 import ROUND_PHASES, { end_turn_btn_click_handling, side_bar_input_handling } from './js-modules/game-objects/round-phases.js';
+import save_game from './js-modules/save-game.js';
 
 // TODO add way to config map gen
 
@@ -43,46 +44,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 }, { once: true });
 
-// save game before closing page
-window.addEventListener('beforeunload', () => {
-    // prevent saving incomplete state (ie when closing page while still in the game_config_form)
-    if (game.players.length === 0) {
-        localStorage.removeItem('wargame-savegame');
-        return;
-    }
-
-    localStorage.setItem(
-        'wargame-savegame',
-        JSON.stringify({
-            round: game.round,
-            current_phase: game.current_phase,
-            current_player_id: game.current_player_id,
-            players: game.players.map(({ name, type, color }) => ({ name, type, color })),
-            board: [...game.board.values()]
-                .map(({
-                    cx, cy, x, y, q, r, s,
-                    biome: { name },
-                    elevation,
-                    humidity,
-                    temperature,
-                    owner_id
-                }) => ({
-                    cx,
-                    cy,
-                    x,
-                    y,
-                    q,
-                    r,
-                    s,
-                    biome_name: name,
-                    elevation,
-                    humidity,
-                    temperature,
-                    owner_id
-                }))
-        })
-    );
-});
+window.addEventListener('beforeunload', save_game);
 
 document.addEventListener('submit', (event) => event.preventDefault());
 
@@ -138,7 +100,7 @@ config_game_form.addEventListener('submit', () => {
             return name_count;
         }, {});
 
-    if (duplicate_names.size !== 0) {
+    if (duplicate_names.size > 0) {
         // TODO add message below input and show toast
         // add highlight to related input field
         name_inputs.forEach((input) => {
@@ -149,16 +111,13 @@ config_game_form.addEventListener('submit', () => {
         return;
     }
 
-    // TODO find better way to store colors
-    const player_colors = ['tomato', 'rebeccapurple', 'gold', 'aquamarine', 'hotpink'];
-
     // create player objects
     game.players = Array.from(
         player_configs,
         (config, id) => {
             const name = config.querySelector('.player-name-input').value;
             const type = config.querySelector('.player-type-select-radio:checked').value;
-            return create_player(name, type, player_colors[id]);
+            return create_player(id, name, type);
         }
     );
 
@@ -204,15 +163,6 @@ player_setup.addEventListener('click', ({ target }) => {
 // prevent closing dialog wo making a choice (ie by pressing esc)
 start_game_overlay.addEventListener('cancel', (event) => event.preventDefault());
 
-function output_cell_info(hex_obj) {
-    cell_info.textContent = JSON.stringify(
-        hex_obj,
-        // NOTE: `neighbors` is cyclic
-        (key, value) => key === 'neighbors' ? undefined : value,
-        4
-    );
-}
-
 board.addEventListener('click', ({ target }) => {
     const cell_element = target.closest('.cell-wrapper');
 
@@ -232,7 +182,6 @@ board.addEventListener('click', ({ target }) => {
         if (previously_selected_cell === cell_element) return;
     }
 
-    // TODO toggle debug via dblclick on title
     output_cell_info(hex_obj);
 
     ROUND_PHASES[game.current_phase].handler_function(hex_obj, cell_element, game);
@@ -240,6 +189,19 @@ board.addEventListener('click', ({ target }) => {
 
 side_bar.addEventListener('input', side_bar_input_handling(game));
 
+document.querySelector('h1').addEventListener('dblclick', () => {
+    document.body.classList.toggle('debug');
+});
+
 coord_system_toggle_btn.addEventListener('click', () => {
     document.body.classList.toggle('use-offset-coords');
 });
+
+function output_cell_info(hex_obj) {
+    cell_info.textContent = JSON.stringify(
+        hex_obj,
+        // NOTE: `neighbors` is cyclic
+        (key, value) => key === 'neighbors' ? undefined : value,
+        4
+    );
+}

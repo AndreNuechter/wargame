@@ -1,11 +1,10 @@
-.cell-coord {
+.cell-coords {
     display: none;
-    font-size: 1.5px;
-    font-weight: lighter;
+    font-size: 0.1rem;
     fill: blue
 }
 
-.offset-coord {
+.offset-coords {
     opacity: 0;
 }
 
@@ -14,7 +13,7 @@ body.use-offset-coords {
         opacity: 0;
     }
 
-    .offset-coord {
+    .offset-coords {
         opacity: 1;
     }
 }
@@ -25,7 +24,7 @@ body.use-offset-coords {
 
 .debug {
     #toggle-coord-system-btn,
-    .cell-coord {
+    .cell-coords {
         display: initial;
     }
 }

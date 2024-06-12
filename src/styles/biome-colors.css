@@ -15,3 +15,63 @@
     --desert: #e8ac4b;
     --extreme_desert: #f9e79f;
 }
+
+.sea {
+    fill: var(--sea);
+}
+
+.mountain {
+    fill: var(--mountain);
+}
+
+.high_mountain {
+    fill: var(--high_mountain);
+}
+
+.ice {
+    fill: var(--ice);
+}
+
+.tundra {
+    fill: var(--tundra);
+}
+
+.grassland {
+    fill: var(--grassland);
+}
+
+.savanna {
+    fill: var(--savanna);
+}
+
+.boreal_forest {
+    fill: var(--boreal_forest);
+}
+
+.forest {
+    fill: var(--forest);
+}
+
+.tropical_rainforest {
+    fill: var(--tropical_rainforest);
+}
+
+.cold_swamp {
+    fill: var(--cold_swamp);
+}
+
+.swamp {
+    fill: var(--swamp);
+}
+
+.tropical_swamp {
+    fill: var(--tropical_swamp);
+}
+
+.desert {
+    fill: var(--desert);
+}
+
+.extreme_desert {
+    fill: var(--extreme_desert);
+}

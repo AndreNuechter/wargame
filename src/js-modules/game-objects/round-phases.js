@@ -3,6 +3,7 @@ import { calculate_resource_production } from './player';
 import { BIOMES } from '../map-generation/biomes';
 import outline_hexregion from '../hex-grid/outline-hexregion';
 import { selection_highlight, cell_production_forecast, overall_production_forecast } from '../dom-selections';
+import resources from './resources';
 
 let selected_cell = null;
 
@@ -185,8 +186,13 @@ export function end_turn_btn_click_handling(game) {
             // TODO let player know he needs to pick a non-sea starting position
             if (selected_cell === null) return;
 
-            game.board.get(selected_cell).owner_id = game.current_player_id;
-            game.active_player.cells = [game.board.get(selected_cell)];
+            const hex_obj = game.board.get(selected_cell);
+
+            Object.assign(hex_obj, {
+                owner_id: game.current_player_id,
+                population: game.active_player.resources[resources.people]
+            });
+            game.active_player.cells = [hex_obj];
 
             selected_cell = null;
         }

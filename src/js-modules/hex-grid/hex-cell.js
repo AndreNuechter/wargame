@@ -6,8 +6,10 @@ import STRUCTURES from '../game-objects/structures.js';
 
 export function create_hex_cell(cx, cy, x, y, q, r, s) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);
+    const pop_size_display = cell.querySelector('.population-size');
     let biome = null;
     let owner_id = -1;
+    let population = 0;
 
     return {
         // for positioning in grid
@@ -25,26 +27,30 @@ export function create_hex_cell(cx, cy, x, y, q, r, s) {
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
-        population: 0,
+        get population() {
+            return population;
+        },
+        set population(value) {
+            population = value;
+            pop_size_display.textContent = population > 0 ? population : '';
+        },
         structures: new Map(Object.values(STRUCTURES).map((structure) => [structure, 0])),
         resources: {},
         get biome() {
-            if (!biome) return '';
             return biome;
         },
         set biome(new_biome) {
+            // TODO biome icon or texture
+            if (biome !== null) cell.classList.remove(biome.name);
+            if (new_biome !== null) cell.classList.add(new_biome.name);
             biome = new_biome;
-            if (!new_biome) return;
-            cell.dataset.biome = biome.name;
         },
         get owner_id() {
             return owner_id;
         },
         set owner_id(id) {
-            if (id === undefined) return;
             owner_id = id;
-            if (id === -1) return;
-            cell.dataset.owner_id = id;
+            if (id !== -1) cell.dataset.owner_id = id;
         }
     };
 }
@@ -57,28 +63,10 @@ function render_hex_cell(
     cell_wrapper.setAttribute('transform', `translate(${cx}, ${cy})`);
 
     // render coords
-    const text_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    const q_coord = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    const r_coord = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    const s_coord = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    const offset_coords = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    q_coord.textContent = q;
-    r_coord.textContent = r;
-    s_coord.textContent = s;
-    offset_coords.textContent = `${x}, ${y}`;
-    q_coord.setAttribute('transform', 'translate(1.5, 2)');
-    r_coord.setAttribute('transform', 'translate(4.5, 3.5)');
-    s_coord.setAttribute('transform', 'translate(2, 5)');
-    offset_coords.setAttribute('transform', 'translate(1.5, 3.5)');
-    text_group.classList.add('cell-coord');
-    q_coord.classList.add('cube-coord');
-    r_coord.classList.add('cube-coord');
-    s_coord.classList.add('cube-coord');
-    offset_coords.classList.add('offset-coord');
-    text_group.append(q_coord, r_coord, s_coord, offset_coords);
-    cell_wrapper.append(text_group);
-
-    // TODO biome icon or texture
+    cell_wrapper.querySelector('.q-coord').textContent = q;
+    cell_wrapper.querySelector('.r-coord').textContent = r;
+    cell_wrapper.querySelector('.s-coord').textContent = s;
+    cell_wrapper.querySelector('.offset-coords').textContent = `${x}, ${y}`;
 
     board.prepend(cell_wrapper);
 

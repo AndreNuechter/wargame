@@ -79,7 +79,7 @@ function adjust_ui_to_phase() {
     end_turn_btn.textContent = ROUND_PHASES[current_phase].end_turn_btn_label;
     phase_label.textContent = ROUND_PHASES[current_phase].call_to_action;
     player_name.textContent = players[current_player_id].name;
-    document.documentElement.style.setProperty('--active-player-color', players[current_player_id].color);
+    document.documentElement.style.setProperty('--active-player-color', `var(--player-${current_player_id + 1}`);
 
     if (current_phase === ROUND_PHASES.development.name) {
         // show overall resource production
@@ -126,7 +126,7 @@ export function apply_savegame(game, game_data) {
         round: previous_game.round,
         current_phase: previous_game.current_phase,
         current_player_id: previous_game.current_player_id,
-        players: previous_game.players.map(({ name, type, color }) => create_player(name, type, color)),
+        players: previous_game.players.map(({ name, type }, id) => create_player(id, name, type)),
         board: reinstate_hex_map(previous_game.board, game.board)
     });
 

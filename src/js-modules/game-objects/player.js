@@ -25,7 +25,7 @@ export function make_player_config(id) {
     player_setup.append(config);
 }
 
-export default function create_player(name = 'Player Name', type = PLAYER_TYPES.ai, color) {
+export default function create_player(id, name = 'Player Name', type = PLAYER_TYPES.ai) {
     const cells = [];
     const border_path_container = player_border_path.cloneNode(true);
 
@@ -33,7 +33,6 @@ export default function create_player(name = 'Player Name', type = PLAYER_TYPES.
 
     return {
         name,
-        color,
         type,
         resources: {
             [RESOURCES.people]: 5,
@@ -51,7 +50,7 @@ export default function create_player(name = 'Player Name', type = PLAYER_TYPES.
         },
         set cells(value) {
             cells.push(...value);
-            outline_hexregion(cells, color, border_path_container);
+            outline_hexregion(cells, `var(--player-${id + 1})`, border_path_container);
         },
         destroy() {
             cells.length = 0;
@@ -61,6 +60,7 @@ export default function create_player(name = 'Player Name', type = PLAYER_TYPES.
 }
 
 export function calculate_resource_production(cells, tax_rate = 1) {
+    // TODO subtract food that's going to be used
     const result = {
         [RESOURCES.people]: 0,
         [RESOURCES.gold]: 0,
@@ -90,6 +90,7 @@ export function calculate_resource_production(cells, tax_rate = 1) {
         });
 
         // calculate pop growth...this is not what we want to tell the player! that would be sth like expect sth between 0 and Math.floor(cell.population / 2) * 2
+        // TODO inc/dec pop growth based on how many neighboring cells are inhabited
         for (let pair_index = 0; pair_index < Math.floor(cell.population / 2); pair_index += 1) {
             const random_num = Math.random();
 

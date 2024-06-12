@@ -2,6 +2,7 @@
 @import url("styles/cell-coordinates.css");
 @import url("styles/start-game-overlay.css");
 @import url("styles/biome-colors.css");
+@import url("styles/player-colors.css");
 @import url("styles/buttons.css");
 @import url("styles/info-bar.css");
 
@@ -10,6 +11,7 @@ body {
     --info-bar-height: 40px;
 
     overflow: hidden;
+    user-select: none;
     display: grid;
     grid-template-columns: 1fr var(--side-bar-width);
     grid-template-rows: var(--info-bar-height) 1fr var(--info-bar-height);
@@ -83,6 +85,11 @@ h1, h2, h3 {
     &.clicked {
         filter: brightness(1.5);
     }
+}
+
+.population-size {
+    font-size: 0.2rem;
+    fill: var(--owner-color);
 }
 
 #cell-info {

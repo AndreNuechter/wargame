@@ -205,12 +205,3 @@ function pick_biome(hex) {
 
     return biome_matrix[hex.temperature][hex.humidity];
 }
-
-// TODO find a better way to do this
-const style_sheet = document.createElement('style');
-style_sheet.textContent = Object.keys(BIOMES).map((name) =>
-    `[data-biome="${name}"] {
-        fill: var(--${name});
-    }`
-).join('\n');
-document.body.append(style_sheet);
