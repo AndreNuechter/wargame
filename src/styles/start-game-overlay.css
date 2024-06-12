@@ -61,8 +61,9 @@ label {
 
 #add-player-btn {
     position: absolute;
-    right: 0;
+    right: 7px;
     top: -30px;
+    background-color: white;
 }
 
 .player-name-input {

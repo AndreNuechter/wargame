@@ -1,5 +1,17 @@
 let wakeLockSentinel;
 
+export default (() => {
+    request();
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            release();
+        } else {
+            request();
+        }
+    });
+})();
+
 async function request() {
     wakeLockSentinel = await navigator.wakeLock?.request?.('screen');
 }
@@ -9,5 +21,3 @@ async function release() {
     await wakeLockSentinel.release();
     wakeLockSentinel = undefined;
 }
-
-export default { request, release };

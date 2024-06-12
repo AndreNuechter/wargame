@@ -1,7 +1,7 @@
-import { board, player_setup } from './dom-selections.js';
-import { player_border_path, player_config_tmpl } from './dom-creations.js';
+import { board, player_setup } from '../dom-selections.js';
+import { player_border_path, player_config_tmpl } from '../dom-creations.js';
 import RESOURCES from './resources.js';
-import outline_hexregion from './hex-grid/outline-hexregion.js';
+import outline_hexregion from '../hex-grid/outline-hexregion.js';
 
 const PLAYER_TYPES = {
     human: 'human',
@@ -102,8 +102,8 @@ export function calculate_resource_production(cells, tax_rate = 1) {
     });
 
     // calculate gold/taxes
-    // TODO housing should increase supported pop size ONCE...homelessness...only housed pop helps w res production or war
-    // TODO only employed population contributes!
+    // TODO homelessness...only housed pop helps w res production and can be used for war
+    // TODO only employed population generates taxes!
     result[RESOURCES.gold] = total_population * tax_rate;
 
     return result;

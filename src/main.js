@@ -1,5 +1,5 @@
 import './js-modules/service-worker-init.js';
-import wakeLock from './js-modules/wakelock.js';
+import './js-modules/wakelock.js';
 import { create_hex_map, reroll_map } from './js-modules/hex-grid/hex-grid.js';
 import board_dimensions from './js-modules/map-generation/board-dimensions.js';
 import {
@@ -17,9 +17,9 @@ import {
     start_game_form,
     start_game_overlay,
 } from './js-modules/dom-selections.js';
-import create_player, { make_player_config } from './js-modules/player.js';
-import game, { apply_savegame } from './js-modules/game.js';
-import ROUND_PHASES, { end_turn_btn_click_handling, side_bar_input_handling } from './js-modules/round-phases.js';
+import create_player, { make_player_config } from './js-modules/game-objects/player.js';
+import game, { apply_savegame } from './js-modules/game-objects/game.js';
+import ROUND_PHASES, { end_turn_btn_click_handling, side_bar_input_handling } from './js-modules/game-objects/round-phases.js';
 
 // TODO add way to config map gen
 
@@ -36,8 +36,6 @@ window.addEventListener('DOMContentLoaded', () => {
     start_game_overlay.dataset.priorSave = previously_saved_game;
     start_game_overlay.showModal();
 
-    wakeLock.request();
-
     if (previously_saved_game) {
         apply_savegame(game, game_data);
     } else {
@@ -47,8 +45,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // save game before closing page
 window.addEventListener('beforeunload', () => {
-    wakeLock.release();
-
     // prevent saving incomplete state (ie when closing page while still in the game_config_form)
     if (game.players.length === 0) {
         localStorage.removeItem('wargame-savegame');

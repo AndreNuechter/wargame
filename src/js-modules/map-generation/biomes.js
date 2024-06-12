@@ -1,7 +1,7 @@
 import board_dimensions from './board-dimensions.js';
 import { TEMPERATURES } from './assign-temperature.js';
 import { HUMIDITY_LEVELS } from './assign-humidity.js';
-import RESOURCES from '../resources.js';
+import RESOURCES from '../game-objects/resources.js';
 
 // for more see https://rimworldwiki.com/wiki/Biomes
 // TODO balance resource production

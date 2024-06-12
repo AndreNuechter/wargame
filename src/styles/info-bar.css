@@ -14,3 +14,9 @@
         justify-content: space-around;
     }
 }
+
+#turn-info::before {
+    content: '';
+    border: 2px solid var(--active-player-color);
+    margin-right: 10px;
+}

@@ -2,7 +2,7 @@ import { board } from '../dom-selections.js';
 import { cell_group_tmpl } from '../dom-creations.js';
 import { TEMPERATURES } from '../map-generation/assign-temperature.js';
 import { HUMIDITY_LEVELS } from '../map-generation/assign-humidity.js';
-import STRUCTURES from '../structures.js';
+import STRUCTURES from '../game-objects/structures.js';
 
 export function create_hex_cell(cx, cy, x, y, q, r, s) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);

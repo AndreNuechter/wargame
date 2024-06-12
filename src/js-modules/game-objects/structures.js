@@ -1,4 +1,4 @@
-import { BIOMES } from './map-generation/biomes.js';
+import { BIOMES } from '../map-generation/biomes.js';
 import RESOURCES from './resources.js';
 
 // TODO finish this
@@ -10,6 +10,7 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.cloth, 3),
         ],
         [],
+        // TODO housing should increase supported pop size ONCE...
     ),
     textile_factory: make_structure(
         'Textile Factory',

@@ -1,8 +1,8 @@
-import { BIOMES } from './map-generation/biomes';
 import STRUCTURES from './structures';
-import { selection_highlight, cell_production_forecast, overall_production_forecast } from './dom-selections';
-import outline_hexregion from './hex-grid/outline-hexregion';
 import { calculate_resource_production } from './player';
+import { BIOMES } from '../map-generation/biomes';
+import outline_hexregion from '../hex-grid/outline-hexregion';
+import { selection_highlight, cell_production_forecast, overall_production_forecast } from '../dom-selections';
 
 let selected_cell = null;
 
