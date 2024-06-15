@@ -1,0 +1,16 @@
+#side-bar {
+    border-left: 1px solid black;
+    padding: 4px 8px;
+    overflow-y: auto;
+    display: flex;
+}
+
+#general-info {
+    display: none;
+    align-self: center;
+    text-align: center;
+
+    [data-current_phase="land_grab"] & {
+        display: block;
+    }
+}

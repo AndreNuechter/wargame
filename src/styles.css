@@ -5,6 +5,7 @@
 @import url("styles/player-colors.css");
 @import url("styles/buttons.css");
 @import url("styles/info-bar.css");
+@import url("styles/side-bar.css");
 
 body {
     --side-bar-width: 240px;
@@ -92,7 +93,7 @@ h1, h2, h3 {
     fill: var(--owner-color);
 }
 
-#cell-info {
+#cell-debug-info {
     display: none;
     white-space: preserve;
 
@@ -110,12 +111,10 @@ path {
     stroke-width: 0.1px;
 }
 
-#side-bar {
-    border-left: 1px solid black;
-    padding: 4px 8px;
-    overflow-y: auto;
-}
-
 .content-hidden * {
     opacity: 0;
+}
+
+.hidden {
+    display: none !important;
 }

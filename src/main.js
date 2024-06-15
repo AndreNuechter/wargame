@@ -5,7 +5,7 @@ import board_dimensions from './js-modules/map-generation/board-dimensions.js';
 import {
     add_player_btn,
     board,
-    cell_info,
+    cell_debug_info,
     config_game_form,
     coord_system_toggle_btn,
     end_turn_btn,
@@ -182,6 +182,8 @@ board.addEventListener('click', ({ target }) => {
         if (previously_selected_cell === cell_element) return;
     }
 
+    cell_element.classList.add('clicked');
+
     output_cell_info(hex_obj);
 
     ROUND_PHASES[game.current_phase].handler_function(hex_obj, cell_element, game);
@@ -198,7 +200,7 @@ coord_system_toggle_btn.addEventListener('click', () => {
 });
 
 function output_cell_info(hex_obj) {
-    cell_info.textContent = JSON.stringify(
+    cell_debug_info.textContent = JSON.stringify(
         hex_obj,
         // NOTE: `neighbors` is cyclic
         (key, value) => key === 'neighbors' ? undefined : value,

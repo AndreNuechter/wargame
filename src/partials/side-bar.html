@@ -1,5 +1,32 @@
 <div id="side-bar">
-    <div id="cell-info"></div>
-    <div id="overall-production-forecast"></div>
-    <div id="cell-production-forecast"></div>
+    <div id="general-info">
+        Pick an empty piece of land
+    </div>
+
+    <div id="cell-info" class="hidden"></div>
+
+    <div id="overall-production-forecast" class="hidden">
+        <h2>Empire Overview</h2>
+        <h3>Population</h3>
+        ...
+        <h3>Taxes</h3>
+        <h3>Resource Production</h3>
+        <ul></ul>
+        <form>
+            <h3>Tax Rate</h3>
+            <input type="range" name="tax_rate" min="0" max="100" step="1">
+        </form>
+    </div>
+
+    <div id="cell-production-forecast" class="hidden">
+        <h2>Cell Overview</h2>
+        <h3>Cell Output</h3>
+        <ul></ul>
+        <form>
+            <h3>Build Structures</h3>
+            <fieldset></fieldset>
+        </form>
+    </div>
+
+    <div id="cell-debug-info"></div>
 </div>

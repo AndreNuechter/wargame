@@ -1,10 +1,11 @@
 import { reinstate_hex_map } from '../hex-grid/hex-grid.js';
 import {
-    bottom_bar, cell_production_forecast, end_turn_btn, overall_production_forecast, phase_label, player_name,
+    bottom_bar, cell_info, cell_production_forecast, end_turn_btn, general_info, phase_label, player_name,
     selection_highlight
 } from '../dom-selections.js';
 import ROUND_PHASES from './round-phases.js';
 import create_player, { calculate_resource_production } from './player.js';
+import { setup_overall_production_forecast } from '../setup-sidebar-content.js';
 
 const players = [];
 let round = 0;
@@ -79,28 +80,33 @@ function adjust_ui_to_phase() {
     end_turn_btn.textContent = ROUND_PHASES[current_phase].end_turn_btn_label;
     phase_label.textContent = ROUND_PHASES[current_phase].call_to_action;
     player_name.textContent = players[current_player_id].name;
+    document.body.dataset.current_phase = ROUND_PHASES[current_phase].name;
     document.documentElement.style.setProperty('--active-player-color', `var(--player-${current_player_id + 1}`);
 
+    if (current_phase === ROUND_PHASES.land_grab.name) {
+        // hide cell info and show general info
+        cell_info.classList.add('hidden');
+        general_info.classList.remove('hidden');
+    }
+
     if (current_phase === ROUND_PHASES.development.name) {
+        // hide info panels for landgrab phase
+        cell_info.classList.add('hidden');
+        general_info.classList.add('hidden');
         // show overall resource production
         current_player_total_production = calculate_resource_production(
             players[current_player_id].cells,
             players[current_player_id].tax_rate
         );
-        cell_production_forecast.replaceChildren();
-        overall_production_forecast
-            .innerHTML = `
-                <h2>Totall Output</h2>
-                <ul>
-                    ${Object.entries(current_player_total_production).map(([resource, value]) => `<li>${resource}: ${value}</li>`).join('')}
-                </ul>
-                <form>
-                    <h2>Tax Rate</h2>
-                    <input type="range" name="tax_rate">
-                </form>
-                `;
+        cell_production_forecast.classList.add('hidden');
+        setup_overall_production_forecast(
+            calculate_resource_production(
+                players[current_player_id].cells,
+                players[current_player_id].tax_rate
+            ),
+            players[current_player_id].tax_rate
+        );
         bottom_bar.classList.remove('content-hidden');
-        // TODO display population count(s) on cells
         update_resource_display();
     } else {
         bottom_bar.classList.add('content-hidden');
