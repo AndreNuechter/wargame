@@ -22,7 +22,7 @@ export default function save_game() {
                     humidity,
                     temperature,
                     owner_id,
-                    population
+                    resources
                 }) => ({
                     cx,
                     cy,
@@ -36,7 +36,7 @@ export default function save_game() {
                     humidity,
                     temperature,
                     owner_id,
-                    population
+                    resources
                 }))
         })
     );

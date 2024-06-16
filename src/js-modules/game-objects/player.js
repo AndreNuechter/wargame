@@ -34,15 +34,22 @@ export default function create_player(id, name = 'Player Name', type = PLAYER_TY
     return {
         name,
         type,
-        resources: {
-            [RESOURCES.people]: 5,
-            [RESOURCES.gold]: 5,
-            [RESOURCES.cloth]: 25,
-            [RESOURCES.wood]: 25,
-            [RESOURCES.stone]: 25,
-            [RESOURCES.iron]: 0,
-            [RESOURCES.food]: 50,
-            [RESOURCES.alcohol]: 5
+        get resources() {
+            return cells.reduce((result, { resources }) => {
+                Object.entries(resources).forEach(([resource, { amount }]) => {
+                    result[resource] += amount;
+                });
+                return result;
+            }, {
+                [RESOURCES.people]: 0,
+                [RESOURCES.gold]: 0,
+                [RESOURCES.cloth]: 0,
+                [RESOURCES.wood]: 0,
+                [RESOURCES.stone]: 0,
+                [RESOURCES.iron]: 0,
+                [RESOURCES.food]: 0,
+                [RESOURCES.alcohol]: 0
+            });
         },
         border_path_container,
         get cells() {
@@ -74,7 +81,7 @@ export function calculate_resource_production(cells, tax_rate = 1) {
     let total_population = 0;
 
     cells.forEach((cell) =>{
-        total_population += cell.population;
+        total_population += cell.resources.people.amount;
 
         // add default production
         Object.entries(cell.biome.resource_production).forEach(([resource, gain]) => {
@@ -89,9 +96,9 @@ export function calculate_resource_production(cells, tax_rate = 1) {
             });
         });
 
-        // calculate pop growth...this is not what we want to tell the player! that would be sth like expect sth between 0 and Math.floor(cell.population / 2) * 2
+        // calculate pop growth...this is not what we want to tell the player! that would be sth like expect sth between 0 and Math.floor(cell.resources.people.amount / 2) * 2
         // TODO inc/dec pop growth based on how many neighboring cells are inhabited
-        for (let pair_index = 0; pair_index < Math.floor(cell.population / 2); pair_index += 1) {
+        for (let pair_index = 0; pair_index < Math.floor(cell.resources.people.amount / 2); pair_index += 1) {
             const random_num = Math.random();
 
             if (random_num < 0.3) {

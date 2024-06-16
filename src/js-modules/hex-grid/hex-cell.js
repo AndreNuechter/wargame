@@ -3,6 +3,7 @@ import { cell_group_tmpl } from '../dom-creations.js';
 import { TEMPERATURES } from '../map-generation/assign-temperature.js';
 import { HUMIDITY_LEVELS } from '../map-generation/assign-humidity.js';
 import STRUCTURES from '../game-objects/structures.js';
+import RESOURCES from '../game-objects/resources.js';
 
 export function create_hex_cell(cx, cy, x, y, q, r, s) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);
@@ -27,15 +28,50 @@ export function create_hex_cell(cx, cy, x, y, q, r, s) {
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
-        get population() {
-            return population;
-        },
-        set population(value) {
-            population = value;
-            pop_size_display.textContent = population > 0 ? population : '';
-        },
         structures: new Map(Object.values(STRUCTURES).map((structure) => [structure, 0])),
-        resources: {},
+        // TODO tweak capacities
+        resources: {
+            [RESOURCES.people]: {
+                capacity: 5,
+                get amount() {
+                    return population;
+                },
+                set amount(value) {
+                    population = value;
+                    pop_size_display.textContent = population > 0
+                        ? population
+                        : '';
+                }
+            },
+            [RESOURCES.gold]: {
+                capacity: 5,
+                amount: 0
+            },
+            [RESOURCES.cloth]: {
+                capacity: 5,
+                amount: 0
+            },
+            [RESOURCES.wood]: {
+                capacity: 5,
+                amount: 0
+            },
+            [RESOURCES.stone]: {
+                capacity: 5,
+                amount: 0
+            },
+            [RESOURCES.iron]: {
+                capacity: 5,
+                amount: 0
+            },
+            [RESOURCES.food]: {
+                capacity: 5,
+                amount: 0
+            },
+            [RESOURCES.alcohol]: {
+                capacity: 5,
+                amount: 0
+            }
+        },
         get biome() {
             return biome;
         },

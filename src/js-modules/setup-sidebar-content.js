@@ -1,4 +1,7 @@
+import { structure_builder_tmpl } from './dom-creations.js';
 import { cell_info, cell_production_forecast, overall_production_forecast } from './dom-selections.js';
+import game from './game-objects/game.js';
+import { calculate_resource_production } from './game-objects/player.js';
 import STRUCTURES from './game-objects/structures.js';
 
 export function setup_overall_production_forecast(resources, tax_rate) {
@@ -10,7 +13,7 @@ export function setup_overall_production_forecast(resources, tax_rate) {
 export function setup_cell_production_forecast(resources, structure_builder_inputs) {
     // TODO enable turning population into other units (on cells w required structures)
     cell_production_forecast.querySelector('ul').replaceChildren(...make_resource_list(resources));
-    cell_production_forecast.querySelector('fieldset').innerHTML = structure_builder_inputs;
+    cell_production_forecast.querySelector('fieldset').replaceChildren(...structure_builder_inputs);
     cell_production_forecast.classList.remove('hidden');
 }
 
@@ -49,19 +52,101 @@ export function make_resource_list(resources) {
 export function make_structure_builder_inputs(hex_obj) {
     return Object
         .entries(STRUCTURES)
-        // TODO toggle structure info on click on label
-        // TODO keep user from entering values by keyboard...use other ui element
-        // ... minus-btn, amount-display, plus-btn...change val by steps of 1 (maybe increase when holding or dblclicking). show amount in yellow when going below initial val and green when above
-        .map(([name, structure]) => `
-                <label>
-                    <div class="label-text">${structure.display_name}: </div>
-                    <input
-                        type="number"
-                        class="structure-builder"
-                        name="${name}"
-                        value="${hex_obj.structures.get(structure)}"
-                        min="0"
-                    >
-                </label>`)
-        .join('');
+        .filter(([, structure]) => !structure.unsupported_biomes.includes(hex_obj.biome))
+        .map(([name, structure]) => {
+            // NOTE we use lastElementChild here as structure_builder refers to a template and therefore is a doc-fragment
+            const structure_builder = structure_builder_tmpl.cloneNode(true).lastElementChild;
+            const structure_label = structure_builder.querySelector('.label-text');
+            const structure_count_display = structure_builder.querySelector('.structure-count');
+
+            structure_builder.dataset.structure_name = name;
+            structure_label.textContent = `${structure.display_name}: `;
+            structure_count_display.textContent = hex_obj.structures.get(structure);
+
+            // TODO optimize event-handlers
+            structure_label.addEventListener('click', () => {
+                // TODO show structure info
+            });
+            structure_builder.addEventListener('click', ({ target }) => {
+                const btn = target.closest('button');
+
+                if (btn === null) return;
+
+                const building_structure = btn.classList.contains('construct-structure-btn');
+                const structure_cost = structure.construction_cost;
+                let structure_count = hex_obj.structures.get(structure);
+
+                // did the user click + or -?
+                if (building_structure) {
+                    const player_isnt_rich_enough = structure_cost
+                        .some(({ resource_name, amount }) => amount > game.active_player.resources[resource_name]);
+
+                    if (player_isnt_rich_enough) return;
+
+                    structure_count += 1;
+                    // consume resources
+                    structure_cost.forEach(({ resource_name, amount }) => {
+                        // loop over the players cells and consume resources until the price is paid
+                        let remaining_cost = amount;
+
+                        for (const cell of game.active_player.cells) {
+                            const resource = cell.resources[resource_name];
+
+                            if (resource.amount < remaining_cost) {
+                                remaining_cost -= resource.amount;
+                                resource.amount = 0;
+                                continue;
+                            } else {
+                                resource.amount -= remaining_cost;
+                                remaining_cost = 0;
+                            }
+
+                            if (remaining_cost === 0) break;
+                        }
+                    });
+                } else {
+                    if (structure_count === 0) return;
+
+                    structure_count -= 1;
+                    // give back resources
+                    // FIXME not all res are returned
+                    // TODO dont give back the entire cost when deconstructing structures build in prior rounds
+                    structure_cost.forEach(({ resource_name, amount }) => {
+                        // we loop over the players cells, because the storage capacity might be below the amount and we want to ensure no res are wasted
+                        let remaining_return = amount;
+
+                        for (const cell of game.active_player.cells) {
+                            const resource = cell.resources[resource_name];
+                            const resource_capacity = resource.capacity - resource.amount;
+
+                            if (resource_capacity < remaining_return) {
+                                remaining_return -= resource_capacity;
+                                resource.amount += resource_capacity;
+                                continue;
+                            } else {
+                                resource.amount += remaining_return;
+                                remaining_return = 0;
+                            }
+
+                            if (remaining_return === 0) break;
+                        }
+                    });
+                }
+
+                // update structure count
+                hex_obj.structures.set(structure, structure_count);
+                structure_count_display.textContent = structure_count;
+                // update cell production
+                cell_production_forecast.querySelector('ul').replaceChildren(
+                    ...make_resource_list(calculate_resource_production(
+                        [hex_obj],
+                        game.active_player.tax_rate
+                    ))
+                );
+                // update total resources
+                game.update_resource_display();
+            });
+
+            return structure_builder;
+        });
 }

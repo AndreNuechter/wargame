@@ -1,18 +1,16 @@
-import STRUCTURES from './structures';
 import { calculate_resource_production } from './player';
 import { BIOMES } from '../map-generation/biomes';
 import outline_hexregion from '../hex-grid/outline-hexregion';
 import {
     selection_highlight, cell_production_forecast, overall_production_forecast, cell_info, general_info
 } from '../dom-selections';
-import resources from './resources';
 import {
-    make_resource_list,
     make_structure_builder_inputs,
     setup_cell_info,
     setup_cell_production_forecast,
     setup_overall_production_forecast
 } from '../setup-sidebar-content';
+import RESOURCES from './resources';
 
 let selected_cell = null;
 
@@ -44,8 +42,11 @@ const ROUND_PHASES = {
         'Distribute your wealth',
         undefined,
         (hex_obj, _, game) => {
+            // did the player click on a cell they own?
             if (hex_obj.owner_id !== game.current_player_id) {
+                // hide cell specific overview
                 cell_production_forecast.classList.add('hidden');
+                // show empire overview
                 setup_overall_production_forecast(
                     calculate_resource_production(
                         game.active_player.cells,
@@ -54,8 +55,10 @@ const ROUND_PHASES = {
                     game.active_player.tax_rate
                 );
             } else {
+                // store ref to selected owned cell for development pruposes
                 selected_cell = hex_obj;
 
+                // hide empire overview and show cell specific overview
                 overall_production_forecast.classList.add('hidden');
                 setup_cell_production_forecast(
                     calculate_resource_production(
@@ -79,52 +82,20 @@ export function side_bar_input_handling(game) {
 
         if (target.name === 'tax_rate') {
             game.active_player.tax_rate = entered_value;
-        } else if (target.classList.contains('structure-builder')) {
-            const structure = STRUCTURES[target.name];
-            const structure_current_count = selected_cell.structures.get(structure);
-
-            if (entered_value < 0) {
-                target.value = structure_current_count;
-                return;
-            }
-
-            const structure_cost = STRUCTURES[target.name].construction_cost;
-            const building_structure = entered_value > structure_current_count;
-
-            if (building_structure) {
-                const player_isnt_rich_enough = structure_cost
-                    .some(({ resource_name, amount }) => amount > game.active_player.resources[resource_name]);
-
-                if (player_isnt_rich_enough) {
-                    target.value = structure_current_count;
-                    return;
-                }
-
-                // subtract resources
-                structure_cost.forEach(({ resource_name, amount }) => {
-                    game.active_player.resources[resource_name] -= amount;
-                });
-            } else {
-            // add resources
-                structure_cost.forEach(({ resource_name, amount }) => {
-                    game.active_player.resources[resource_name] += amount;
-                });
-            }
-
-            // update structure count on cell
-            selected_cell.structures.set(structure, entered_value);
-            // update cell production
-            cell_production_forecast.querySelector('ul').replaceChildren(
-                ...make_resource_list(calculate_resource_production(
-                    [selected_cell],
-                    game.active_player.tax_rate
-                ))
-            );
-            // update total resources
-            game.update_resource_display();
         }
     };
 }
+
+const inital_resources = {
+    [RESOURCES.people]: 5,
+    [RESOURCES.gold]: 5,
+    [RESOURCES.cloth]: 25,
+    [RESOURCES.wood]: 25,
+    [RESOURCES.stone]: 25,
+    [RESOURCES.iron]: 0,
+    [RESOURCES.food]: 50,
+    [RESOURCES.alcohol]: 5
+};
 
 export function end_turn_btn_click_handling(game) {
     return () => {
@@ -135,12 +106,12 @@ export function end_turn_btn_click_handling(game) {
             // get the related hex-obj
             const hex_obj = game.board.get(selected_cell);
 
-            // set owner and initial population on cell
-            Object.assign(hex_obj, {
-                owner_id: game.current_player_id,
-                population: game.active_player.resources[resources.people]
+            // set initial resources on cell
+            Object.entries(inital_resources).forEach(([resource, amount]) => {
+                hex_obj.resources[resource].amount = amount;
             });
-            // give the player the chosen cell
+            // mark the cell as belonging to the player and give the player the cell
+            hex_obj.owner_id = game.current_player_id;
             game.active_player.cells = [hex_obj];
 
             // unset starting cell candidate

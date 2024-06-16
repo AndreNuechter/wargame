@@ -10,7 +10,17 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.cloth, 3),
         ],
         [],
-        // TODO housing should increase supported pop size ONCE...
+        0,
+        {
+            // TODO housing should increase supported pop size ONCE...
+            on(cell) {
+                cell.housing_capacity += 5;
+            },
+            off(cell) {
+                cell.housing_capacity -= 5;
+            },
+        },
+        []
     ),
     textile_factory: make_structure(
         'Textile Factory',

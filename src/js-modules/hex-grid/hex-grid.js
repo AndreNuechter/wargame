@@ -15,7 +15,7 @@ export function reroll_map(hex_map) {
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
-        population: 0,
+        // TODO reset resources
         owner_id: -1
     }));
     assign_temperatures(hex_arr);
@@ -37,18 +37,27 @@ export function reinstate_hex_map(board_state, board_map) {
             humidity,
             temperature,
             owner_id,
-            population
-        }) => Object.assign(
-            create_hex_cell(cx, cy, x, y, q, r, s),
-            {
-                biome: BIOMES[biome_name],
-                elevation,
-                humidity,
-                temperature,
-                owner_id,
-                population
-            }
-        ));
+            resources
+        }) => {
+            const hex_cell = create_hex_cell(cx, cy, x, y, q, r, s);
+
+            Object.assign(
+                hex_cell,
+                {
+                    biome: BIOMES[biome_name],
+                    elevation,
+                    humidity,
+                    temperature,
+                    owner_id,
+                }
+            );
+            // assigning resources directly above would overwrite the setter/getter on resources.people
+            Object.entries(resources).forEach(([resource, value]) => {
+                Object.assign(hex_cell.resources[resource], value);
+            });
+
+            return hex_cell;
+        });
 
     compute_neighbors(hex_arr);
 
