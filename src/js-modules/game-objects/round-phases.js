@@ -10,7 +10,7 @@ import {
     setup_cell_production_forecast,
     setup_overall_production_forecast
 } from '../setup-sidebar-content';
-import RESOURCES from './resources';
+import { initial_resources } from './resources';
 
 let selected_cell = null;
 
@@ -86,17 +86,6 @@ export function side_bar_input_handling(game) {
     };
 }
 
-const inital_resources = {
-    [RESOURCES.people]: 5,
-    [RESOURCES.gold]: 5,
-    [RESOURCES.cloth]: 25,
-    [RESOURCES.wood]: 25,
-    [RESOURCES.stone]: 25,
-    [RESOURCES.iron]: 0,
-    [RESOURCES.food]: 50,
-    [RESOURCES.alcohol]: 5
-};
-
 export function end_turn_btn_click_handling(game) {
     return () => {
         if (game.current_phase === ROUND_PHASES.land_grab.name) {
@@ -107,8 +96,8 @@ export function end_turn_btn_click_handling(game) {
             const hex_obj = game.board.get(selected_cell);
 
             // set initial resources on cell
-            Object.entries(inital_resources).forEach(([resource, amount]) => {
-                hex_obj.resources[resource].amount = amount;
+            Object.entries(initial_resources).forEach(([resource_name, amount]) => {
+                hex_obj.resources[resource_name] = amount;
             });
             // mark the cell as belonging to the player and give the player the cell
             hex_obj.owner_id = game.current_player_id;

@@ -90,14 +90,14 @@ export function make_structure_builder_inputs(hex_obj) {
                         let remaining_cost = amount;
 
                         for (const cell of game.active_player.cells) {
-                            const resource = cell.resources[resource_name];
+                            const available_amount_of_resoure = cell.resources[resource_name];
 
-                            if (resource.amount < remaining_cost) {
-                                remaining_cost -= resource.amount;
-                                resource.amount = 0;
+                            if (available_amount_of_resoure < remaining_cost) {
+                                remaining_cost -= available_amount_of_resoure;
+                                cell.resources[resource_name] = 0;
                                 continue;
                             } else {
-                                resource.amount -= remaining_cost;
+                                cell.resources[resource_name] -= remaining_cost;
                                 remaining_cost = 0;
                             }
 
@@ -109,27 +109,9 @@ export function make_structure_builder_inputs(hex_obj) {
 
                     structure_count -= 1;
                     // give back resources
-                    // FIXME not all res are returned
                     // TODO dont give back the entire cost when deconstructing structures build in prior rounds
                     structure_cost.forEach(({ resource_name, amount }) => {
-                        // we loop over the players cells, because the storage capacity might be below the amount and we want to ensure no res are wasted
-                        let remaining_return = amount;
-
-                        for (const cell of game.active_player.cells) {
-                            const resource = cell.resources[resource_name];
-                            const resource_capacity = resource.capacity - resource.amount;
-
-                            if (resource_capacity < remaining_return) {
-                                remaining_return -= resource_capacity;
-                                resource.amount += resource_capacity;
-                                continue;
-                            } else {
-                                resource.amount += remaining_return;
-                                remaining_return = 0;
-                            }
-
-                            if (remaining_return === 0) break;
-                        }
+                        hex_obj.resources[resource_name] += amount;
                     });
                 }
 

@@ -29,48 +29,23 @@ export function create_hex_cell(cx, cy, x, y, q, r, s) {
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
         structures: new Map(Object.values(STRUCTURES).map((structure) => [structure, 0])),
-        // TODO tweak capacities
         resources: {
-            [RESOURCES.people]: {
-                capacity: 5,
-                get amount() {
-                    return population;
-                },
-                set amount(value) {
-                    population = value;
-                    pop_size_display.textContent = population > 0
-                        ? population
-                        : '';
-                }
+            get [RESOURCES.people]() {
+                return population;
             },
-            [RESOURCES.gold]: {
-                capacity: 5,
-                amount: 0
+            set [RESOURCES.people](value) {
+                population = value;
+                pop_size_display.textContent = population > 0
+                    ? population
+                    : '';
             },
-            [RESOURCES.cloth]: {
-                capacity: 5,
-                amount: 0
-            },
-            [RESOURCES.wood]: {
-                capacity: 5,
-                amount: 0
-            },
-            [RESOURCES.stone]: {
-                capacity: 5,
-                amount: 0
-            },
-            [RESOURCES.iron]: {
-                capacity: 5,
-                amount: 0
-            },
-            [RESOURCES.food]: {
-                capacity: 5,
-                amount: 0
-            },
-            [RESOURCES.alcohol]: {
-                capacity: 5,
-                amount: 0
-            }
+            [RESOURCES.gold]: 0,
+            [RESOURCES.cloth]: 0,
+            [RESOURCES.wood]: 0,
+            [RESOURCES.stone]: 0,
+            [RESOURCES.iron]: 0,
+            [RESOURCES.food]: 0,
+            [RESOURCES.alcohol]: 0
         },
         get biome() {
             return biome;

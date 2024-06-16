@@ -36,7 +36,7 @@ export default function create_player(id, name = 'Player Name', type = PLAYER_TY
         type,
         get resources() {
             return cells.reduce((result, { resources }) => {
-                Object.entries(resources).forEach(([resource, { amount }]) => {
+                Object.entries(resources).forEach(([resource, amount]) => {
                     result[resource] += amount;
                 });
                 return result;
@@ -81,7 +81,7 @@ export function calculate_resource_production(cells, tax_rate = 1) {
     let total_population = 0;
 
     cells.forEach((cell) =>{
-        total_population += cell.resources.people.amount;
+        total_population += cell.resources.people;
 
         // add default production
         Object.entries(cell.biome.resource_production).forEach(([resource, gain]) => {
@@ -96,9 +96,9 @@ export function calculate_resource_production(cells, tax_rate = 1) {
             });
         });
 
-        // calculate pop growth...this is not what we want to tell the player! that would be sth like expect sth between 0 and Math.floor(cell.resources.people.amount / 2) * 2
+        // calculate pop growth...this is not what we want to tell the player! that would be sth like expect sth between 0 and Math.floor(cell.resources.people / 2) * 2
         // TODO inc/dec pop growth based on how many neighboring cells are inhabited
-        for (let pair_index = 0; pair_index < Math.floor(cell.resources.people.amount / 2); pair_index += 1) {
+        for (let pair_index = 0; pair_index < Math.floor(cell.resources.people / 2); pair_index += 1) {
             const random_num = Math.random();
 
             if (random_num < 0.3) {

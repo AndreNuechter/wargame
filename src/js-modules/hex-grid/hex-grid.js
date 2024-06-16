@@ -15,7 +15,10 @@ export function reroll_map(hex_map) {
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
-        // TODO reset resources
+        resources: Object.keys(hex_obj.resources).reduce((result, resource_name) => {
+            result[resource_name] = 0;
+            return result;
+        }, hex_obj.resources),
         owner_id: -1
     }));
     assign_temperatures(hex_arr);
@@ -53,7 +56,7 @@ export function reinstate_hex_map(board_state, board_map) {
             );
             // assigning resources directly above would overwrite the setter/getter on resources.people
             Object.entries(resources).forEach(([resource, value]) => {
-                Object.assign(hex_cell.resources[resource], value);
+                hex_cell.resources[resource] = value;
             });
 
             return hex_cell;

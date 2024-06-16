@@ -13,3 +13,9 @@ export function random_pick(list, min = 0, max = list.length) {
 export function random_int(max, min = 0) {
     return Math.trunc(Math.random() * (max - min) + min);
 }
+
+export function make_frozen_null_obj(obj) {
+    return Object.freeze(
+        Object.assign(Object.create(null), obj)
+    );
+}
