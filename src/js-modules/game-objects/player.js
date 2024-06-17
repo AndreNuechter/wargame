@@ -67,7 +67,7 @@ export default function create_player(id, name = 'Player Name', type = PLAYER_TY
 }
 
 export function calculate_resource_production(cells, tax_rate = 1) {
-    // TODO subtract food that's going to be used
+    // TODO subtract food that's going to be used or decay
     const result = {
         [RESOURCES.people]: 0,
         [RESOURCES.gold]: 0,
@@ -90,7 +90,7 @@ export function calculate_resource_production(cells, tax_rate = 1) {
 
         // add construction based production
         [...cell.structures.entries()].forEach(([structure, count]) => {
-            // TODO handle overemployment...lower production if the pop. of the cell is too low...structures have required_workers field, cells have population field...add up required_workers and determine how much percent of that we have...maybe its better to handle this overall, as the population might travel to go to work...
+            // TODO overemployment...lower production if total pop. is lower than total structures required_workers
             structure.output.forEach(({ resource_name, amount }) => {
                 result[resource_name] += amount * count;
             });

@@ -19,3 +19,7 @@ export function make_frozen_null_obj(obj) {
         Object.assign(Object.create(null), obj)
     );
 }
+
+export function prevent_default_event_behavior(event) {
+    event.preventDefault();
+}

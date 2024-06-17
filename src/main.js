@@ -21,16 +21,13 @@ import create_player, { make_player_config } from './js-modules/game-objects/pla
 import game, { apply_savegame } from './js-modules/game-objects/game.js';
 import ROUND_PHASES, { end_turn_btn_click_handling, side_bar_input_handling } from './js-modules/game-objects/round-phases.js';
 import save_game from './js-modules/save-game.js';
+import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
 
 // TODO add way to config map gen
 
-// ea round consists of 3 phases: development, movement planning and movement execution phase
-// development phase is used to develop owned cells/settlements and population thereof (see "age of exploration" android game)
-// movement planning phase can be used to move population to adjacent cells
-// movement execution phase enacts plans made in the phase before. conflicts between players may happen in this phase. at end of this phase: generate resources
-
 // set up board
 window.addEventListener('DOMContentLoaded', () => {
+    // TODO is this reliable on mobile or do we need to do this on visibilitychange as well
     const game_data = localStorage.getItem('wargame-savegame');
     const previously_saved_game = game_data !== null;
 
@@ -44,9 +41,17 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 }, { once: true });
 
-window.addEventListener('beforeunload', save_game);
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        save_game();
+    }
+});
 
-document.addEventListener('submit', (event) => event.preventDefault());
+// prevent closing dialog wo making a choice (ie by pressing esc)
+// FIXME on mobile it can still be closed by swiping back
+start_game_overlay.addEventListener('cancel', prevent_default_event_behavior);
+// all formdata will be handled client-side
+document.addEventListener('submit', prevent_default_event_behavior);
 
 start_game_form.addEventListener('submit', (event) => {
     if (event.submitter.id === 'new-game-btn') {
@@ -159,9 +164,6 @@ player_setup.addEventListener('click', ({ target }) => {
                 });
         });
 });
-
-// prevent closing dialog wo making a choice (ie by pressing esc)
-start_game_overlay.addEventListener('cancel', (event) => event.preventDefault());
 
 board.addEventListener('click', ({ target }) => {
     const cell_element = target.closest('.cell-wrapper');

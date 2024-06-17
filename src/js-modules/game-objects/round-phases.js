@@ -12,6 +12,14 @@ import {
 } from '../setup-sidebar-content';
 import { initial_resources } from './resources';
 
+// the game starts in the land_grab phase where the players should pick their starting positions.
+// after initial positions are picked the first round starts.
+// ea round consists of 3 phases: development, movement_planning and movement_execution.
+// during development phase structures can be built/deconstructed on owned cells and population thereof turned into other units.
+// during movement_planning, units can be directed to adjacent cells (and cells adjacent to that...) to settle, attack or reinforce them.
+// during movement_execution phase plans made before are enacted. conflicts between players may happen in this phase.
+// resources are generated at the end of movement_execution.
+
 let selected_cell = null;
 
 const ROUND_PHASES = {

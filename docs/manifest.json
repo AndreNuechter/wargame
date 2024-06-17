@@ -4,7 +4,7 @@
     "id": "/wargame/",
     "start_url": "./",
     "scope": ".",
-    "display": "standalone",
+    "display": "fullscreen",
     "orientation": "landscape",
     "theme_color": "#fff",
     "background_color": "#000",
