@@ -110,8 +110,7 @@ export function calculate_resource_production(cells, tax_rate = 1) {
     });
 
     // calculate gold/taxes
-    // TODO homelessness...only housed pop helps w res production and can be used for war
-    // TODO only employed population generates taxes!
+    // TODO homelessness...only housed pop helps w res production, pays taxes and can be used for war
     result[RESOURCES.gold] = total_population * tax_rate;
 
     return result;

@@ -48,13 +48,17 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // prevent closing dialog wo making a choice (ie by pressing esc)
-// FIXME on mobile it can still be closed by swiping back
 start_game_overlay.addEventListener('cancel', prevent_default_event_behavior);
 // all formdata will be handled client-side
 document.addEventListener('submit', prevent_default_event_behavior);
 
 start_game_form.addEventListener('submit', (event) => {
-    if (event.submitter.id === 'new-game-btn') {
+    if (event.submitter.id === 'continue-btn') {
+        // the continue-btn does nothing if there's no prior save
+        if (start_game_overlay.dataset.priorSave === 'true') {
+            start_game_overlay.close();
+        }
+    } else if (event.submitter.id === 'new-game-btn') {
         // if there's a prior save, reroll the map and delete players
         if (start_game_overlay.dataset.priorSave === 'true') {
             Object.assign(game, {
@@ -71,13 +75,19 @@ start_game_form.addEventListener('submit', (event) => {
 
         // switch to game-config
         start_game_overlay.classList.add('game-config');
-    } else {
-        // the continue-btn does nothing if there's no prior save
-        if (start_game_overlay.dataset.priorSave === 'false') return;
-        // continue game
-        game.run();
-        start_game_overlay.close();
     }
+});
+
+// NOTE: we need this listener as swiping back on mobile closes the dialog...adding a required field to the game-config form may work as well
+start_game_overlay.addEventListener('close', () => {
+    if (start_game_overlay.dataset.priorSave === 'false' && game.players.length === 0) {
+        game.players = Array.from(
+            { length: 2 },
+            (_, id) => create_player(id, `Player ${id + 1}`, 'human')
+        );
+    }
+
+    game.run();
 });
 
 reroll_map_btn.addEventListener('click', () => {
@@ -93,13 +103,13 @@ config_game_form.addEventListener('submit', () => {
     const name_inputs = [...config_game_form.querySelectorAll('.player-name-input')];
 
     name_inputs
-        .reduce((name_count, { value }) => {
-            name_count[value] = value in name_count
-                ? name_count[value] + 1
+        .reduce((name_count, { value: name }) => {
+            name_count[name] = name in name_count
+                ? name_count[name] + 1
                 : 1;
 
-            if (name_count[value] > 1) {
-                duplicate_names.add(value);
+            if (name_count[name] > 1) {
+                duplicate_names.add(name);
             }
 
             return name_count;
@@ -128,7 +138,6 @@ config_game_form.addEventListener('submit', () => {
 
     // TODO use other config options
 
-    game.run();
     start_game_overlay.close();
 });
 

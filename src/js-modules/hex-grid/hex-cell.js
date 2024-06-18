@@ -62,7 +62,8 @@ export function create_hex_cell(cx, cy, x, y, q, r, s) {
         set owner_id(id) {
             owner_id = id;
             if (id !== -1) cell.dataset.owner_id = id;
-        }
+        },
+        // TODO available space
     };
 }
 
