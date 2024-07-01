@@ -152,7 +152,7 @@ export default function assign_biomes(hex_arr) {
     });
 }
 
-export function create_ice_and_sea(hex_arr) {
+export function make_ice_and_sea(hex_arr) {
     hex_arr
         .filter(({ elevation }) => elevation === 0)
         .forEach((hex) => {

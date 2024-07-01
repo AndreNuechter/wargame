@@ -1,3 +1,5 @@
+import { path_tmpl } from '../dom-creations';
+
 const stroke_width = 0.5;
 // this allows us to draw the outline inside the region and not on top of its border
 // FIXME this means outlines of adjacent cells of a region dont connect so that there's a visible gap
@@ -69,7 +71,7 @@ export default function outline_hexregion(cells, color, path_container) {
         return result;
     }, line_segments);
 
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const path = path_tmpl.cloneNode(true);
 
     path.setAttribute('d', line_segments.join(''));
     path.setAttribute('stroke', color);

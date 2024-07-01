@@ -1,7 +1,7 @@
 import { structure_builder_tmpl } from './dom-creations.js';
 import { cell_info, cell_production_forecast, overall_production_forecast } from './dom-selections.js';
+import { calculate_resource_production } from './game-objects/resources.js';
 import game from './game-objects/game.js';
-import { calculate_resource_production } from './game-objects/player.js';
 import STRUCTURES from './game-objects/structures.js';
 
 export function setup_overall_production_forecast(resources, tax_rate) {
@@ -49,6 +49,7 @@ export function make_resource_list(resources) {
         ));
 }
 
+/** Create a set of UI elements to build or deconstruct structures supported on the given cell's biome. */
 export function make_structure_builder_inputs(hex_obj) {
     return Object
         .entries(STRUCTURES)
@@ -63,11 +64,12 @@ export function make_structure_builder_inputs(hex_obj) {
             structure_label.textContent = `${structure.display_name}: `;
             structure_count_display.textContent = hex_obj.structures.get(structure);
 
-            // TODO optimize event-handlers
-            structure_label.addEventListener('click', () => {
-                // TODO show structure info
-            });
+            // TODO optimize event-handlers...attach them once to the parent
+            // structure_label.addEventListener('click', () => {
+            //     // TODO show structure info...input, output, fx
+            // });
             structure_builder.addEventListener('click', ({ target }) => {
+                // TODO apply effects
                 const btn = target.closest('button');
 
                 if (btn === null) return;
@@ -78,6 +80,9 @@ export function make_structure_builder_inputs(hex_obj) {
 
                 // did the user click + or -?
                 if (building_structure) {
+                    // the cell is full
+                    if (hex_obj.developable_land < structure.space_requirement) return;
+
                     const player_isnt_rich_enough = structure_cost
                         .some(({ resource_name, amount }) => amount > game.active_player.resources[resource_name]);
 
@@ -104,6 +109,8 @@ export function make_structure_builder_inputs(hex_obj) {
                             if (remaining_cost === 0) break;
                         }
                     });
+
+                    hex_obj.developable_land -= structure.space_requirement;
                 } else {
                     if (structure_count === 0) return;
 
@@ -113,6 +120,8 @@ export function make_structure_builder_inputs(hex_obj) {
                     structure_cost.forEach(({ resource_name, amount }) => {
                         hex_obj.resources[resource_name] += amount;
                     });
+
+                    hex_obj.developable_land += structure.space_requirement;
                 }
 
                 // update structure count
@@ -131,4 +140,14 @@ export function make_structure_builder_inputs(hex_obj) {
 
             return structure_builder;
         });
+}
+
+export function side_bar_input_handling(game) {
+    return ({ target }) => {
+        const entered_value = Number(target.value);
+
+        if (target.name === 'tax_rate') {
+            game.active_player.tax_rate = entered_value;
+        }
+    };
 }

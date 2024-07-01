@@ -82,9 +82,21 @@ h1, h2, h3 {
 .cell-wrapper {
     cursor: pointer;
 
-    &:hover,
-    &.clicked {
+    &:hover {
         filter: brightness(1.5);
+    }
+    
+    &.clicked {
+        animation: 0.75s infinite alternate blink ease forwards;
+    }
+}
+
+@keyframes blink {
+    0% {
+        filter: brightness(1.5);
+    }
+    100% {
+        filter: brightness(1);
     }
 }
 

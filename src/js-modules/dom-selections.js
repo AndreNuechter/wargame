@@ -20,3 +20,6 @@ export const round_info = document.getElementById('round-info');
 export const selection_highlight = document.getElementById('selection-highlight');
 export const start_game_form = document.getElementById('start-game-form');
 export const start_game_overlay = document.getElementById('start-game-overlay');
+export const movement_arrows = document.getElementById('movement-arrows');
+export const troop_select = document.getElementById('troop-select');
+export const troop_select_input = troop_select.querySelector('input');

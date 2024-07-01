@@ -1,8 +1,13 @@
-import { calculate_resource_production } from './player';
 import { BIOMES } from '../map-generation/biomes';
 import outline_hexregion from '../hex-grid/outline-hexregion';
 import {
-    selection_highlight, cell_production_forecast, overall_production_forecast, cell_info, general_info
+    cell_info, general_info,
+    cell_production_forecast,
+    movement_arrows,
+    overall_production_forecast,
+    selection_highlight,
+    troop_select,
+    troop_select_input,
 } from '../dom-selections';
 import {
     make_structure_builder_inputs,
@@ -10,7 +15,9 @@ import {
     setup_cell_production_forecast,
     setup_overall_production_forecast
 } from '../setup-sidebar-content';
-import { initial_resources } from './resources';
+import { path_tmpl } from '../dom-creations';
+import RESOURCES, { initial_resources, calculate_resource_production } from './resources';
+import move_queue from './move-queue';
 
 // the game starts in the land_grab phase where the players should pick their starting positions.
 // after initial positions are picked the first round starts.
@@ -21,17 +28,18 @@ import { initial_resources } from './resources';
 // resources are generated at the end of movement_execution.
 
 let selected_cell = null;
+let second_selected_cell = null;
 
 const ROUND_PHASES = {
     land_grab: make_round_phase(
         'land_grab',
         'Pick your origin',
         'Confirm choice',
-        (hex_obj, cell_element) => {
+        (hex_obj) => {
             // did player click on a viable starting cell?
             if (hex_obj.owner_id === -1 && hex_obj.biome !== BIOMES.sea) {
                 // set the candidate starting cell
-                selected_cell = cell_element;
+                selected_cell = hex_obj.cell;
                 // highlight neighbors of clicked cell
                 outline_hexregion([...hex_obj.neighbors, hex_obj], 'white', selection_highlight);
                 // hide general info
@@ -49,20 +57,9 @@ const ROUND_PHASES = {
         'development',
         'Distribute your wealth',
         undefined,
-        (hex_obj, _, game) => {
+        (hex_obj, game) => {
             // did the player click on a cell they own?
-            if (hex_obj.owner_id !== game.current_player_id) {
-                // hide cell specific overview
-                cell_production_forecast.classList.add('hidden');
-                // show empire overview
-                setup_overall_production_forecast(
-                    calculate_resource_production(
-                        game.active_player.cells,
-                        game.active_player.tax_rate
-                    ),
-                    game.active_player.tax_rate
-                );
-            } else {
+            if (hex_obj.owner_id === game.current_player_id) {
                 // store ref to selected owned cell for development pruposes
                 selected_cell = hex_obj;
 
@@ -75,23 +72,118 @@ const ROUND_PHASES = {
                     ),
                     make_structure_builder_inputs(hex_obj)
                 );
+            } else {
+                // hide cell specific overview
+                cell_production_forecast.classList.add('hidden');
+                // show empire overview
+                setup_overall_production_forecast(
+                    calculate_resource_production(
+                        game.active_player.cells,
+                        game.active_player.tax_rate
+                    ),
+                    game.active_player.tax_rate
+                );
             }
         }
     ),
-    movement_planning: make_round_phase('movement_planning', 'Make your moves'),
+    movement_planning: make_round_phase(
+        'movement_planning',
+        'Make your moves',
+        undefined,
+        (hex_obj, game) => {
+            if (selected_cell === null) {
+                const follow_up_move =
+                    move_queue[game.current_player_id]
+                        .find(({ target }) => target === hex_obj);
+
+                if (
+                    (hex_obj.owner_id === game.current_player_id &&
+                    hex_obj.resources[RESOURCES.people] > 1) ||
+                    follow_up_move?.units > 1
+                ) {
+                    selected_cell = hex_obj;
+                }
+
+                return;
+            }
+
+            if (selected_cell === hex_obj) {
+                selected_cell = null;
+                return;
+            }
+
+            if (hex_obj.neighbors.includes(selected_cell)) {
+                second_selected_cell = hex_obj;
+                troop_select.showModal();
+            }
+        }
+    ),
     movement_execution: make_round_phase('movement_execution', 'See what you have done')
 };
 
 export default ROUND_PHASES;
 
-export function side_bar_input_handling(game) {
-    return ({ target }) => {
-        const entered_value = Number(target.value);
+export function plan_move(game) {
+    return () => {
+        // TODO what happens at the end of the round, do units return home or do they stay where they are?
 
-        if (target.name === 'tax_rate') {
-            game.active_player.tax_rate = entered_value;
+        // TODO limit max troopsize to origin's population - 1 when cell is owned and moved troops otherwise and to available funds/food
+        const sent_troops = Number(troop_select_input.value);
+        const configured_move_index = move_queue[game.current_player_id]
+            .findIndex(({ origin, target }) => origin === selected_cell && target === second_selected_cell);
+
+        // zero or invalid input dismisses the move
+        if (Number.isNaN(sent_troops) || sent_troops === 0) {
+            // TODO rm highlighting (.clicked?)
+            selected_cell = null;
+            second_selected_cell = null;
+
+            if (configured_move_index > -1) {
+                move_queue[game.current_player_id].splice(configured_move_index, 1);
+                // TODO rm arrow...store ref to arrow on move?!
+            }
+
+            return;
+        }
+
+        if (configured_move_index > -1) {
+            move_queue[game.current_player_id][configured_move_index].units = sent_troops;
+            // TODO update units on arrow
+        } else {
+            const move = {
+                origin: selected_cell,
+                target: second_selected_cell,
+                units: sent_troops,
+            };
+
+            draw_movement_arrow(move);
+            move_queue[game.current_player_id].push(move);
         }
     };
+}
+
+export function draw_movement_arrow({ origin, target, units }) {
+    // TODO add number of troops sent
+    // TODO why not create an arrow symbol that we position/rotate via transforms?
+    // look here https://developer.mozilla.org/en-US/docs/Web/SVG/Element/marker
+    const path = path_tmpl.cloneNode(true);
+    // NOTE: adding 3 (= half the hex size) to correctly center the path...cx is apparently not really the center of the hex, but the upper left corner of its viewBox
+    path.setAttribute(
+        'd',
+        `M${origin.cx + 3} ${origin.cy + 3}L${target.cx + 3} ${target.cy + 3}`
+    );
+    // TODO use player color
+    path.setAttribute(
+        'stroke',
+        'white'
+    );
+    path.setAttribute(
+        'marker-end',
+        'url(#arrow)'
+    );
+
+    // TODO this should overlay everything (except the num on the origin)
+    movement_arrows.append(path);
 }
 
 export function end_turn_btn_click_handling(game) {
@@ -123,12 +215,13 @@ function make_round_phase(
     name = 'round_phase',
     call_to_action = name,
     end_turn_btn_label = 'End turn',
-    handler_function = () => {},
+    // eslint-disable-next-line no-unused-vars
+    handle_click_on_cell = (hex_obj, game) => {},
 ) {
     return {
         name,
         call_to_action,
         end_turn_btn_label,
-        handler_function
+        handle_click_on_cell
     };
 }

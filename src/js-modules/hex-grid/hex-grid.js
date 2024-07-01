@@ -1,10 +1,10 @@
 import compute_neighbors from './compute-neighbors.js';
 import generate_landmasses from '../map-generation/generate-landmasses.js';
 import assign_temperatures, { TEMPERATURES } from '../map-generation/assign-temperature.js';
-import assign_biomes, { BIOMES, create_ice_and_sea } from '../map-generation/biomes.js';
+import assign_biomes, { BIOMES, make_ice_and_sea } from '../map-generation/biomes.js';
 import assign_humidity, { HUMIDITY_LEVELS } from '../map-generation/assign-humidity.js';
 import { is_even } from '../helper-functions.js';
-import { create_hex_cell } from './hex-cell.js';
+import { make_hex_cell } from './hex-cell.js';
 
 // clear previous config and create new map, while leaving the DOM intact
 export function reroll_map(hex_map) {
@@ -23,7 +23,7 @@ export function reroll_map(hex_map) {
     }));
     assign_temperatures(hex_arr);
     generate_landmasses(hex_arr);
-    create_ice_and_sea(hex_arr);
+    make_ice_and_sea(hex_arr);
     assign_humidity(hex_arr);
     assign_biomes(hex_arr);
 
@@ -42,7 +42,7 @@ export function reinstate_hex_map(board_state, board_map) {
             owner_id,
             resources
         }) => {
-            const hex_cell = create_hex_cell(cx, cy, x, y, q, r, s);
+            const hex_cell = make_hex_cell(cx, cy, x, y, q, r, s);
 
             Object.assign(
                 hex_cell,
@@ -67,9 +67,9 @@ export function reinstate_hex_map(board_state, board_map) {
     return hex_arr_to_map(hex_arr, board_map);
 }
 
-export function create_hex_map(board_dimensions, board_map) {
+export function make_hex_map(board_dimensions, board_map) {
     // create hexgrid
-    const hex_arr = create_hex_grid(board_dimensions);
+    const hex_arr = make_hex_grid(board_dimensions);
 
     // compute neighbors
     compute_neighbors(hex_arr);
@@ -78,7 +78,7 @@ export function create_hex_map(board_dimensions, board_map) {
     // create landmasses
     generate_landmasses(hex_arr);
     // create waterbodies
-    create_ice_and_sea(hex_arr);
+    make_ice_and_sea(hex_arr);
     // assign humidity
     assign_humidity(hex_arr);
     // pick biome
@@ -95,7 +95,7 @@ function hex_arr_to_map(hex_arr, board_map) {
     }, board_map);
 }
 
-function create_hex_grid({ height, width }) {
+function make_hex_grid({ height, width }) {
     const hex_grid = [];
 
     for (let row = 0; row < height; row += 1) {
@@ -104,7 +104,7 @@ function create_hex_grid({ height, width }) {
         for (let col = 0; col < width; col += 1) {
             const q = col - (row - (row & 1)) / 2;
 
-            hex_grid.push(create_hex_cell(
+            hex_grid.push(make_hex_cell(
                 (col * 6) + (odd_row * 3),
                 row * 4.5,
                 col,

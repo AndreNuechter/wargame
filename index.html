@@ -26,11 +26,22 @@
     <div id="board-container">
         <svg id="board" preserveAspectRatio="xMinYMin meet" viewBox="0 0 185 110">
             <g id="selection-highlight"></g>
+            <g id="movement-arrows"></g>
         </svg>
     </div>
     {{> side-bar }}
     <div id="bottom-bar" class="info-bar"></div>
     {{> start-game-overlay }}
+    <dialog id="troop-select">
+        <form>
+            <h2>Troop Select</h2>
+            <label>
+                <div class="label-text">How many people do you send?</div>
+                <input name="troop-strength">
+            </label>
+            <button>Send Troops</button>
+        </form>
+    </dialog>
     {{> player-config-tmpl }}
     {{> structure-builder-tmpl }}
     {{> defs }}

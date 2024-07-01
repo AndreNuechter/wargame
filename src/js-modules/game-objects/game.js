@@ -1,12 +1,19 @@
-import { reinstate_hex_map } from '../hex-grid/hex-grid.js';
 import {
-    bottom_bar, cell_info, cell_production_forecast, end_turn_btn, general_info, phase_label, player_name,
+    bottom_bar,
+    cell_info,
+    cell_production_forecast,
+    end_turn_btn,
+    general_info,
+    phase_label,
+    player_name,
     selection_highlight
 } from '../dom-selections.js';
 import ROUND_PHASES from './round-phases.js';
-import create_player, { calculate_resource_production } from './player.js';
+import { calculate_resource_production } from './resources.js';
 import { setup_overall_production_forecast } from '../setup-sidebar-content.js';
+import move_queue from './move-queue.js';
 
+// TODO mods for players and board?
 const players = [];
 let round = 0;
 let current_phase = ROUND_PHASES.land_grab.name;
@@ -59,6 +66,9 @@ export default {
             current_phase = (() => {
                 switch (current_phase) {
                     case ROUND_PHASES.development.name:
+                        // rm prior moves and set up new queue
+                        move_queue.length = 0;
+                        players.forEach(() => move_queue.push([]));
                         return ROUND_PHASES.movement_planning.name;
                     case ROUND_PHASES.movement_planning.name:
                         return ROUND_PHASES.movement_execution.name;
@@ -123,21 +133,4 @@ function update_resource_display() {
             );
         })
     );
-}
-
-export function apply_savegame(game, game_data) {
-    const previous_game = JSON.parse(game_data);
-
-    Object.assign(game, {
-        round: previous_game.round,
-        current_phase: previous_game.current_phase,
-        current_player_id: previous_game.current_player_id,
-        players: previous_game.players.map(({ name, type }, id) => create_player(id, name, type)),
-        board: reinstate_hex_map(previous_game.board, game.board)
-    });
-
-    // give players their cells
-    game.players.forEach((player, id) => {
-        player.cells = [...game.board.values()].filter((cell) => cell.owner_id === id);
-    });
 }

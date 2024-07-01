@@ -1,6 +1,6 @@
 import './js-modules/service-worker-init.js';
 import './js-modules/wakelock.js';
-import { create_hex_map, reroll_map } from './js-modules/hex-grid/hex-grid.js';
+import { make_hex_map, reroll_map } from './js-modules/hex-grid/hex-grid.js';
 import board_dimensions from './js-modules/map-generation/board-dimensions.js';
 import {
     add_player_btn,
@@ -16,12 +16,15 @@ import {
     side_bar,
     start_game_form,
     start_game_overlay,
+    troop_select,
 } from './js-modules/dom-selections.js';
-import create_player, { make_player_config } from './js-modules/game-objects/player.js';
-import game, { apply_savegame } from './js-modules/game-objects/game.js';
-import ROUND_PHASES, { end_turn_btn_click_handling, side_bar_input_handling } from './js-modules/game-objects/round-phases.js';
-import save_game from './js-modules/save-game.js';
+import make_player, { make_player_config } from './js-modules/game-objects/player.js';
+import game from './js-modules/game-objects/game.js';
+import ROUND_PHASES, { draw_movement_arrow, end_turn_btn_click_handling, plan_move } from './js-modules/game-objects/round-phases.js';
+import move_queue from './js-modules/game-objects/move-queue.js';
+import save_game, { apply_savegame } from './js-modules/save-game.js';
 import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
+import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 
 // TODO add way to config map gen
 
@@ -37,8 +40,28 @@ window.addEventListener('DOMContentLoaded', () => {
     if (previously_saved_game) {
         apply_savegame(game, game_data);
     } else {
-        game.board = create_hex_map(board_dimensions, game.board);
+        game.board = make_hex_map(board_dimensions, game.board);
     }
+
+    // reapply stored move_queue
+    const stored_queue = JSON.parse(localStorage.getItem('wargame-planned-moves'));
+    const cells = [...game.board.values()];
+
+    // TODO clear on new game
+    stored_queue.forEach((player_moves) => {
+        // reconnect the stored values with the live cells
+        move_queue.push(
+            player_moves.map(
+                ({ origin, target, units }) => ({
+                    origin: cells.find(({ cx, cy }) => cx === origin.cx && cy === origin.cy),
+                    target: cells.find(({ cx, cy }) => cx === target.cx && cy === target.cy),
+                    units
+                })
+            )
+        );
+    });
+    // redraw arrows
+    move_queue.forEach((player_moves) => player_moves.forEach(draw_movement_arrow));
 }, { once: true });
 
 document.addEventListener('visibilitychange', () => {
@@ -78,12 +101,12 @@ start_game_form.addEventListener('submit', (event) => {
     }
 });
 
-// NOTE: we need this listener as swiping back on mobile closes the dialog...adding a required field to the game-config form may work as well
+// NOTE: we need this listener as swiping back on mobile closes the dialog
 start_game_overlay.addEventListener('close', () => {
     if (start_game_overlay.dataset.priorSave === 'false' && game.players.length === 0) {
         game.players = Array.from(
             { length: 2 },
-            (_, id) => create_player(id, `Player ${id + 1}`, 'human')
+            (_, id) => make_player(id, `Player ${id + 1}`, 'human')
         );
     }
 
@@ -132,7 +155,7 @@ config_game_form.addEventListener('submit', () => {
         (config, id) => {
             const name = config.querySelector('.player-name-input').value;
             const type = config.querySelector('.player-type-select-radio:checked').value;
-            return create_player(id, name, type);
+            return make_player(id, name, type);
         }
     );
 
@@ -197,10 +220,15 @@ board.addEventListener('click', ({ target }) => {
 
     output_cell_info(hex_obj);
 
-    ROUND_PHASES[game.current_phase].handler_function(hex_obj, cell_element, game);
+    ROUND_PHASES[game.current_phase].handle_click_on_cell(hex_obj, game);
 });
 
 side_bar.addEventListener('input', side_bar_input_handling(game));
+
+troop_select.addEventListener('close', plan_move(game));
+troop_select.addEventListener('submit', () => {
+    troop_select.close();
+});
 
 document.querySelector('h1').addEventListener('dblclick', () => {
     document.body.classList.toggle('debug');

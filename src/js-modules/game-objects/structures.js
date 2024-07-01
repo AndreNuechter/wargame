@@ -50,7 +50,7 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.stone, 5),
         ]
     ),
-    // TODO can we find another use? maybe coal used in forge...
+    // TODO can we find another use? maybe coal used in forge, or chance of iron and gold?...
     // mine: make_structure('Mine',
     //     [
     //         make_resource_amount(RESOURCES.wood, 5),
@@ -106,11 +106,18 @@ function make_structure(
         }
     },
     unsupported_biomes = [BIOMES.swamp],
-    // TODO add production cost
-    // TODO add space requirement
+    input = [make_resource_amount(RESOURCES.wood, 1)],
+    space_requirement = 1
 ) {
     return {
-        display_name, construction_cost, unsupported_biomes, effects, output, required_workers
+        display_name,
+        construction_cost,
+        space_requirement,
+        unsupported_biomes,
+        effects,
+        output,
+        input,
+        required_workers
     };
 }
 
