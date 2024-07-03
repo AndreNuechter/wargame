@@ -9,6 +9,7 @@ import {
     config_game_form,
     coord_system_toggle_btn,
     end_turn_btn,
+    movement_arrows,
     player_configs,
     player_setup,
     reroll_map_btn,
@@ -61,7 +62,9 @@ window.addEventListener('DOMContentLoaded', () => {
         );
     });
     // redraw arrows
-    move_queue.forEach((player_moves) => player_moves.forEach(draw_movement_arrow));
+    move_queue.forEach((player_moves) => player_moves.forEach((move) => {
+        move.arrow = draw_movement_arrow(move);
+    }));
 }, { once: true });
 
 document.addEventListener('visibilitychange', () => {
@@ -82,7 +85,7 @@ start_game_form.addEventListener('submit', (event) => {
             start_game_overlay.close();
         }
     } else if (event.submitter.id === 'new-game-btn') {
-        // if there's a prior save, reroll the map and delete players
+        // if there's a prior save, reroll the map, delete players and clear move_queue
         if (start_game_overlay.dataset.priorSave === 'true') {
             Object.assign(game, {
                 round: 0,
@@ -91,6 +94,8 @@ start_game_form.addEventListener('submit', (event) => {
             });
             game.board = reroll_map(game.board);
             game.clear_players();
+            move_queue.length = 0;
+            movement_arrows.replaceChildren();
         }
 
         // create player creation ui elements

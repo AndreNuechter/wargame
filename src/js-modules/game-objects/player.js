@@ -1,4 +1,4 @@
-import { board, player_setup } from '../dom-selections.js';
+import { player_setup } from '../dom-selections.js';
 import { player_border_path, player_config_tmpl } from '../dom-creations.js';
 import RESOURCES from './resources.js';
 import outline_hexregion from '../hex-grid/outline-hexregion.js';
@@ -27,9 +27,9 @@ export function make_player_config(id) {
 
 export default function make_player(id, name = 'Player Name', type = PLAYER_TYPES.ai) {
     const cells = [];
-    const border_path_container = player_border_path.cloneNode(true);
+    const border_path = player_border_path.cloneNode(true);
 
-    board.append(border_path_container);
+    document.getElementById('player-borders').append(border_path);
 
     return {
         name,
@@ -51,17 +51,17 @@ export default function make_player(id, name = 'Player Name', type = PLAYER_TYPE
                 [RESOURCES.alcohol]: 0
             });
         },
-        border_path_container,
+        border_path_container: border_path,
         get cells() {
             return cells;
         },
         set cells(value) {
             cells.push(...value);
-            outline_hexregion(cells, `var(--player-${id + 1})`, border_path_container);
+            outline_hexregion(cells, `var(--player-${id + 1})`, border_path);
         },
         destroy() {
             cells.length = 0;
-            border_path_container.remove();
+            border_path.remove();
         }
     };
 }

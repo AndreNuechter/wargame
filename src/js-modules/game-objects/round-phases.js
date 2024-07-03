@@ -27,6 +27,8 @@ import move_queue from './move-queue';
 // during movement_execution phase plans made before are enacted. conflicts between players may happen in this phase.
 // resources are generated at the end of movement_execution.
 
+// 4x - explore, expand, exploit, exterminate...how to make exploration more interesting? let mines give unknown resources that are only discovered when building?
+
 let selected_cell = null;
 let second_selected_cell = null;
 
@@ -39,7 +41,7 @@ const ROUND_PHASES = {
             // did player click on a viable starting cell?
             if (hex_obj.owner_id === -1 && hex_obj.biome !== BIOMES.sea) {
                 // set the candidate starting cell
-                selected_cell = hex_obj.cell;
+                selected_cell = hex_obj;
                 // highlight neighbors of clicked cell
                 outline_hexregion([...hex_obj.neighbors, hex_obj], 'white', selection_highlight);
                 // hide general info
@@ -102,6 +104,8 @@ const ROUND_PHASES = {
                     follow_up_move?.units > 1
                 ) {
                     selected_cell = hex_obj;
+                } else {
+                    hex_obj.cell.classList.remove('clicked');
                 }
 
                 return;
@@ -114,6 +118,8 @@ const ROUND_PHASES = {
 
             if (hex_obj.neighbors.includes(selected_cell)) {
                 second_selected_cell = hex_obj;
+                // TODO set available troop strength in modal
+                // troop_select_input.value = selected_cell.resources.people || ;
                 troop_select.showModal();
             }
         }
@@ -130,17 +136,22 @@ export function plan_move(game) {
         // TODO limit max troopsize to origin's population - 1 when cell is owned and moved troops otherwise and to available funds/food
         const sent_troops = Number(troop_select_input.value);
         const configured_move_index = move_queue[game.current_player_id]
-            .findIndex(({ origin, target }) => origin === selected_cell && target === second_selected_cell);
+            .findIndex(({ origin, target }) =>
+                origin === selected_cell && target === second_selected_cell
+            );
+
+        // rm highlighting from move_target
+        second_selected_cell.cell.classList.remove('clicked');
 
         // zero or invalid input dismisses the move
         if (Number.isNaN(sent_troops) || sent_troops === 0) {
-            // TODO rm highlighting (.clicked?)
             selected_cell = null;
             second_selected_cell = null;
 
+            // rm move from queue and arrow from dom
             if (configured_move_index > -1) {
-                move_queue[game.current_player_id].splice(configured_move_index, 1);
-                // TODO rm arrow...store ref to arrow on move?!
+                const [{ arrow }] = move_queue[game.current_player_id].splice(configured_move_index, 1);
+                arrow.remove();
             }
 
             return;
@@ -155,8 +166,12 @@ export function plan_move(game) {
                 target: second_selected_cell,
                 units: sent_troops,
             };
+            const arrow = draw_movement_arrow(move);
 
-            draw_movement_arrow(move);
+            move.arrow = arrow;
+            selected_cell = null;
+            second_selected_cell = null;
+
             move_queue[game.current_player_id].push(move);
         }
     };
@@ -164,10 +179,10 @@ export function plan_move(game) {
 
 export function draw_movement_arrow({ origin, target, units }) {
     // TODO add number of troops sent
-    // TODO why not create an arrow symbol that we position/rotate via transforms?
     // look here https://developer.mozilla.org/en-US/docs/Web/SVG/Element/marker
     const path = path_tmpl.cloneNode(true);
     // NOTE: adding 3 (= half the hex size) to correctly center the path...cx is apparently not really the center of the hex, but the upper left corner of its viewBox
+    // TODO start further from the center to not overlay the population count on the cell
     path.setAttribute(
         'd',
         `M${origin.cx + 3} ${origin.cy + 3}L${target.cx + 3} ${target.cy + 3}`
@@ -182,8 +197,9 @@ export function draw_movement_arrow({ origin, target, units }) {
         'url(#arrow)'
     );
 
-    // TODO this should overlay everything (except the num on the origin)
     movement_arrows.append(path);
+
+    return path;
 }
 
 export function end_turn_btn_click_handling(game) {
@@ -192,18 +208,16 @@ export function end_turn_btn_click_handling(game) {
             // player did not choose a viable starting cell, so they cant end their turn
             if (selected_cell === null) return;
 
-            // get the related hex-obj
-            const hex_obj = game.board.get(selected_cell);
-
             // set initial resources on cell
             Object.entries(initial_resources).forEach(([resource_name, amount]) => {
-                hex_obj.resources[resource_name] = amount;
+                selected_cell.resources[resource_name] = amount;
             });
             // mark the cell as belonging to the player and give the player the cell
-            hex_obj.owner_id = game.current_player_id;
-            game.active_player.cells = [hex_obj];
+            selected_cell.owner_id = game.current_player_id;
+            game.active_player.cells = [selected_cell];
 
-            // unset starting cell candidate
+            // unset starting cell candidate and its highlighting
+            selected_cell.cell.classList.remove('clicked');
             selected_cell = null;
         }
 
