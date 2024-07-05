@@ -123,6 +123,11 @@ path {
     stroke-width: 0.1px;
 }
 
+.movement-indicator text {
+    font-size: 0.1em;
+    transform: translateX(-0.3em);
+}
+
 .content-hidden * {
     opacity: 0;
 }

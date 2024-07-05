@@ -15,7 +15,7 @@ import {
     setup_cell_production_forecast,
     setup_overall_production_forecast
 } from '../setup-sidebar-content';
-import { path_tmpl } from '../dom-creations';
+import { movement_indicator_tmpl } from '../dom-creations';
 import RESOURCES, { initial_resources, calculate_resource_production } from './resources';
 import move_queue from './move-queue';
 
@@ -178,28 +178,35 @@ export function plan_move(game) {
 }
 
 export function draw_movement_arrow({ origin, target, units }) {
-    // TODO add number of troops sent
-    // look here https://developer.mozilla.org/en-US/docs/Web/SVG/Element/marker
-    const path = path_tmpl.cloneNode(true);
-    // NOTE: adding 3 (= half the hex size) to correctly center the path...cx is apparently not really the center of the hex, but the upper left corner of its viewBox
+    // NOTE: adding half_hex_size center the path...cx is apparently the upper left corner of the hex's viewBox
+    const half_hex_size = 3;
     // TODO start further from the center to not overlay the population count on the cell
-    path.setAttribute(
+    const path_start = {
+        x: origin.cx + half_hex_size,
+        y: origin.cy + half_hex_size
+    };
+    const path_end = {
+        x: target.cx + half_hex_size,
+        y: target.cy + half_hex_size
+    };
+    const path_mid = {
+        x: (path_end.x + path_start.x) * 0.5,
+        y: (path_end.y + path_start.y) * 0.5,
+    };
+    const movement_indicator = movement_indicator_tmpl.cloneNode(true);
+    const sent_units_display = movement_indicator.lastElementChild;
+
+    movement_indicator.firstElementChild.setAttribute(
         'd',
-        `M${origin.cx + 3} ${origin.cy + 3}L${target.cx + 3} ${target.cy + 3}`
+        `M${path_start.x} ${path_start.y}L${path_end.x} ${path_end.y}`
     );
-    // TODO use player color
-    path.setAttribute(
-        'stroke',
-        'white'
-    );
-    path.setAttribute(
-        'marker-end',
-        'url(#arrow)'
-    );
+    sent_units_display.textContent = units;
+    sent_units_display.setAttribute('x', path_mid.x);
+    sent_units_display.setAttribute('y', path_mid.y);
 
-    movement_arrows.append(path);
+    movement_arrows.append(movement_indicator);
 
-    return path;
+    return movement_indicator;
 }
 
 export function end_turn_btn_click_handling(game) {
