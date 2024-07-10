@@ -13,7 +13,7 @@ import { calculate_resource_production } from './resources.js';
 import { setup_overall_production_forecast } from '../setup-sidebar-content.js';
 import move_queue from './move-queue.js';
 
-// TODO mods for players and board?
+// TODO modules for players and board?
 const players = [];
 let round = 0;
 let current_phase = ROUND_PHASES.land_grab.name;

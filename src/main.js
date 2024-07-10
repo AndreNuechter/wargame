@@ -21,8 +21,8 @@ import {
 } from './js-modules/dom-selections.js';
 import make_player, { make_player_config } from './js-modules/game-objects/player.js';
 import game from './js-modules/game-objects/game.js';
-import ROUND_PHASES, { draw_movement_arrow, end_turn_btn_click_handling, plan_move } from './js-modules/game-objects/round-phases.js';
-import move_queue from './js-modules/game-objects/move-queue.js';
+import ROUND_PHASES, { end_turn_btn_click_handling, plan_move } from './js-modules/game-objects/round-phases.js';
+import move_queue, { reapply_move_queue, save_move_queue } from './js-modules/game-objects/move-queue.js';
 import save_game, { apply_savegame } from './js-modules/save-game.js';
 import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
 import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
@@ -31,7 +31,6 @@ import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 
 // set up board
 window.addEventListener('DOMContentLoaded', () => {
-    // TODO is this reliable on mobile or do we need to do this on visibilitychange as well
     const game_data = localStorage.getItem('wargame-savegame');
     const previously_saved_game = game_data !== null;
 
@@ -44,32 +43,13 @@ window.addEventListener('DOMContentLoaded', () => {
         game.board = make_hex_map(board_dimensions, game.board);
     }
 
-    // reapply stored move_queue
-    const stored_queue = JSON.parse(localStorage.getItem('wargame-planned-moves'));
-    const cells = [...game.board.values()];
-
-    // TODO clear on new game
-    stored_queue.forEach((player_moves) => {
-        // reconnect the stored values with the live cells
-        move_queue.push(
-            player_moves.map(
-                ({ origin, target, units }) => ({
-                    origin: cells.find(({ cx, cy }) => cx === origin.cx && cy === origin.cy),
-                    target: cells.find(({ cx, cy }) => cx === target.cx && cy === target.cy),
-                    units
-                })
-            )
-        );
-    });
-    // redraw arrows
-    move_queue.forEach((player_moves) => player_moves.forEach((move) => {
-        move.arrow = draw_movement_arrow(move);
-    }));
+    reapply_move_queue(game);
 }, { once: true });
 
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
         save_game();
+        save_move_queue();
     }
 });
 

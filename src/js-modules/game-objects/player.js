@@ -8,6 +8,7 @@ const PLAYER_TYPES = {
     ai: 'ai'
 };
 
+/** Create an UI element to config a player. */
 export function make_player_config(id) {
     const config = player_config_tmpl.cloneNode(true);
 
@@ -25,6 +26,7 @@ export function make_player_config(id) {
     player_setup.append(config);
 }
 
+/** Create a player. */
 export default function make_player(id, name = 'Player Name', type = PLAYER_TYPES.ai) {
     const cells = [];
     const border_path = player_border_path.cloneNode(true);

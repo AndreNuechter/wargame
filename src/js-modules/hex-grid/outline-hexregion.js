@@ -2,7 +2,7 @@ import { path_tmpl } from '../dom-creations';
 
 const stroke_width = 0.5;
 // this allows us to draw the outline inside the region and not on top of its border
-// FIXME this means outlines of adjacent cells of a region dont connect so that there's a visible gap
+// FIXME path segments dont connect so that there's a visible gap and we cant fill a region
 // TODO figure out a way to sort the line segments, so that we need only one `M` command and we could fill the pathes
 const edge_offset = stroke_width * 0.5;
 

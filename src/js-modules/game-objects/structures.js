@@ -50,7 +50,7 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.stone, 5),
         ]
     ),
-    // TODO can we find another use? maybe coal used in forge, or chance of iron and gold?...
+    // TODO we already have a stone producing structure...can we find another use? maybe coal used in forge, or chance of iron and gold?...
     // mine: make_structure('Mine',
     //     [
     //         make_resource_amount(RESOURCES.wood, 5),

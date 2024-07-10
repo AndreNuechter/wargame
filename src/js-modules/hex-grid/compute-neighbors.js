@@ -36,7 +36,7 @@ function get_neighboring_cells({
         );
 
         // add the, at most two, cells above and below that as well
-        // NOTE: leftmost cells on odd rows only have the one neighbor already added
+        // NOTE: leftmost cells on odd rows only have one neighbor, that's already added
         if (is_even(y)) {
             neighbors.push(
                 ...[
@@ -57,7 +57,7 @@ function get_neighboring_cells({
         neighbors.push(cells.find((cell) => y === cell.y && cell.x === 0));
 
         // add the, at most two, cells above and below that as well
-        // NOTE: rightmost cells on even rows only have the one neighbor already added
+        // NOTE: rightmost cells on even rows only have one neighbor, that's already added
         if (!is_even(y)) {
             neighbors.push(
                 ...[

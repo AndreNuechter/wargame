@@ -3,7 +3,6 @@ import outline_hexregion from '../hex-grid/outline-hexregion';
 import {
     cell_info, general_info,
     cell_production_forecast,
-    movement_arrows,
     overall_production_forecast,
     selection_highlight,
     troop_select,
@@ -15,9 +14,8 @@ import {
     setup_cell_production_forecast,
     setup_overall_production_forecast
 } from '../setup-sidebar-content';
-import { movement_indicator_tmpl } from '../dom-creations';
 import RESOURCES, { initial_resources, calculate_resource_production } from './resources';
-import move_queue from './move-queue';
+import move_queue, { make_player_move } from './move-queue';
 
 // the game starts in the land_grab phase where the players should pick their starting positions.
 // after initial positions are picked the first round starts.
@@ -93,6 +91,10 @@ const ROUND_PHASES = {
         'Make your moves',
         undefined,
         (hex_obj, game) => {
+            // TODO what happens at the end of the round - do units return home or do they stay where they are?
+            // TODO do we want to force the player to conquer cells moved to, ie to leave one unit there?
+
+            // player picked origin
             if (selected_cell === null) {
                 const follow_up_move =
                     move_queue[game.current_player_id]
@@ -111,17 +113,44 @@ const ROUND_PHASES = {
                 return;
             }
 
+            // player unselected origin
             if (selected_cell === hex_obj) {
                 selected_cell = null;
                 return;
             }
 
+            // player picked target
             if (hex_obj.neighbors.includes(selected_cell)) {
                 second_selected_cell = hex_obj;
-                // TODO set available troop strength in modal
-                // troop_select_input.value = selected_cell.resources.people || ;
+
+                // set max available troops
+                // TODO also limit by available resources
+                // TODO what about troops sent to an owned cell?
+                const troops_initially_at_origin = selected_cell.owner_id === game.current_player_id
+                    ? selected_cell.resources[RESOURCES.people] - 1
+                    : move_queue[game.current_player_id].find(({ target }) => target === selected_cell).units;
+                const troops_sent_from_origin = move_queue[game.current_player_id]
+                    .filter(({ origin }) => origin === selected_cell)
+                    .reduce((sent_troops, { units }) => sent_troops + units, 0);
+
+                troop_select_input.max = troops_initially_at_origin - troops_sent_from_origin;
+
+                // set value of input
+                const configured_move = move_queue[game.current_player_id]
+                    .find(({ origin, target }) =>
+                        origin === selected_cell && target === second_selected_cell
+                    );
+
+                troop_select_input.value = configured_move
+                    ? configured_move.units
+                    : 0;
+
+                // show troop select
                 troop_select.showModal();
             }
+
+            // rm highlight from targeted cell
+            hex_obj.cell.classList.remove('clicked');
         }
     ),
     movement_execution: make_round_phase('movement_execution', 'See what you have done')
@@ -131,20 +160,14 @@ export default ROUND_PHASES;
 
 export function plan_move(game) {
     return () => {
-        // TODO what happens at the end of the round, do units return home or do they stay where they are?
-
-        // TODO limit max troopsize to origin's population - 1 when cell is owned and moved troops otherwise and to available funds/food
         const sent_troops = Number(troop_select_input.value);
         const configured_move_index = move_queue[game.current_player_id]
             .findIndex(({ origin, target }) =>
                 origin === selected_cell && target === second_selected_cell
             );
 
-        // rm highlighting from move_target
-        second_selected_cell.cell.classList.remove('clicked');
-
         // zero or invalid input dismisses the move
-        if (Number.isNaN(sent_troops) || sent_troops === 0) {
+        if (Number.isNaN(sent_troops) || sent_troops <= 0) {
             selected_cell = null;
             second_selected_cell = null;
 
@@ -159,54 +182,21 @@ export function plan_move(game) {
 
         if (configured_move_index > -1) {
             move_queue[game.current_player_id][configured_move_index].units = sent_troops;
-            // TODO update units on arrow
+            // update units on arrow
+            move_queue[game.current_player_id][configured_move_index].arrow.lastElementChild.textContent = sent_troops;
         } else {
-            const move = {
-                origin: selected_cell,
-                target: second_selected_cell,
-                units: sent_troops,
-            };
-            const arrow = draw_movement_arrow(move);
-
-            move.arrow = arrow;
-            selected_cell = null;
-            second_selected_cell = null;
-
-            move_queue[game.current_player_id].push(move);
+            move_queue[game.current_player_id].push(
+                make_player_move(
+                    selected_cell,
+                    second_selected_cell,
+                    sent_troops,
+                )
+            );
         }
-    };
-}
 
-export function draw_movement_arrow({ origin, target, units }) {
-    // NOTE: adding half_hex_size center the path...cx is apparently the upper left corner of the hex's viewBox
-    const half_hex_size = 3;
-    // TODO start further from the center to not overlay the population count on the cell
-    const path_start = {
-        x: origin.cx + half_hex_size,
-        y: origin.cy + half_hex_size
+        selected_cell = null;
+        second_selected_cell = null;
     };
-    const path_end = {
-        x: target.cx + half_hex_size,
-        y: target.cy + half_hex_size
-    };
-    const path_mid = {
-        x: (path_end.x + path_start.x) * 0.5,
-        y: (path_end.y + path_start.y) * 0.5,
-    };
-    const movement_indicator = movement_indicator_tmpl.cloneNode(true);
-    const sent_units_display = movement_indicator.lastElementChild;
-
-    movement_indicator.firstElementChild.setAttribute(
-        'd',
-        `M${path_start.x} ${path_start.y}L${path_end.x} ${path_end.y}`
-    );
-    sent_units_display.textContent = units;
-    sent_units_display.setAttribute('x', path_mid.x);
-    sent_units_display.setAttribute('y', path_mid.y);
-
-    movement_arrows.append(movement_indicator);
-
-    return movement_indicator;
 }
 
 export function end_turn_btn_click_handling(game) {
