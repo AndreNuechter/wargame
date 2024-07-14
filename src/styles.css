@@ -6,6 +6,7 @@
 @import url("styles/buttons.css");
 @import url("styles/info-bar.css");
 @import url("styles/side-bar.css");
+@import url("styles/label.css");
 
 body {
     --side-bar-width: 240px;
@@ -114,8 +115,23 @@ h1, h2, h3 {
     }
 }
 
+#movement-config {
+    [name="movement-season"] {
+        margin-right: 8px;
+    }
+
+    fieldset:nth-of-type(2) {
+        display: flex;
+        justify-content: space-around;
+    }
+}
+
 path {
     stroke-linecap: round;
+
+    .movement-indicator & {
+        fill: none;
+    }
 }
 
 .cell {

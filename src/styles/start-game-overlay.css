@@ -44,19 +44,6 @@ dialog {
     gap: 8px;
 }
 
-label {
-    display: flex;
-    align-items: center;
-
-    #cell-production-forecast & {
-        display: initial;
-    }
-}
-
-.label-text {
-    padding-right: 4px;
-}
-
 #player-setup {
     position: relative;
 }
@@ -83,10 +70,6 @@ label {
         fill: var(--tundra);
         stroke: var(--tundra);
     }
-}
-
-#landgrab-type label {
-    display: block;
 }
 
 [data-prior-save="false"] {

@@ -1,0 +1,16 @@
+label {
+    display: flex;
+    align-items: center;
+
+    #cell-production-forecast & {
+        display: initial;
+    }
+
+    #landgrab-type & {
+        display: block;
+    }
+}
+
+.label-text {
+    padding-right: 4px;
+}
