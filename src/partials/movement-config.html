@@ -1,0 +1,32 @@
+<dialog id="movement-config">
+    <form>
+        <h2>Plan your move</h2>
+        <!-- TODO enable specifying move type - conquer | step | attack (?) -->
+        <fieldset id="movement-season-select">
+            <legend>When do you make the move?</legend>
+            <label>
+                <input type="radio" name="movement-season" value="spring" checked>
+                <span class="label-text">Spring</span>
+            </label>
+            <label>
+                <input type="radio" name="movement-season" value="summer">
+                <span class="label-text">Summer</span>
+            </label>
+            <label>
+                <input type="radio" name="movement-season" value="autumn">
+                <span class="label-text">Autumn</span>
+            </label>
+            <label>
+                <input type="radio" name="movement-season" value="winter">
+                <span class="label-text">Winter</span>
+            </label>
+        </fieldset>
+        <!-- TODO enable specifying unit types -->
+        <fieldset>
+            <legend>How many people do you send?</legend>
+            <input type="range" step="1" name="troop-strength">
+            <output name="troop-strength-value">0</output>
+        </fieldset>
+        <button>Plan Move</button>
+    </form>
+</dialog>
