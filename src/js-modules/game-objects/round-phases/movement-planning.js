@@ -3,8 +3,8 @@ import move_queue, { make_player_move } from '../move-queue';
 import RESOURCES from '../resources';
 import SEASONS, { increment_season, is_season_before } from '../seasons';
 
-let move_origin;
-let move_target;
+let move_origin = null;
+let move_target = null;
 
 // eslint-disable-next-line max-statements
 export function click_on_cell_action(hex_obj, game) {
