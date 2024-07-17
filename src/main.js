@@ -10,6 +10,7 @@ import {
     coord_system_toggle_btn,
     end_turn_btn,
     movement_arrows,
+    movement_config,
     player_configs,
     player_setup,
     reroll_map_btn,
@@ -17,11 +18,13 @@ import {
     side_bar,
     start_game_form,
     start_game_overlay,
-    troop_select,
+    troop_select_input,
+    troop_select_output,
 } from './js-modules/dom-selections.js';
 import make_player, { make_player_config } from './js-modules/game-objects/player.js';
 import game from './js-modules/game-objects/game.js';
-import ROUND_PHASES, { end_turn_btn_click_handling, plan_move } from './js-modules/game-objects/round-phases.js';
+import ROUND_PHASES, { end_turn_btn_click_handling } from './js-modules/game-objects/round-phases/round-phases.js';
+import { plan_move } from './js-modules/game-objects/round-phases/movement-planning.js';
 import move_queue, { reapply_move_queue, save_move_queue } from './js-modules/game-objects/move-queue.js';
 import save_game, { apply_savegame } from './js-modules/save-game.js';
 import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
@@ -57,6 +60,10 @@ document.addEventListener('visibilitychange', () => {
 start_game_overlay.addEventListener('cancel', prevent_default_event_behavior);
 // all formdata will be handled client-side
 document.addEventListener('submit', prevent_default_event_behavior);
+
+troop_select_input.addEventListener('input', () => {
+    troop_select_output.value = troop_select_input.value;
+});
 
 start_game_form.addEventListener('submit', (event) => {
     if (event.submitter.id === 'continue-btn') {
@@ -189,19 +196,19 @@ board.addEventListener('click', ({ target }) => {
         return;
     }
 
-    const previously_selected_cell = board.querySelector('.clicked');
+    const previously_clicked_cell = board.querySelector('.clicked');
     const hex_obj = game.board.get(cell_element);
 
-    if (previously_selected_cell) {
-        previously_selected_cell.classList.remove('clicked');
+    if (previously_clicked_cell) {
+        previously_clicked_cell.classList.remove('clicked');
         // clear focus highlighting
         selection_highlight.replaceChildren();
-
-        // player de-selected a cell
-        if (previously_selected_cell === cell_element) return;
     }
 
-    cell_element.classList.add('clicked');
+    // player de-selected a cell
+    if (previously_clicked_cell !== cell_element) {
+        cell_element.classList.add('clicked');
+    }
 
     output_cell_info(hex_obj);
 
@@ -210,9 +217,9 @@ board.addEventListener('click', ({ target }) => {
 
 side_bar.addEventListener('input', side_bar_input_handling(game));
 
-troop_select.addEventListener('close', plan_move(game));
-troop_select.addEventListener('submit', () => {
-    troop_select.close();
+movement_config.addEventListener('close', plan_move(game));
+movement_config.addEventListener('submit', () => {
+    movement_config.close();
 });
 
 document.querySelector('h1').addEventListener('dblclick', () => {

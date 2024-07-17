@@ -8,7 +8,7 @@ import {
     player_name,
     selection_highlight
 } from '../dom-selections.js';
-import ROUND_PHASES from './round-phases.js';
+import ROUND_PHASES from './round-phases/round-phases.js';
 import { calculate_resource_production } from './resources.js';
 import { setup_overall_production_forecast } from '../setup-sidebar-content.js';
 import move_queue from './move-queue.js';
@@ -20,6 +20,14 @@ let current_phase = ROUND_PHASES.land_grab.name;
 let current_player_id = 0;
 let current_player_total_production = null;
 
+// TODO if we could share this across files, finish this
+/**
+ * The god-object holding most of the game state.
+ * @typedef {Object} game
+ * @property {Map} board - A map from DOM/SVG hex-cells to the objects defining them.
+ * @property {Number} round - A map from DOM/SVG hex-cells to the objects defining them.
+ * @property {Object} active_player - Holds a reference to the player who has the turn.
+ */
 export default {
     board: new Map,
     get round() {

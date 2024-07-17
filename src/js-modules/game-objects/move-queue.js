@@ -8,10 +8,11 @@ export default move_queue;
 export function save_move_queue() {
     localStorage.setItem('wargame-planned-moves', JSON.stringify(
         move_queue.map((player_moves) => player_moves
-            .map(({ origin, target, units }) => ({
+            .map(({ origin, target, units, season }) => ({
                 origin: { cx: origin.cx, cy: origin.cy },
                 target: { cx: target.cx, cy: target.cy },
-                units
+                units,
+                season
             }))
         )
     ));
@@ -25,20 +26,35 @@ export function reapply_move_queue(game) {
         // reconnect the stored values with the live cells
         move_queue.push(
             player_moves.map(
-                ({ origin, target, units }) => make_player_move(
+                ({ origin, target, units, season }) => make_player_move(
                     cells.find(({ cx, cy }) => cx === origin.cx && cy === origin.cy),
                     cells.find(({ cx, cy }) => cx === target.cx && cy === target.cy),
-                    units
+                    units,
+                    season
                 )
             )
         );
     });
 }
 
-export function make_player_move(origin, target, units) {
+/**
+ * A Player move from one cell to another.
+ * @typedef {Object} Move
+ * @property {String} season - One of the values [spring | summer | autumn | winter].
+ * @property {Hex_Cell} origin - The hex-cell being moved from.
+ * @property {Hex_Cell} target - The hex-cell being moved to.
+ * @property {Number} units - The number of units sent.
+ * @property {SVGGeometryElement} arrow - The SVG element visualizing the move.
+ */
+
+/**
+ * @returns {Move}
+ */
+export function make_player_move(origin, target, units, season) {
     const arrow = draw_movement_arrow(origin, target, units);
 
     return {
+        season,
         origin,
         target,
         units,
@@ -49,6 +65,7 @@ export function make_player_move(origin, target, units) {
 function draw_movement_arrow(origin, target, units) {
     // NOTE: adding half_hex_size to center the path...cx is apparently the upper left corner of the hex's viewBox
     const half_hex_size = 3;
+    // TODO start/end further from the center to not overlay the population count and returing arrow
     const path_start = {
         x: origin.cx + half_hex_size,
         y: origin.cy + half_hex_size
@@ -57,21 +74,13 @@ function draw_movement_arrow(origin, target, units) {
         x: target.cx + half_hex_size,
         y: target.cy + half_hex_size
     };
-    const path_mid = {
-        x: (path_end.x + path_start.x) * 0.5,
-        y: (path_end.y + path_start.y) * 0.5,
-    };
+    const path_data = `M${path_start.x} ${path_start.y}A 3 3 0 0 0 ${path_end.x} ${path_end.y}`;
     const movement_indicator = movement_indicator_tmpl.cloneNode(true);
-    const sent_units_display = movement_indicator.lastElementChild;
+    const sent_units_display = movement_indicator.lastElementChild.lastElementChild;
 
-    // TODO start further from the center to not overlay the population count on the cell
-    movement_indicator.firstElementChild.setAttribute(
-        'd',
-        `M${path_start.x} ${path_start.y}L${path_end.x} ${path_end.y}`
-    );
+    movement_indicator.firstElementChild.setAttribute('d', path_data);
+    sent_units_display.setAttribute('path', path_data);
     sent_units_display.textContent = units;
-    sent_units_display.setAttribute('x', path_mid.x);
-    sent_units_display.setAttribute('y', path_mid.y);
 
     movement_arrows.append(movement_indicator);
 
