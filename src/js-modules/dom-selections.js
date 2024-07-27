@@ -27,3 +27,4 @@ export const troop_select_input = movement_config.querySelector('[name="troop-st
 export const troop_select_output = movement_config.querySelector('[name="troop-strength-value"]');
 export const troop_select_min_value = movement_config.querySelector('[name="min-troop-strength-value"]');
 export const troop_select_max_value = movement_config.querySelector('[name="max-troop-strength-value"]');
+export const settle_cell_toggle = movement_config.querySelector('[name="settle-cell-toggle"]');

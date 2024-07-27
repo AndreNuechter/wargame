@@ -45,13 +45,14 @@ export function reapply_move_queue(game) {
  * @property {Hex_Cell} origin - The hex-cell being moved from.
  * @property {Hex_Cell} target - The hex-cell being moved to.
  * @property {Number} units - The number of units sent.
+ * @property {String} type - The type of movement [settle | unspecified].
  * @property {SVGGeometryElement} arrow - The SVG element visualizing the move.
  */
 
 /**
  * @returns {Move}
  */
-export function make_player_move(origin, target, units, season) {
+export function make_player_move(origin, target, units, season, type) {
     const arrow = draw_movement_arrow(origin, target, units);
 
     return {
@@ -59,6 +60,7 @@ export function make_player_move(origin, target, units, season) {
         origin,
         target,
         units,
+        type,
         arrow
     };
 }
