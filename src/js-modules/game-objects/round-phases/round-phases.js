@@ -2,15 +2,16 @@ import { click_on_cell_action as handle_land_grab, end_turn_action } from './lan
 import { click_on_cell_action as handle_development } from './development';
 import { click_on_cell_action as handle_movement_planning } from './movement-planning';
 
-// the game starts in the land_grab phase where the players should pick their starting positions.
-// after initial positions are picked the first round starts.
+// the game starts in the land_grab phase where the players should pick their starting positions (their capitol).
+// after initial positions are picked, the first round starts.
 // ea round consists of 3 phases: development, movement_planning and movement_execution.
-// during development phase structures can be built/deconstructed on owned cells and population thereof turned into other units.
-// during movement_planning, units can be directed to adjacent cells (and cells adjacent to that...) to settle, attack or reinforce them.
-// during movement_execution phase plans made before are enacted. conflicts between players may happen in this phase.
+// ea phase starts w player 1 and continues w player 2 until all players had their turn.
+// during the development phase structures can be built/deconstructed on owned cells and population thereof turned into other units.
+// during the movement_planning phase, units can be sent to adjacent cells (and cells adjacent to that...) to explore, plunder, settle, attack or reinforce them.
+// during the movement_execution phase, plans made before are enacted. conflicts between players (=battles) may happen in this phase.
 // resources are generated at the end of movement_execution.
 
-// 4x - explore, expand, exploit, exterminate...how to make exploration more interesting? let mines give unknown resources that are only discovered when building?
+// TODO 4X - explore, expand, exploit, exterminate...how to make exploration more interesting? let mines give unknown resources (think fields of coal, iron or gold) that are only discovered when building? add treasures ("remains of old civilizations") randomly?
 
 const ROUND_PHASES = {
     land_grab: make_round_phase(

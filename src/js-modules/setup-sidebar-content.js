@@ -142,6 +142,7 @@ export function make_structure_builder_inputs(hex_obj) {
         });
 }
 
+// TODO the name is too general as it only handles taxes...
 export function side_bar_input_handling(game) {
     return ({ target }) => {
         const entered_value = Number(target.value);

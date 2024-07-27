@@ -1,12 +1,12 @@
 import compute_neighbors from './compute-neighbors.js';
-import generate_landmasses from '../map-generation/generate-landmasses.js';
-import assign_temperatures, { TEMPERATURES } from '../map-generation/assign-temperature.js';
-import assign_biomes, { BIOMES, make_ice_and_sea } from '../map-generation/biomes.js';
-import assign_humidity, { HUMIDITY_LEVELS } from '../map-generation/assign-humidity.js';
-import { is_even } from '../helper-functions.js';
+import generate_landmasses from '../../map-generation/generate-landmasses.js';
+import assign_temperatures, { TEMPERATURES } from '../../map-generation/assign-temperature.js';
+import assign_biomes, { BIOMES, make_ice_and_sea } from '../../map-generation/biomes.js';
+import assign_humidity, { HUMIDITY_LEVELS } from '../../map-generation/assign-humidity.js';
+import { is_even } from '../../helper-functions.js';
 import { make_hex_cell } from './hex-cell.js';
 
-// clear previous config and create new map, while leaving the DOM intact
+/** Clear previous config and create new map, while leaving the DOM intact */
 export function reroll_map(hex_map) {
     const hex_arr = [...hex_map.values()];
 
@@ -30,7 +30,7 @@ export function reroll_map(hex_map) {
     return hex_map;
 }
 
-// recreate previous boardstate after reload
+/** Recreate previous boardstate after reload. */
 export function reinstate_hex_map(board_state, board_map) {
     const hex_arr = board_state
         .map(({
@@ -68,20 +68,13 @@ export function reinstate_hex_map(board_state, board_map) {
 }
 
 export function make_hex_map(board_dimensions, board_map) {
-    // create hexgrid
     const hex_arr = make_hex_grid(board_dimensions);
 
-    // compute neighbors
     compute_neighbors(hex_arr);
-    // assign temperatures
     assign_temperatures(hex_arr);
-    // create landmasses
     generate_landmasses(hex_arr);
-    // create waterbodies
     make_ice_and_sea(hex_arr);
-    // assign humidity
     assign_humidity(hex_arr);
-    // pick biome
     assign_biomes(hex_arr);
 
     return hex_arr_to_map(hex_arr, board_map);
@@ -89,6 +82,7 @@ export function make_hex_map(board_dimensions, board_map) {
 
 function hex_arr_to_map(hex_arr, board_map) {
     // return map of svg-elements to hexes
+    // TODO no need to return anything?
     return hex_arr.reduce((map, hex) => {
         map.set(hex.cell, hex);
         return map;

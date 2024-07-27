@@ -1,7 +1,7 @@
 import { player_setup } from '../dom-selections.js';
 import { player_border_path, player_config_tmpl } from '../dom-creations.js';
 import RESOURCES from './resources.js';
-import outline_hexregion from '../hex-grid/outline-hexregion.js';
+import outline_hexregion from './board/outline-hexregion.js';
 
 const PLAYER_TYPES = {
     human: 'human',
@@ -36,6 +36,7 @@ export default function make_player(id, name = 'Player Name', type = PLAYER_TYPE
     return {
         name,
         type,
+        tax_rate: 1,
         get resources() {
             return cells.reduce((result, { resources }) => {
                 Object.entries(resources).forEach(([resource, amount]) => {

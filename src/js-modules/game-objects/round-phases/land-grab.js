@@ -1,7 +1,7 @@
 import { cell_info, general_info, selection_highlight } from '../../dom-selections';
 import { BIOMES } from '../../map-generation/biomes';
 import { setup_cell_info } from '../../setup-sidebar-content';
-import outline_hexregion from '../../hex-grid/outline-hexregion';
+import outline_hexregion from '../board/outline-hexregion';
 import { initial_resources } from '../resources';
 
 let start_position_candidate = null;

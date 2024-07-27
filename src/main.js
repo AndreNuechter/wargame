@@ -1,6 +1,6 @@
 import './js-modules/service-worker-init.js';
 import './js-modules/wakelock.js';
-import { make_hex_map, reroll_map } from './js-modules/hex-grid/hex-grid.js';
+import { make_hex_map, reroll_map } from './js-modules/game-objects/board/hex-grid.js';
 import board_dimensions from './js-modules/map-generation/board-dimensions.js';
 import {
     add_player_btn,
@@ -9,7 +9,6 @@ import {
     config_game_form,
     coord_system_toggle_btn,
     end_turn_btn,
-    movement_arrows,
     movement_config,
     player_configs,
     player_setup,
@@ -25,10 +24,11 @@ import make_player, { make_player_config } from './js-modules/game-objects/playe
 import game from './js-modules/game-objects/game.js';
 import ROUND_PHASES, { end_turn_btn_click_handling } from './js-modules/game-objects/round-phases/round-phases.js';
 import { plan_move } from './js-modules/game-objects/round-phases/movement-planning.js';
-import move_queue, { reapply_move_queue, save_move_queue } from './js-modules/game-objects/move-queue.js';
+import { clear_move_queue, reapply_move_queue, save_move_queue } from './js-modules/game-objects/move-queue.js';
 import save_game, { apply_savegame } from './js-modules/save-game.js';
 import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
 import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
+import { reapply_board, save_board } from './js-modules/game-objects/board/board.js';
 
 // TODO add way to config map gen
 
@@ -42,8 +42,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (previously_saved_game) {
         apply_savegame(game, game_data);
+        reapply_board(game);
     } else {
-        game.board = make_hex_map(board_dimensions, game.board);
+        make_hex_map(board_dimensions, game.board);
     }
 
     reapply_move_queue(game);
@@ -52,12 +53,11 @@ window.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
         save_game();
+        save_board();
         save_move_queue();
     }
 });
 
-// prevent closing dialog wo making a choice (ie by pressing esc)
-start_game_overlay.addEventListener('cancel', prevent_default_event_behavior);
 // all formdata will be handled client-side
 document.addEventListener('submit', prevent_default_event_behavior);
 
@@ -79,10 +79,9 @@ start_game_form.addEventListener('submit', (event) => {
                 current_phase: ROUND_PHASES.land_grab.name,
                 current_player_id: 0
             });
-            game.board = reroll_map(game.board);
+            reroll_map(game.board);
             game.clear_players();
-            move_queue.length = 0;
-            movement_arrows.replaceChildren();
+            clear_move_queue();
         }
 
         // create player creation ui elements
@@ -95,7 +94,7 @@ start_game_form.addEventListener('submit', (event) => {
 
 // NOTE: we need this listener as swiping back on mobile closes the dialog
 start_game_overlay.addEventListener('close', () => {
-    if (start_game_overlay.dataset.priorSave === 'false' && game.players.length === 0) {
+    if (game.players.length === 0) {
         game.players = Array.from(
             { length: 2 },
             (_, id) => make_player(id, `Player ${id + 1}`, 'human')
@@ -105,9 +104,7 @@ start_game_overlay.addEventListener('close', () => {
     game.run();
 });
 
-reroll_map_btn.addEventListener('click', () => {
-    game.board = reroll_map(game.board);
-});
+reroll_map_btn.addEventListener('click', () => reroll_map(game.board));
 
 end_turn_btn.addEventListener('click', end_turn_btn_click_handling(game));
 
@@ -192,9 +189,7 @@ player_setup.addEventListener('click', ({ target }) => {
 board.addEventListener('click', ({ target }) => {
     const cell_element = target.closest('.cell-wrapper');
 
-    if (!cell_element) {
-        return;
-    }
+    if (!cell_element) return;
 
     const previously_clicked_cell = board.querySelector('.clicked');
     const hex_obj = game.board.get(cell_element);
@@ -218,17 +213,17 @@ board.addEventListener('click', ({ target }) => {
 side_bar.addEventListener('input', side_bar_input_handling(game));
 
 movement_config.addEventListener('close', plan_move(game));
-movement_config.addEventListener('submit', () => {
-    movement_config.close();
-});
+movement_config.addEventListener('submit', () => movement_config.close());
 
-document.querySelector('h1').addEventListener('dblclick', () => {
-    document.body.classList.toggle('debug');
-});
+document.querySelector('h1').addEventListener(
+    'dblclick',
+    () => document.body.classList.toggle('debug')
+);
 
-coord_system_toggle_btn.addEventListener('click', () => {
-    document.body.classList.toggle('use-offset-coords');
-});
+coord_system_toggle_btn.addEventListener(
+    'click',
+    () => document.body.classList.toggle('use-offset-coords')
+);
 
 function output_cell_info(hex_obj) {
     cell_debug_info.textContent = JSON.stringify(

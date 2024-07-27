@@ -1,9 +1,9 @@
-import { board } from '../dom-selections.js';
-import { cell_group_tmpl } from '../dom-creations.js';
-import { TEMPERATURES } from '../map-generation/assign-temperature.js';
-import { HUMIDITY_LEVELS } from '../map-generation/assign-humidity.js';
-import STRUCTURES from '../game-objects/structures.js';
-import RESOURCES from '../game-objects/resources.js';
+import { board } from '../../dom-selections.js';
+import { cell_group_tmpl } from '../../dom-creations.js';
+import { TEMPERATURES } from '../../map-generation/assign-temperature.js';
+import { HUMIDITY_LEVELS } from '../../map-generation/assign-humidity.js';
+import STRUCTURES from '../structures.js';
+import RESOURCES from '../resources.js';
 
 export function make_hex_cell(cx, cy, x, y, q, r, s) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);
@@ -63,7 +63,7 @@ export function make_hex_cell(cx, cy, x, y, q, r, s) {
             owner_id = id;
             if (id !== -1) cell.dataset.owner_id = id;
         },
-        // TODO randomnly/procedurally deine this
+        // TODO randomnly/procedurally define this
         developable_land: 10
     };
 }

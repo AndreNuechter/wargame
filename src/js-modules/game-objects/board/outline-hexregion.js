@@ -1,4 +1,4 @@
-import { path_tmpl } from '../dom-creations';
+import { path_tmpl } from '../../dom-creations';
 
 const stroke_width = 0.5;
 // this allows us to draw the outline inside the region and not on top of its border

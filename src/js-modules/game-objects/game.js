@@ -8,12 +8,13 @@ import {
     player_name,
     selection_highlight
 } from '../dom-selections.js';
-import ROUND_PHASES from './round-phases/round-phases.js';
-import { calculate_resource_production } from './resources.js';
 import { setup_overall_production_forecast } from '../setup-sidebar-content.js';
-import move_queue from './move-queue.js';
+import { calculate_resource_production } from './resources.js';
+import ROUND_PHASES from './round-phases/round-phases.js';
+import board from './board/board.js';
+import move_queue, { clear_move_queue } from './move-queue.js';
 
-// TODO modules for players and board?
+// TODO module for players
 const players = [];
 let round = 0;
 let current_phase = ROUND_PHASES.land_grab.name;
@@ -29,7 +30,7 @@ let current_player_total_production = null;
  * @property {Object} active_player - Holds a reference to the player who has the turn.
  */
 export default {
-    board: new Map,
+    board,
     get round() {
         return round;
     },
@@ -75,7 +76,8 @@ export default {
                 switch (current_phase) {
                     case ROUND_PHASES.development.name:
                         // rm prior moves and set up new queue
-                        move_queue.length = 0;
+                        clear_move_queue();
+                        // TODO we dont need to reset the entire queue here. it'd be enough to set the entries.length to 0...
                         players.forEach(() => move_queue.push([]));
                         return ROUND_PHASES.movement_planning.name;
                     case ROUND_PHASES.movement_planning.name:
