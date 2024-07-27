@@ -63,7 +63,8 @@ export function make_hex_cell(cx, cy, x, y, q, r, s) {
             owner_id = id;
             if (id !== -1) cell.dataset.owner_id = id;
         },
-        developable_land: 0
+        // TODO randomnly/procedurally deine this
+        developable_land: 10
     };
 }
 

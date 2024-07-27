@@ -9,6 +9,7 @@ export default function save_game() {
         return;
     }
 
+    // TODO structures and developable_land is not saved
     localStorage.setItem(
         'wargame-savegame',
         JSON.stringify({

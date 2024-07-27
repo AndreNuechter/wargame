@@ -1,4 +1,11 @@
-import { movement_config, season_of_move_select, troop_select_input, troop_select_output } from '../../dom-selections';
+import {
+    movement_config,
+    season_of_move_select,
+    troop_select_input,
+    troop_select_max_value,
+    troop_select_min_value,
+    troop_select_output
+} from '../../dom-selections';
 import move_queue, { make_player_move } from '../move-queue';
 import RESOURCES from '../resources';
 import SEASONS, { increment_season, is_season_before } from '../seasons';
@@ -10,28 +17,7 @@ let move_target = null;
 export function click_on_cell_action(hex_obj, game) {
     // player picked origin
     if (move_origin === null) {
-        // player cant abandon owned cells and therefore has to leave at least one unit behind when moving from there
-        const player_owns_cell_and_its_population_is_big_enough =
-            hex_obj.owner_id === game.current_player_id &&
-            hex_obj.resources[RESOURCES.people] > 1;
-        const player_has_moved_from_here_before = move_queue[game.current_player_id]
-            .find(({ origin }) => origin === hex_obj);
-        // a player cant make a follow up move, if the move leading here was made in winter
-        const player_could_move_on_from_here = move_queue[game.current_player_id]
-            .find(({ target, season }) => target === hex_obj && season !== 'winter');
-        const player_has_troops_stationed_here = game.active_player.encampments.has(hex_obj);
-
-        if (
-            player_owns_cell_and_its_population_is_big_enough ||
-            player_has_moved_from_here_before ||
-            player_could_move_on_from_here ||
-            player_has_troops_stationed_here
-        ) {
-            move_origin = hex_obj;
-        } else {
-            hex_obj.cell.classList.remove('clicked');
-        }
-
+        set_move_origin(hex_obj, game);
         return;
     }
 
@@ -47,6 +33,7 @@ export function click_on_cell_action(hex_obj, game) {
     // player can only move one cell at a time
     if (!hex_obj.neighbors.includes(move_origin)) return;
 
+    // TODO split this up into function(s)
     move_target = hex_obj;
 
     // NOTE: to maintain visibility of the arrows, the player can only move one time from one specific cell to another during a round
@@ -64,6 +51,7 @@ export function click_on_cell_action(hex_obj, game) {
     Object.values(SEASONS).forEach((season) => {
         season_of_move_select.querySelector(`input[value="${season}"]`).disabled = false;
     });
+    season_of_move_select.inert = false;
 
     // is player configuring a previous move or making a new one?
     if (configured_move) {
@@ -97,7 +85,8 @@ export function click_on_cell_action(hex_obj, game) {
                 return sent_troops;
             }, 0);
 
-        // TODO disable season options for which there'd be a move w insufficient troops, if this move'd be made then
+        // TODO disable season options for which there'd be a move w insufficient troops, if this move'd be made then...for now we just disable it
+        season_of_move_select.inert = true;
 
         if (player_owns_origin) {
             max_value = count_of_units_on_cell_at_season(
@@ -105,13 +94,13 @@ export function click_on_cell_action(hex_obj, game) {
                 move_origin,
                 season,
                 move_origin.resources[RESOURCES.people]
-            ) - 1;
+            ) - 1 + current_value;
         } else {
             max_value = count_of_units_on_cell_at_season(
                 move_queue[game.current_player_id],
                 move_origin,
                 season,
-            );
+            ) + current_value;
         }
     } else {
         current_value = 0;
@@ -155,7 +144,6 @@ export function click_on_cell_action(hex_obj, game) {
                 });
 
             season = increment_season(season_of_earliest_move_to_origin);
-            // FIXME sometimes a follow up allows making more moves than appropriate...ie two 1 unit moves from a cell 1 unit has been moved to
             max_value = count_of_units_on_cell_at_season(
                 move_queue[game.current_player_id],
                 move_origin,
@@ -172,12 +160,43 @@ export function click_on_cell_action(hex_obj, game) {
 
     // configure move_config modal
     season_of_move_select.querySelector(`input[value="${season}"]`).checked = true;
-    troop_select_input.value = current_value;
+    Object.assign(
+        troop_select_input,
+        {
+            value: current_value,
+            min: min_value,
+            max: max_value
+        }
+    );
     troop_select_output.value = current_value;
-    troop_select_input.max = max_value;
-    troop_select_input.min = min_value;
+    troop_select_min_value.value = min_value;
+    troop_select_max_value.value = max_value;
     // show modal
     movement_config.showModal();
+}
+
+function set_move_origin(hex_obj, game) {
+    // player cant abandon owned cells and therefore has to leave at least one unit behind when moving from there
+    const player_owns_cell_and_its_population_is_big_enough =
+        hex_obj.owner_id === game.current_player_id &&
+        hex_obj.resources[RESOURCES.people] > 1;
+    const player_has_moved_from_here_before = move_queue[game.current_player_id]
+        .find(({ origin }) => origin === hex_obj);
+    // a player cant make a follow up move, if the move leading here was made in winter
+    const player_could_move_on_from_here = move_queue[game.current_player_id]
+        .find(({ target, season }) => target === hex_obj && season !== 'winter');
+    const player_has_troops_stationed_here = game.active_player.encampments.has(hex_obj);
+
+    if (
+        player_owns_cell_and_its_population_is_big_enough ||
+        player_has_moved_from_here_before ||
+        player_could_move_on_from_here ||
+        player_has_troops_stationed_here
+    ) {
+        move_origin = hex_obj;
+    } else {
+        hex_obj.cell.classList.remove('clicked');
+    }
 }
 
 // TODO this needs to happen when the season in the modal is picked/set to set the max value of the moved units
@@ -212,6 +231,7 @@ function count_of_units_on_cell_at_season(
 
 export function plan_move(game) {
     return () => {
+        // TODO type of move
         const season_of_move = movement_config.querySelector('[name="season-of-move"]:checked').value;
         const sent_troops = Number(troop_select_input.value);
         const configured_move_index = move_queue[game.current_player_id]

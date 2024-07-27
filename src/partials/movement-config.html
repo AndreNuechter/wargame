@@ -20,12 +20,17 @@
                 <span class="label-text">Winter</span>
             </label>
         </fieldset>
-        <!-- TODO enable specifying move type - conquer | step | attack (?) -->
+        <!-- TODO enable specifying move type - conquer | step | gather resources (...?) -->
         <!-- TODO enable specifying unit types -->
-        <fieldset>
+        <fieldset id="troop-strength-setter">
             <legend>How many people do you send?</legend>
-            <input type="range" step="1" name="troop-strength">
             <output name="troop-strength-value">0</output>
+            <div id="troop-strength-input">
+                <output name="min-troop-strength-value">0</output>
+                <!-- TODO UI to change value by 1 up/down -->
+                <input type="range" step="1" name="troop-strength">
+                <output name="max-troop-strength-value">0</output>
+            </div>
         </fieldset>
         <button>Plan Move</button>
     </form>

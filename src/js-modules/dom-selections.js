@@ -24,4 +24,6 @@ export const start_game_overlay = document.getElementById('start-game-overlay');
 export const movement_arrows = document.getElementById('movement-arrows');
 export const movement_config = document.getElementById('movement-config');
 export const troop_select_input = movement_config.querySelector('[name="troop-strength"]');
-export const troop_select_output = movement_config.querySelector('output');
+export const troop_select_output = movement_config.querySelector('[name="troop-strength-value"]');
+export const troop_select_min_value = movement_config.querySelector('[name="min-troop-strength-value"]');
+export const troop_select_max_value = movement_config.querySelector('[name="max-troop-strength-value"]');

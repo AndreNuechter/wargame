@@ -119,11 +119,16 @@ h1, h2, h3 {
     [name="movement-season"] {
         margin-right: 8px;
     }
+}
 
-    fieldset:nth-of-type(2) {
-        display: flex;
-        justify-content: space-around;
-    }
+#troop-strength-setter {
+    text-align: center;
+}
+
+#troop-strength-input {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
 }
 
 path {
