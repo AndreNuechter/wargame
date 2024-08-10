@@ -1,4 +1,7 @@
-import { click_on_cell_action as handle_land_grab, end_turn_action } from './land-grab';
+import {
+    click_on_cell_action as handle_land_grab,
+    end_turn_action as assign_starting_position
+} from './land-grab';
 import { click_on_cell_action as handle_development } from './development';
 import { click_on_cell_action as handle_movement_planning } from './movement-planning';
 
@@ -32,7 +35,10 @@ const ROUND_PHASES = {
         undefined,
         handle_movement_planning
     ),
-    movement_execution: make_round_phase('movement_execution', 'See what you have done')
+    movement_execution: make_round_phase(
+        'movement_execution',
+        'See what you have done'
+    )
 };
 
 export default ROUND_PHASES;
@@ -40,7 +46,7 @@ export default ROUND_PHASES;
 export function end_turn_btn_click_handling(game) {
     return () => {
         if (game.current_phase === ROUND_PHASES.land_grab.name) {
-            end_turn_action(game);
+            assign_starting_position(game);
         }
 
         game.next_turn();
@@ -52,7 +58,7 @@ function make_round_phase(
     call_to_action = name,
     end_turn_btn_label = 'End turn',
     // eslint-disable-next-line no-unused-vars
-    handle_click_on_cell = (hex_obj, game) => {},
+    handle_click_on_cell = (hex_obj, game) => { },
 ) {
     return {
         name,

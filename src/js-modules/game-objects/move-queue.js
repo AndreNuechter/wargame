@@ -1,6 +1,7 @@
 import { movement_indicator_tmpl } from '../dom-creations';
 import { movement_arrows } from '../dom-selections';
 
+/** @type {Move_Queue} */
 const move_queue = [];
 const localStorage_key = 'wargame-planned-moves';
 
@@ -39,18 +40,12 @@ export function reapply_move_queue(game) {
 }
 
 /**
- * A Player move from one cell to another.
- * @typedef {Object} Move
- * @property {String} season - One of the values [spring | summer | autumn | winter].
- * @property {Hex_Cell} origin - The hex-cell being moved from.
- * @property {Hex_Cell} target - The hex-cell being moved to.
- * @property {Number} units - The number of units sent.
- * @property {String} type - The type of movement [settle | unspecified].
- * @property {SVGGeometryElement} arrow - The SVG element visualizing the move.
- */
-
-/**
- * @returns {Move}
+ * @param {Hex_Cell} origin - The hex-cell being moved from.
+ * @param {Hex_Cell} target - The hex-cell being moved to.
+ * @param {Number} units - The number of units sent.
+ * @param {Season} season - The season of the move.
+ * @param {Move_Type} type - The type of move being made.
+ * @returns {Player_Move}
  */
 export function make_player_move(origin, target, units, season, type) {
     const arrow = draw_movement_arrow(origin, target, units);
