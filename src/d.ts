@@ -1,4 +1,4 @@
-type Move_Queue = Player_Move[][]
+type Move_Queue = Player_Move[]
 
 enum Season {
     spring,

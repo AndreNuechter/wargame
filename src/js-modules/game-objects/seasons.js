@@ -18,9 +18,10 @@ export function increment_season(season) {
     }
 }
 
+/** Is season_a before season_b? */
 export function is_season_before(season_a, season_b) {
     if (
-        season_b === season_a ||
+        season_a === season_b ||
         season_a === SEASONS.winter ||
         season_a === SEASONS.summer && season_b === SEASONS.spring ||
         season_a === SEASONS.autumn && season_b !== SEASONS.winter

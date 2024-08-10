@@ -36,8 +36,11 @@ export function click_on_cell_action(hex_obj, game) {
     move_target = hex_obj;
 
     // NOTE: to maintain visibility of the arrows, the player can only move one time from one specific cell to another during a round
-    const configured_move = move_queue[game.current_player_id].find(
-        ({ origin, target }) => origin === move_origin && target === move_target
+    const configured_move = move_queue.find(
+        ({ player_id, origin, target }) =>
+            player_id === game.current_player_id &&
+            origin === move_origin &&
+            target === move_target
     );
     const player_owns_origin = move_origin.owner_id === game.current_player_id;
     const player_owns_target = move_target.owner_id === game.current_player_id;
@@ -89,11 +92,13 @@ export function click_on_cell_action(hex_obj, game) {
 // TODO limit sendable troops by available resources...moving 1 unit costs 1 gold per step (2 over water; 0 inside own territory)...food? people consume 1 food per turn...we'll not consider food here, but give negative effects when starvation occurs, like decreased efficieny or increased chance of revolts...
 
 function configure_move(configured_move, game, player_owns_origin, form_config) {
+    const player_moves = move_queue.filter(({ player_id }) => player_id === game.current_player_id);
+
     form_config.settle_cell = configured_move.type === 'settle';
     form_config.current_value = configured_move.units;
     form_config.season = configured_move.season;
     // the player shouldnt decrease sent units if that'd interfere w later moves
-    form_config.min_value = move_queue[game.current_player_id]
+    form_config.min_value = player_moves
         // get all later moves from the target of the configured move
         .filter(
             ({ season: season_of_move, origin }) =>
@@ -106,7 +111,7 @@ function configure_move(configured_move, game, player_owns_origin, form_config) 
             // TODO allow reduction if the follow up doesnt entirely depend on this one
             if (
                 (count_of_units_on_cell_at_season(
-                    move_queue[game.current_player_id],
+                    player_moves,
                     origin,
                     season,
                     origin.owner_id === game.current_player_id
@@ -127,14 +132,14 @@ function configure_move(configured_move, game, player_owns_origin, form_config) 
 
     if (player_owns_origin) {
         form_config.max_value = count_of_units_on_cell_at_season(
-            move_queue[game.current_player_id],
+            player_moves,
             move_origin,
             form_config.season,
             move_origin.resources[RESOURCES.people]
         ) - 1 + form_config.current_value;
     } else {
         form_config.max_value = count_of_units_on_cell_at_season(
-            move_queue[game.current_player_id],
+            player_moves,
             move_origin,
             form_config.season,
         ) - Number(form_config.settle_cell) + form_config.current_value;
@@ -142,19 +147,21 @@ function configure_move(configured_move, game, player_owns_origin, form_config) 
 }
 
 function make_move(game, player_owns_origin, form_config) {
+    const player_moves = move_queue.filter(({ player_id }) => player_id === game.current_player_id);
+
     form_config.current_value = 0;
     form_config.min_value = 0;
 
     if (player_owns_origin) {
         form_config.max_value = count_of_units_on_cell_at_season(
-            move_queue[game.current_player_id],
+            player_moves,
             move_origin,
             form_config.season,
             move_origin.resources[RESOURCES.people]
         ) - 1;
     } else {
         // set season to the one after that of the earliest move to the origin
-        const season_of_earliest_move_to_origin = move_queue[game.current_player_id]
+        const season_of_earliest_move_to_origin = player_moves
             .filter(({ target }) => target === move_origin)
             .reduce((earliest_season, { season: season_of_move_to_origin }) => {
                 if (
@@ -167,7 +174,7 @@ function make_move(game, player_owns_origin, form_config) {
                 return earliest_season;
             }, '');
         const player_wants_to_settle_origin = Boolean(
-            move_queue[game.current_player_id]
+            player_moves
                 .find(
                     ({ target, type, season }) => target === move_origin &&
                         season === season_of_earliest_move_to_origin &&
@@ -192,7 +199,7 @@ function make_move(game, player_owns_origin, form_config) {
 
         form_config.season = increment_season(season_of_earliest_move_to_origin);
         form_config.max_value = count_of_units_on_cell_at_season(
-            move_queue[game.current_player_id],
+            player_moves,
             move_origin,
             form_config.season,
         ) - Number(player_wants_to_settle_origin);
@@ -200,14 +207,15 @@ function make_move(game, player_owns_origin, form_config) {
 }
 
 function set_move_origin(hex_obj, game) {
+    const player_moves = move_queue.filter(({ player_id }) => player_id === game.current_player_id);
     // player cant abandon owned cells and therefore has to leave at least one unit behind when moving from there
     const player_owns_cell_and_its_population_is_big_enough =
         hex_obj.owner_id === game.current_player_id &&
         hex_obj.resources[RESOURCES.people] > 1;
-    const player_has_moved_from_here_before = move_queue[game.current_player_id]
+    const player_has_moved_from_here_before = player_moves
         .find(({ origin }) => origin === hex_obj);
     // a player cant make a follow up move, if the move leading here was made in winter
-    const player_could_move_on_from_here = move_queue[game.current_player_id]
+    const player_could_move_on_from_here = player_moves
         .find(({ target, season }) => target === hex_obj && season !== 'winter');
     const player_has_troops_stationed_here = game.active_player.encampments.has(hex_obj);
 
@@ -258,9 +266,11 @@ export function plan_move(game) {
         const season_of_move = movement_config.querySelector('[name="season-of-move"]:checked').value;
         const sent_troops = Number(troop_select_input.value);
         const settle_target_cell = settle_cell_toggle.checked;
-        const configured_move_index = move_queue[game.current_player_id]
-            .findIndex(({ origin, target }) =>
-                origin === move_origin && target === move_target
+        const configured_move_index = move_queue
+            .findIndex(({ player_id, origin, target }) =>
+                player_id === game.current_player_id &&
+                origin === move_origin &&
+                target === move_target
             );
 
         // zero or invalid input dismisses the move
@@ -270,7 +280,7 @@ export function plan_move(game) {
 
             // rm move from queue and arrow from dom
             if (configured_move_index > -1) {
-                const [{ arrow }] = move_queue[game.current_player_id].splice(configured_move_index, 1);
+                const [{ arrow }] = move_queue.splice(configured_move_index, 1);
                 arrow.remove();
             }
 
@@ -278,7 +288,7 @@ export function plan_move(game) {
         }
 
         if (configured_move_index > -1) {
-            const configured_move = move_queue[game.current_player_id][configured_move_index];
+            const configured_move = move_queue[configured_move_index];
 
             // TODO update season
             // TODO update movement type
@@ -287,8 +297,9 @@ export function plan_move(game) {
             // TODO do this automatically when setting units
             configured_move.arrow.lastElementChild.lastElementChild.textContent = sent_troops;
         } else {
-            move_queue[game.current_player_id].push(
+            move_queue.push(
                 make_player_move(
+                    game.current_player_id,
                     move_origin,
                     move_target,
                     sent_troops,

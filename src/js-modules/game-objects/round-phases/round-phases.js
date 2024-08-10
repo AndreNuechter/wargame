@@ -37,7 +37,8 @@ const ROUND_PHASES = {
     ),
     movement_execution: make_round_phase(
         'movement_execution',
-        'See what you have done'
+        '',
+        'Next Move'
     )
 };
 
@@ -47,6 +48,12 @@ export function end_turn_btn_click_handling(game) {
     return () => {
         if (game.current_phase === ROUND_PHASES.land_grab.name) {
             assign_starting_position(game);
+        } else if (game.current_phase === ROUND_PHASES.movement_execution.name) {
+            const { value: current_move, done } = game.moves.next();
+
+            console.log(current_move);
+
+            if (!done) return;
         }
 
         game.next_turn();
@@ -55,7 +62,7 @@ export function end_turn_btn_click_handling(game) {
 
 function make_round_phase(
     name = 'round_phase',
-    call_to_action = name,
+    call_to_action = '',
     end_turn_btn_label = 'End turn',
     // eslint-disable-next-line no-unused-vars
     handle_click_on_cell = (hex_obj, game) => { },

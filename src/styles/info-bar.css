@@ -15,7 +15,7 @@
     }
 }
 
-#turn-info::before {
+body:not([data-current_phase="movement_execution"]) #turn-info::before {
     content: '';
     border: 2px solid var(--active-player-color);
     margin-right: 10px;

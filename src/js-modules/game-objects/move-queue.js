@@ -9,14 +9,15 @@ export default move_queue;
 
 export function save_move_queue() {
     localStorage.setItem(localStorage_key, JSON.stringify(
-        move_queue.map((player_moves) => player_moves
-            .map(({ origin, target, units, season }) => ({
-                origin: { cx: origin.cx, cy: origin.cy },
-                target: { cx: target.cx, cy: target.cy },
-                units,
-                season
-            }))
-        )
+        move_queue.map(({
+            player_id, origin, target, units, season
+        }) => ({
+            player_id,
+            origin: { cx: origin.cx, cy: origin.cy },
+            target: { cx: target.cx, cy: target.cy },
+            units,
+            season
+        }))
     ));
 }
 
@@ -24,22 +25,24 @@ export function reapply_move_queue(game) {
     const stored_queue = JSON.parse(localStorage.getItem(localStorage_key));
     const cells = [...game.board.values()];
 
-    stored_queue.forEach((player_moves) => {
+    move_queue.push(
         // reconnect the stored values with the live cells
-        move_queue.push(
-            player_moves.map(
-                ({ origin, target, units, season }) => make_player_move(
-                    cells.find(({ cx, cy }) => cx === origin.cx && cy === origin.cy),
-                    cells.find(({ cx, cy }) => cx === target.cx && cy === target.cy),
-                    units,
-                    season
-                )
+        ...stored_queue.map(
+            ({
+                player_id, origin, target, units, season
+            }) => make_player_move(
+                player_id,
+                cells.find(({ cx, cy }) => cx === origin.cx && cy === origin.cy),
+                cells.find(({ cx, cy }) => cx === target.cx && cy === target.cy),
+                units,
+                season
             )
-        );
-    });
+        )
+    );
 }
 
 /**
+ * @param {number} player_id - The id of the player making the move.
  * @param {Hex_Cell} origin - The hex-cell being moved from.
  * @param {Hex_Cell} target - The hex-cell being moved to.
  * @param {Number} units - The number of units sent.
@@ -47,19 +50,21 @@ export function reapply_move_queue(game) {
  * @param {Move_Type} type - The type of move being made.
  * @returns {Player_Move}
  */
-export function make_player_move(origin, target, units, season, type) {
+export function make_player_move(player_id, origin, target, units, season, type) {
     const arrow = draw_movement_arrow(origin, target, units);
 
     return {
-        season,
+        player_id,
         origin,
         target,
+        season,
         units,
         type,
         arrow
     };
 }
 
+// TODO take player_id and color the arrow accordingly
 function draw_movement_arrow(origin, target, units) {
     // NOTE: adding half_hex_size to center the path...cx is apparently the upper left corner of the hex's viewBox
     const half_hex_size = 3;
