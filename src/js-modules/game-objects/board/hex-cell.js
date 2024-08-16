@@ -4,6 +4,7 @@ import { TEMPERATURES } from '../../map-generation/assign-temperature.js';
 import { HUMIDITY_LEVELS } from '../../map-generation/assign-humidity.js';
 import STRUCTURES from '../structures.js';
 import RESOURCES from '../resources.js';
+
 /**
  * Create a Hex_Cell object.
  * @param {Number} cx X coordinate of the left upper corner of the Hex cell's bounding box.

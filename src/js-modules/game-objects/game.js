@@ -31,7 +31,7 @@ let moves;
  * @property {Number} round - A map from DOM/SVG hex-cells to the objects defining them.
  * @property {Object} active_player - Holds a reference to the player who has the turn.
  */
-export default {
+const game = {
     board,
     get moves() {
         return moves;
@@ -83,7 +83,7 @@ export default {
                         clear_move_queue();
                         return ROUND_PHASES.movement_planning.name;
                     case ROUND_PHASES.movement_planning.name:
-                        moves = execute_moves();
+                        moves = execute_moves(game);
                         // in this phase we iterate over planned player_moves by season, not by player
                         current_player_id = players.length - 1;
                         return ROUND_PHASES.movement_execution.name;
@@ -100,6 +100,8 @@ export default {
     },
     run: adjust_ui
 };
+
+export default game;
 
 function adjust_ui() {
     // show phase specific end-turn-btn label

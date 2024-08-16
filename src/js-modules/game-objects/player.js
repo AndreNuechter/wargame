@@ -62,7 +62,7 @@ export default function make_player(id, name = 'Player Name', type = PLAYER_TYPE
             cells.push(...value);
             outline_hexregion(cells, `var(--player-${id + 1})`, border_path);
         },
-        encampments: new Map,
+        encampments: new Map(),
         destroy() {
             cells.length = 0;
             border_path.remove();
