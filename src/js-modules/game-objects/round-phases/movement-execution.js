@@ -1,75 +1,120 @@
 import SEASONS from '../seasons';
 import RESOURCES from '../resources';
 import move_queue from '../move-queue';
-import { phase_label } from '../../dom-selections';
+import { end_turn_btn, phase_label } from '../../dom-selections';
+import { random_int, random_pick } from '../../helper-functions';
 
-// TODO find a way to save and continue movement execution...just lean on move_queue?
+// TODO find a way to save and continue movement execution...just lean on move_queue?!
 
 export function* execute_moves(game) {
     for (const season in SEASONS) {
-        const moves_in_this_season = move_queue.filter((move) => season === move.season);
+        const moves_in_this_season = move_queue
+            .filter((move) => season === move.season)
+            .filter((move) => {
+                // filter out impossible moves as the player may have lost troops on their way here
+                const is_still_possible = is_move_still_possible(move, game);
+
+                if (!is_still_possible) {
+                    delete_move_from_queue(move, move_queue);
+                }
+
+                return is_still_possible;
+            });
+
+        if (moves_in_this_season.length === 0) continue;
+
+        const move_targets = new Set();
+        const planned_settlements = new Map();
 
         // output season in top-bar instead of cta
         phase_label.textContent = `Move(s) in ${season}`;
+        // update btn text
+        end_turn_btn.textContent = 'Show next move';
 
-        const move_targets = new Map();
-        // TODO this can be inferred from move_targets (= entry w value.size gt 1)
-        const conflict_sites = new Set();
-
-        // visualize moves to be made this season
+        // visualize moves to be made this season and move troops
         for (const move of moves_in_this_season) {
-            if (!is_move_still_possible(move, game)) {
-                console.log('impossible');
+            // highlight origin
+            move.origin.cell.classList.add('clicked');
+            // show arrow
+            // TODO animate arrow (head going from origin to target)
+            move.arrow.style.display = 'initial';
+            // remember target of move
+            move_targets.add(move.target);
 
-                delete_move_from_queue(move, move_queue);
-                delete_move_from_queue(move, moves_in_this_season);
-                continue;
-            }
-
-            // delay
+            // wait for input before making a move
             yield 'init_move';
 
-            // show arrow
-            move.arrow.style.display = 'initial';
-            // TODO animate arrow (head going from origin to target)
-
-            // see if there will be a battle at target
-            if (!move_targets.has(move.target)) {
-                move_targets.set(move.target, new Set([move.player_id]));
-            } else if (!move_targets.get(move.target).has(move.player_id)) {
-                move_targets.get(move.target).add(move.player_id);
-                conflict_sites.add(move.target);
-            }
-        }
-
-        // wait for input when all moves are laid out
-        yield 'moves_laid_out';
-
-        for (const move of moves_in_this_season) {
-            // TODO check if player wants to settle cell
-            // TODO add delay...yield?
-            // TODO hide array and animate that (butt going from origin to target)
-            // if player owns target, increase its pop. else create/add to encampment there
-            if (move.player_id === move.target.owner_id) {
-                move.target.resources[RESOURCES.people] += move.units;
-            } else {
-                // TODO update/display troopsize on target
-                game.players[move.player_id].encampments.set(
+            if (move.type === 'settle') {
+                planned_settlements.set(
                     move.target,
-                    game.players[move.player_id].encampments.get(move.target) || 0 + move.units
+                    planned_settlements.has(move.target)
+                        ? planned_settlements.get(move.target).add(move.player_id)
+                        : new Set([move.player_id])
                 );
             }
 
+            move_units_from_origin_to_target(move, game);
+            // FIXME this deletes the arrow too early...rm moves of moves_in_this_season in bulk after battle resolution?
             delete_move_from_queue(move, move_queue);
         }
 
-        // TODO make this save-friendly
-        for (const battle_field of conflict_sites) {
-            // wait for input before a battle starts
+        // wait for input when all moves are laid out
+        end_turn_btn.textContent = 'Make these moves';
+        yield 'moves_laid_out';
+
+        for (const move_target of move_targets) {
+            const armies = get_armies_at_cell(move_target, game.players);
+
+            // check for conflict (= there're more than one player's troops at target)
+            if (armies.length === 1) continue;
+
+            // wait for input before a battle
+            end_turn_btn.textContent = 'Start battle';
             yield 'battle_awaits';
-            resolve_battle(battle_field);
+
+            resolve_battle(
+                move_target,
+                armies,
+                game.players,
+                planned_settlements.get(move_target)
+            );
         }
     }
+}
+
+function move_units_from_origin_to_target(move, game) {
+    // decrease population/encampment-size on origin
+    if (move.player_id === move.origin.owner_id) {
+        move.origin.resources[RESOURCES.people] -= move.units;
+    } else {
+        const player_encampments = game.players[move.player_id].encampments;
+        const new_encampment_size = player_encampments.get(move.origin) - move.units;
+
+        if (new_encampment_size === 0) {
+            player_encampments.delete(move.origin);
+        } else {
+            player_encampments.set(
+                move.origin,
+                new_encampment_size
+            );
+        }
+    }
+
+    // increase population/encampment-size on target
+    if (move.player_id === move.target.owner_id) {
+        move.target.resources[RESOURCES.people] += move.units;
+    } else {
+        const player_encampments = game.players[move.player_id].encampments;
+        const new_encampment_size = (player_encampments.get(move.target) || 0) + move.units;
+
+        player_encampments.set(
+            move.target,
+            new_encampment_size
+        );
+    }
+
+    // TODO update/display troopsize on encampments
+    // TODO add dotted outline to cells w encampment
 }
 
 function is_move_still_possible(move = {}, game) {
@@ -77,7 +122,7 @@ function is_move_still_possible(move = {}, game) {
         ? move.origin.resources[RESOURCES.people] - 1
         : game.players[move.player_id].encampments.get(move.origin);
 
-    // TODO partial moves
+    // TODO enable partial moves
     return move.units <= available_troops;
 }
 
@@ -86,13 +131,102 @@ function delete_move_from_queue(move, queue = []) {
 
     if (index < 0) return;
 
-    // TODO animate this (when move is made)
+    // TODO possibly hide arrow and animate that (butt going from origin to target)
     queue[index].arrow.remove();
 
     queue.splice(index, 1);
 }
 
-function resolve_battle() {
-    // TODO impl me
-    // find involved armies sizes, loop: create pairing of enemies and for ea role dice...?
+function get_armies_at_cell(cell, players) {
+    return players
+        .reduce((result, player, player_id) => {
+            if (player.encampments.has(cell)) {
+                result.push({
+                    player_id,
+                    units: player.encampments.get(cell)
+                });
+            } else if (player_id === cell.owner_id) {
+                result.push({
+                    player_id: cell.owner_id,
+                    units: cell.resources[RESOURCES.people],
+                    is_owner: true
+                });
+            }
+            return result;
+        }, []);
+}
+
+function resolve_battle(battle_field, armies, players, planned_settlements) {
+    // let armies fight until there's only one left
+    while (armies.length > 1) {
+        const attacks = [];
+        const losing_armies = new Set();
+
+        // TODO give def bonus to owner
+        // ea army attacks ea other w a random attack_strength between 0 and unit-count
+        armies.forEach((attacker_army, attacker_id) => {
+            // init fought_enemies w the current army's id so it doesnt fight itself
+            const fought_enemies = new Set([attacker_id]);
+            let previous_attack;
+
+            // TODO victim should be randomn as to not hit earlier players unfairly harder
+            armies.forEach((_, defender_id) => {
+                if (fought_enemies.has(defender_id)) return;
+
+                fought_enemies.add(defender_id);
+
+                // TODO allow player to learn techniques that modulate this?!
+                previous_attack = previous_attack === undefined
+                    ? random_int(attacker_army.units)
+                    : random_int(attacker_army.units - previous_attack);
+
+                attacks.push({ target_id: defender_id, attack_strength: previous_attack });
+            });
+        });
+
+        // attacks are "pre-recorded" so that ea player gets a shot
+        for (const { target_id, attack_strength } of attacks) {
+            armies[target_id].units -= attack_strength;
+
+            if (armies[target_id].units <= 0) {
+                losing_armies.add(target_id);
+            }
+        }
+
+        // ensure that there's a survivor
+        if (losing_armies.size === armies.length) {
+            const winner = Object.assign(random_pick(armies), { units: 1 });
+            armies = [winner];
+            break;
+        }
+
+        // go over ids of losers in descending order and splice them out
+        [...losing_armies].sort((a, b) => b - a).forEach((army_id) => armies.splice(army_id, 1));
+    }
+
+    const { player_id: winner_id, units: surviving_units } = armies[0];
+
+    if (battle_field.owner_id === winner_id) {
+        // owner won, just update population
+        battle_field.resources[RESOURCES.people] = surviving_units;
+        return;
+    }
+
+    if (battle_field.owner_id !== -1) {
+        // owner lost, take the cell from the player and mark it as uninhabited
+        players[battle_field.owner_id].delete_cell(battle_field);
+        battle_field.owner_id = -1;
+        battle_field.resources[RESOURCES.people] = 0;
+    }
+
+    if (planned_settlements?.has(winner_id)) {
+        // winner wanted to settle, delete encampment, give cell and set population
+        players[winner_id].encampments.delete(battle_field);
+        players[winner_id].add_cell(battle_field);
+        battle_field.owner_id = winner_id;
+        battle_field.resources[RESOURCES.people] = surviving_units;
+    } else {
+        // winner didnt want to settle, update encampment
+        players[winner_id].encampments.set(battle_field, surviving_units);
+    }
 }

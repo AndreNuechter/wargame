@@ -44,28 +44,16 @@ const ROUND_PHASES = {
 
 export default ROUND_PHASES;
 
-let current_movement_step = '';
-
 export function end_turn_btn_click_handling(game) {
     return () => {
         if (game.current_phase === ROUND_PHASES.land_grab.name) {
             assign_starting_position(game);
         } else if (
-            game.current_phase === ROUND_PHASES.movement_execution.name &&
-            current_movement_step === ''
+            game.current_phase === ROUND_PHASES.movement_execution.name
         ) {
             const { value, done } = game.moves.next();
 
             console.log(value);
-
-            current_movement_step = value;
-
-            if (current_movement_step === 'init_move') {
-                setTimeout(() => {
-                    game.moves.next();
-                    current_movement_step = '';
-                }, 500);
-            }
 
             if (!done) return;
         }

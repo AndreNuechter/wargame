@@ -34,7 +34,7 @@ export function end_turn_action(game) {
     });
     // mark the cell as belonging to the player and give the player the cell
     start_position_candidate.owner_id = game.current_player_id;
-    game.active_player.cells = [start_position_candidate];
+    game.active_player.add_cell(start_position_candidate);
 
     // unset starting cell candidate and its highlighting
     start_position_candidate.cell.classList.remove('clicked');

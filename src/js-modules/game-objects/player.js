@@ -28,7 +28,7 @@ export function make_player_config(id) {
 
 /** Create a player. */
 export default function make_player(id, name = 'Player Name', type = PLAYER_TYPES.ai) {
-    const cells = [];
+    const cells = new Set();
     const border_path = player_border_path.cloneNode(true);
 
     document.getElementById('player-borders').append(border_path);
@@ -38,7 +38,7 @@ export default function make_player(id, name = 'Player Name', type = PLAYER_TYPE
         type,
         tax_rate: 1,
         get resources() {
-            return cells.reduce((result, { resources }) => {
+            return [...cells].reduce((result, { resources }) => {
                 Object.entries(resources).forEach(([resource, amount]) => {
                     result[resource] += amount;
                 });
@@ -58,13 +58,21 @@ export default function make_player(id, name = 'Player Name', type = PLAYER_TYPE
         get cells() {
             return cells;
         },
-        set cells(value) {
-            cells.push(...value);
-            outline_hexregion(cells, `var(--player-${id + 1})`, border_path);
+        set cells(new_cells) {
+            new_cells.forEach((cell) => cells.add(cell));
+            outline_hexregion([...cells], `var(--player-${id + 1})`, border_path);
+        },
+        add_cell(cell) {
+            cells.add(cell);
+            outline_hexregion([...cells], `var(--player-${id + 1})`, border_path);
+        },
+        delete_cell(cell) {
+            cells.delete(cell);
+            outline_hexregion([...cells], `var(--player-${id + 1})`, border_path);
         },
         encampments: new Map(),
         destroy() {
-            cells.length = 0;
+            cells.clear();
             border_path.remove();
         }
     };

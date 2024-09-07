@@ -83,7 +83,7 @@ const game = {
                         clear_move_queue();
                         return ROUND_PHASES.movement_planning.name;
                     case ROUND_PHASES.movement_planning.name:
-                        moves = execute_moves(game);
+
                         // in this phase we iterate over planned player_moves by season, not by player
                         current_player_id = players.length - 1;
                         return ROUND_PHASES.movement_execution.name;
@@ -142,6 +142,7 @@ function adjust_ui() {
         bottom_bar.classList.remove('content-hidden');
         update_resource_display();
     } else if (current_phase === ROUND_PHASES.movement_execution.name) {
+        moves = execute_moves(game);
         // hide player name
         player_name.classList.add('hidden');
     }
