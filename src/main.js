@@ -37,7 +37,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const game_data = localStorage.getItem('wargame-savegame');
     const previously_saved_game = game_data !== null;
 
-    start_game_overlay.dataset.priorSave = previously_saved_game;
+    start_game_overlay.dataset.priorSave = previously_saved_game.toString();
     start_game_overlay.showModal();
 
     if (previously_saved_game) {
@@ -112,6 +112,7 @@ config_game_form.addEventListener('submit', () => {
     // prevent duplicate names
     // TODO do this on input or change
     const duplicate_names = new Set();
+    /** @type {HTMLInputElement[]} */
     const name_inputs = [...config_game_form.querySelectorAll('.player-name-input')];
 
     name_inputs

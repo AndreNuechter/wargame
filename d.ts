@@ -1,22 +1,18 @@
 type Move_Queue = Player_Move[]
 
-enum Season {
-    spring,
-    summer,
-    autumn,
-    winter
+type Season = "spring" | "summer" | "autumn" | "winter";
+
+interface Hex_Cell {
+    owner_id: number;
+    resources: object;
+    cell: SVGGElement
 }
 
-interface Hex_Cell { }
-
-enum Move_Type {
-    settle,
-    unspecified
-}
+type Move_Type = "settle" | "unspecified"
 
 /**
- * A Player move from one cell to another.
- * @typedef {Object} Move
+ * A move from one cell to another.
+ * @typedef {Object} Player_Move
  * @property {String} season - One of the values [spring | summer | autumn | winter].
  * @property {Hex_Cell} origin - The hex-cell being moved from.
  * @property {Hex_Cell} target - The hex-cell being moved to.
@@ -25,6 +21,7 @@ enum Move_Type {
  * @property {SVGGeometryElement} arrow - The SVG element visualizing the move.
  */
 interface Player_Move {
+    player_id: number;
     season: Season;
     origin: Hex_Cell;
     target: Hex_Cell;

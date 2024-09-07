@@ -77,6 +77,7 @@ export default function outline_hexregion(cells, color, path_container) {
     path.setAttribute('stroke', color);
     path.setAttribute('stroke-width', stroke_width);
 
+    // TODO rm old border when player gets a new cell
     path_container.append(path);
 }
 

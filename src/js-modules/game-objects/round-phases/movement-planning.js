@@ -295,7 +295,7 @@ export function plan_move(game) {
             configured_move.units = sent_troops;
             // update units on arrow
             // TODO do this automatically when setting units
-            configured_move.arrow.lastElementChild.lastElementChild.textContent = sent_troops;
+            configured_move.arrow.lastElementChild.lastElementChild.textContent = sent_troops.toString();
         } else {
             move_queue.push(
                 make_player_move(
