@@ -29,6 +29,9 @@ function main() {
     # push all that to origin
     git push --all
 
+    # output a success message
+    echo changes deployed
+
     # possibly re-apply uncommitted changes
     if [[ "$index_is_dirty" = true ]]; then
         git stash pop stash@"{0}"
