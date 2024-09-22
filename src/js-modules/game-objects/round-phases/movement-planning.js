@@ -51,7 +51,9 @@ export function click_on_cell_action(hex_obj, game) {
 
     // enable all season options
     Object.values(SEASONS).forEach((season) => {
-        season_of_move_select.querySelector(`input[value="${season}"]`).disabled = false;
+        /** @type {HTMLInputElement} */ (
+            season_of_move_select.querySelector(`input[value="${season}"]`)
+        ).disabled = false;
     });
     season_of_move_select.inert = false;
     // enable setting movement type if player doesnt own the target
@@ -72,7 +74,9 @@ export function click_on_cell_action(hex_obj, game) {
     }
 
     // configure modal
-    season_of_move_select.querySelector(`input[value="${form_config.season}"]`).checked = true;
+    /** @type {HTMLInputElement} */ (
+        season_of_move_select.querySelector(`input[value="${form_config.season}"]`)
+    ).checked = true;
     Object.assign(
         troop_select_input,
         {
@@ -188,20 +192,27 @@ function make_move(game, player_owns_origin, form_config) {
             return;
         }
 
-        // disable season options before the earliest move to the origin
-        Object.values(SEASONS).filter((season) =>
-            season === season_of_earliest_move_to_origin ||
-            is_season_before(season, season_of_earliest_move_to_origin)
-        )
-            .forEach((season) => {
-                season_of_move_select.querySelector(`input[value="${season}"]`).disabled = true;
-            });
+        // dont disable season select when the origin is an encampment from an earlier round
+        if (season_of_earliest_move_to_origin !== '') {
+            // disable season options before the earliest move to the origin
+            Object.values(SEASONS)
+                .filter((season) =>
+                    season === season_of_earliest_move_to_origin ||
+                    is_season_before(season, season_of_earliest_move_to_origin)
+                )
+                .forEach((season) => {
+                    /** @type {HTMLInputElement} */ (
+                        season_of_move_select.querySelector(`input[value="${season}"]`)
+                    ).disabled = true;
+                });
+        }
 
         form_config.season = increment_season(season_of_earliest_move_to_origin);
         form_config.max_value = count_of_units_on_cell_at_season(
             player_moves,
             move_origin,
             form_config.season,
+            game.active_player.get_encampment(move_origin) || 0
         ) - Number(player_wants_to_settle_origin);
     }
 }
@@ -263,7 +274,7 @@ function count_of_units_on_cell_at_season(
 
 export function plan_move(game) {
     return () => {
-        const season_of_move = movement_config.querySelector('[name="season-of-move"]:checked').value;
+        const season_of_move = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="season-of-move"]:checked')).value;
         const sent_troops = Number(troop_select_input.value);
         const settle_target_cell = settle_cell_toggle.checked;
         const configured_move_index = move_queue

@@ -1,4 +1,4 @@
-import { player_setup } from '../dom-selections.js';
+import { player_borders_container, player_encampments, player_setup } from '../dom-selections.js';
 import { player_border_path, player_config_tmpl } from '../dom-creations.js';
 import RESOURCES from './resources.js';
 import outline_hexregion from './board/outline-hexregion.js';
@@ -7,10 +7,48 @@ const PLAYER_TYPES = {
     human: 'human',
     ai: 'ai'
 };
+const players = [];
+const localStorage_key = 'wargame-players';
+
+export default players;
+
+export function save_players() {
+    localStorage.setItem(
+        localStorage_key,
+        JSON.stringify(
+            players.map(({ name, type, encampments }) => ({
+                name,
+                type,
+                encampments: [...encampments.entries()]
+                    .map(([{ cx, cy }, units]) => ({ cx, cy, units }))
+            }))
+        )
+    );
+}
+
+export function reapply_players(game) {
+    const stored_players = JSON.parse(localStorage.getItem(localStorage_key));
+    const cells = [...game.board.values()];
+
+    players.push(
+        ...stored_players.map(
+            ({ name, type, encampments }, id) => make_player(
+                id,
+                name,
+                type,
+                cells.filter((cell) => cell.owner_id === id),
+                encampments.map(({ cx, cy, units }) => [
+                    cells.find((cell) => cell.cx === cx && cell.cy === cy),
+                    units
+                ])
+            )
+        )
+    );
+}
 
 /** Create an UI element to config a player. */
 export function make_player_config(id) {
-    const config = player_config_tmpl.cloneNode(true);
+    const config = /** @type {HTMLDivElement} */ (player_config_tmpl.cloneNode(true));
 
     Object.assign(
         config.querySelector('.player-name-input'),
@@ -19,21 +57,79 @@ export function make_player_config(id) {
             value: `Player ${id}`
         }
     );
-    config.querySelectorAll('.player-type-select-radio').forEach((radio) => {
-        radio.name = `player-${id}-type`;
-    });
+    config.querySelectorAll('.player-type-select-radio')
+        .forEach((/** @type {HTMLInputElement} */ radio) => {
+            radio.name = `player-${id}-type`;
+        });
 
     player_setup.append(config);
 }
 
 /** Create a player. */
-export default function make_player(id, name = 'Player Name', type = PLAYER_TYPES.ai) {
-    const cells = new Set();
-    const border_path = player_border_path.cloneNode(true);
+export function make_player(
+    id,
+    name = 'Player Name',
+    type = PLAYER_TYPES.ai,
+    owned_cells = [],
+    active_encampments = []
+) {
+    const cells = new Set(owned_cells);
+    const border_outline = /** @type {SVGPathElement} */ (player_border_path.cloneNode(true));
+    const encampment_outline = /** @type {SVGPathElement} */ (player_border_path.cloneNode(true));
+    const encampments = new Map();
+    const player_id = id + 1;
+    const player_custom_prop = `var(--player-${player_id})`;
 
-    document.getElementById('player-borders').append(border_path);
+    player_borders_container.append(border_outline);
+    player_encampments.append(encampment_outline);
+    // outline player territory on load
+    outline_hexregion(
+        cells,
+        border_outline,
+        { color: player_custom_prop }
+    );
+    // re-apply encampments in a loop to have the other logic run too
+    active_encampments.forEach(([cell, units]) => add_encampment(cell, units));
+
+    function add_encampment(cell, units) {
+        encampments.set(cell, units);
+
+        if (cell.cell.classList.contains('contested')) return;
+
+        if (cell.has_owner) {
+            cell.cell.classList.add('contested');
+            return;
+        }
+
+        const first_other_encamped_player = players
+            .find((player) => player.id !== id && player.encampments.has(cell));
+
+        if (first_other_encamped_player) {
+            cell.cell.classList.add('contested');
+            cell.pop_size_display.textContent = '';
+            // this causes the other player to redraw their encampments wo this cell
+            first_other_encamped_player.outline_encampments();
+            return;
+        }
+
+        outline_encampments();
+        // output size
+        cell.pop_size_display.textContent = units.toString();
+    }
+
+    function outline_encampments() {
+        outline_hexregion(
+            new Set(
+                [...encampments.keys()]
+                    .filter(({ cell }) => !cell.classList.contains('contested'))
+            ),
+            encampment_outline,
+            { color: player_custom_prop, stroked_outline: true }
+        );
+    }
 
     return {
+        id,
         name,
         type,
         tax_rate: 1,
@@ -54,26 +150,52 @@ export default function make_player(id, name = 'Player Name', type = PLAYER_TYPE
                 [RESOURCES.alcohol]: 0
             });
         },
-        border_path_container: border_path,
+        border_path_container: border_outline,
         get cells() {
             return cells;
         },
-        set cells(new_cells) {
-            new_cells.forEach((cell) => cells.add(cell));
-            outline_hexregion([...cells], `var(--player-${id + 1})`, border_path);
-        },
         add_cell(cell) {
+            cell.owner_id = id;
             cells.add(cell);
-            outline_hexregion([...cells], `var(--player-${id + 1})`, border_path);
+            outline_hexregion(
+                cells,
+                border_outline,
+                { color: player_custom_prop }
+            );
         },
         delete_cell(cell) {
             cells.delete(cell);
-            outline_hexregion([...cells], `var(--player-${id + 1})`, border_path);
+            cell.owner_id = -1;
+            outline_hexregion(
+                cells,
+                border_outline,
+                { color: player_custom_prop }
+            );
         },
-        encampments: new Map(),
+        get encampments() {
+            return encampments;
+        },
+        get_encampment(cell) {
+            return encampments.get(cell);
+        },
+        add_encampment,
+        delete_encampment(cell) {
+            encampments.delete(cell);
+            outline_encampments();
+            // rm size output
+            if (
+                cell.owner_id === -1 &&
+                players.every((player) => !player.encampments.has(cell))
+            ) {
+                cell.pop_size_display.textContent = '';
+            }
+        },
+        outline_encampments,
         destroy() {
             cells.clear();
-            border_path.remove();
+            encampments.clear();
+            border_outline.remove();
+            encampment_outline.remove();
         }
     };
 }

@@ -1,3 +1,19 @@
+// TODO find a way to have these descriptions show up in type-hints
+/**
+ * The god-object holding most of the game state.
+ * @typedef {Object} game
+ * @property {Map} board - A map from DOM/SVG hex-cells to the objects defining them.
+ * @property {Number} round - A map from DOM/SVG hex-cells to the objects defining them.
+ * @property {Object} active_player - Holds a reference to the player who has the turn.
+ */
+interface Game {
+    board: Map<SVGGElement, Hex_Cell>;
+    round: number;
+    active_player: Player;
+}
+
+interface Player { }
+
 type Move_Queue = Player_Move[]
 
 type Season = "spring" | "summer" | "autumn" | "winter";
@@ -5,7 +21,9 @@ type Season = "spring" | "summer" | "autumn" | "winter";
 interface Hex_Cell {
     owner_id: number;
     resources: object;
-    cell: SVGGElement
+    cell: SVGGElement;
+    cx: number;
+    cy: number;
 }
 
 type Move_Type = "settle" | "unspecified"

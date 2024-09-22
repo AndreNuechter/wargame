@@ -15,6 +15,8 @@ export function increment_season(season) {
             return SEASONS.autumn;
         case SEASONS.autumn:
             return SEASONS.winter;
+        default:
+            return SEASONS.spring;
     }
 }
 

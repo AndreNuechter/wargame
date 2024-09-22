@@ -92,6 +92,10 @@ h3 {
     &.clicked {
         animation: 0.75s infinite alternate blink ease forwards;
     }
+
+    &.contested {
+        animation: 0.75s infinite alternate blink-red ease forwards;
+    }
 }
 
 @keyframes blink {
@@ -101,6 +105,12 @@ h3 {
 
     100% {
         filter: brightness(1);
+    }
+}
+
+@keyframes blink-red {
+    100% {
+        fill: red;
     }
 }
 

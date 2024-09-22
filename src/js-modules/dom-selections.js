@@ -29,6 +29,8 @@ export const movement_config = document.getElementById('movement-config');
 export const troop_select_input = movement_config.querySelector('[name="troop-strength"]');
 /** @type {HTMLOutputElement} */
 export const troop_select_output = movement_config.querySelector('[name="troop-strength-value"]');
-export const troop_select_min_value = movement_config.querySelector('[name="min-troop-strength-value"]');
-export const troop_select_max_value = movement_config.querySelector('[name="max-troop-strength-value"]');
-export const settle_cell_toggle = movement_config.querySelector('[name="settle-cell-toggle"]');
+export const troop_select_min_value = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="min-troop-strength-value"]'));
+export const troop_select_max_value = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="max-troop-strength-value"]'));
+export const settle_cell_toggle = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="settle-cell-toggle"]'));
+export const player_borders_container = document.getElementById('player-borders');
+export const player_encampments = document.getElementById('encampments');

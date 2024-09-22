@@ -4,8 +4,6 @@ import move_queue from '../move-queue';
 import { end_turn_btn, phase_label } from '../../dom-selections';
 import { random_int, random_pick } from '../../helper-functions';
 
-// TODO find a way to save and continue movement execution...just lean on move_queue?!
-
 export function* execute_moves(game) {
     for (const season in SEASONS) {
         const moves_in_this_season = move_queue
@@ -23,6 +21,7 @@ export function* execute_moves(game) {
 
         if (moves_in_this_season.length === 0) continue;
 
+        /** @type {Set<Hex_Cell>} */
         const move_targets = new Set();
         const planned_settlements = new Map();
 
@@ -56,17 +55,28 @@ export function* execute_moves(game) {
             move_units_from_origin_to_target(move, game);
             // FIXME this deletes the arrow too early...rm moves of moves_in_this_season in bulk after battle resolution?
             delete_move_from_queue(move, move_queue);
+            move.origin.cell.classList.remove('clicked');
         }
 
         // wait for input when all moves are laid out
         end_turn_btn.textContent = 'Make these moves';
         yield 'moves_laid_out';
 
+        // TODO persist move_targets
         for (const move_target of move_targets) {
             const armies = get_armies_at_cell(move_target, game.players);
 
             // check for conflict (= there're more than one player's troops at target)
-            if (armies.length === 1) continue;
+            if (armies.length === 1) {
+                const { player_id, units } = armies.at(-1);
+                // give cell to player if they wanted to settle it
+                if (planned_settlements.get(move_target)?.has(player_id)) {
+                    // FIXME cell is first marked as encamped
+                    take_ownership_of_cell(game.players[player_id], move_target, units);
+                }
+
+                continue;
+            }
 
             // wait for input before a battle
             end_turn_btn.textContent = 'Start battle';
@@ -82,18 +92,24 @@ export function* execute_moves(game) {
     }
 }
 
+function take_ownership_of_cell(player, cell, population) {
+    player.delete_encampment(cell);
+    player.add_cell(cell);
+    cell.resources[RESOURCES.people] = population;
+}
+
 function move_units_from_origin_to_target(move, game) {
     // decrease population/encampment-size on origin
     if (move.player_id === move.origin.owner_id) {
         move.origin.resources[RESOURCES.people] -= move.units;
     } else {
-        const player_encampments = game.players[move.player_id].encampments;
-        const new_encampment_size = player_encampments.get(move.origin) - move.units;
+        const player = game.players[move.player_id];
+        const new_encampment_size = player.get_encampment(move.origin) - move.units;
 
         if (new_encampment_size === 0) {
-            player_encampments.delete(move.origin);
+            player.delete_encampment(move.origin);
         } else {
-            player_encampments.set(
+            player.add_encampment(
                 move.origin,
                 new_encampment_size
             );
@@ -104,17 +120,14 @@ function move_units_from_origin_to_target(move, game) {
     if (move.player_id === move.target.owner_id) {
         move.target.resources[RESOURCES.people] += move.units;
     } else {
-        const player_encampments = game.players[move.player_id].encampments;
-        const new_encampment_size = (player_encampments.get(move.target) || 0) + move.units;
+        const player = game.players[move.player_id];
+        const new_encampment_size = (player.get_encampment(move.target) || 0) + move.units;
 
-        player_encampments.set(
+        player.add_encampment(
             move.target,
             new_encampment_size
         );
     }
-
-    // TODO update/display troopsize on encampments
-    // TODO add dotted outline to cells w encampment
 }
 
 function is_move_still_possible(move = {}, game) {
@@ -158,6 +171,7 @@ function get_armies_at_cell(cell, players) {
 
 function resolve_battle(battle_field, armies, players, planned_settlements) {
     // let armies fight until there's only one left
+    // TODO stop after fixed # of iterations to model sieges that may span multiple years?!
     while (armies.length > 1) {
         const attacks = [];
         const losing_armies = new Set();
@@ -193,40 +207,48 @@ function resolve_battle(battle_field, armies, players, planned_settlements) {
             }
         }
 
-        // ensure that there's a survivor
+        // ensure there's a survivor, by picking a random one if all players lost
         if (losing_armies.size === armies.length) {
-            const winner = Object.assign(random_pick(armies), { units: 1 });
-            armies = [winner];
+            // the random winner will possibly get the encampment again further on
+            losing_armies
+                .forEach(
+                    (army_id) => players[armies[army_id].player_id].delete_encampment(battle_field)
+                );
+            armies = [Object.assign(random_pick(armies), { units: 1 })];
             break;
         }
 
-        // go over ids of losers in descending order and splice them out
-        [...losing_armies].sort((a, b) => b - a).forEach((army_id) => armies.splice(army_id, 1));
+        // go over ids of losers in descending order (to not mess w the indices) and splice them out
+        [...losing_armies]
+            .sort((a, b) => b - a)
+            .forEach((army_id) => {
+                players[armies[army_id].player_id].delete_encampment(battle_field);
+                armies.splice(army_id, 1);
+            });
     }
 
-    const { player_id: winner_id, units: surviving_units } = armies[0];
+    // the conflict is resolved, so the highlighting can be removed
+    battle_field.cell.classList.remove('contested');
 
+    const { player_id: winner_id, units: surviving_units } = armies[0];
+    const winner = players[winner_id];
+
+    // owner won, update the population
     if (battle_field.owner_id === winner_id) {
-        // owner won, just update population
         battle_field.resources[RESOURCES.people] = surviving_units;
         return;
     }
 
-    if (battle_field.owner_id !== -1) {
-        // owner lost, take the cell from the player and mark it as uninhabited
+    // owner lost, take the cell from them and mark it as uninhabited
+    if (battle_field.has_owner) {
         players[battle_field.owner_id].delete_cell(battle_field);
-        battle_field.owner_id = -1;
         battle_field.resources[RESOURCES.people] = 0;
     }
 
+    // give the cell to the winner or update the encampment
     if (planned_settlements?.has(winner_id)) {
-        // winner wanted to settle, delete encampment, give cell and set population
-        players[winner_id].encampments.delete(battle_field);
-        players[winner_id].add_cell(battle_field);
-        battle_field.owner_id = winner_id;
-        battle_field.resources[RESOURCES.people] = surviving_units;
+        take_ownership_of_cell(winner, battle_field, surviving_units);
     } else {
-        // winner didnt want to settle, update encampment
-        players[winner_id].encampments.set(battle_field, surviving_units);
+        winner.add_encampment(battle_field, surviving_units);
     }
 }

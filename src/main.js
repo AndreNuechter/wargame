@@ -20,7 +20,7 @@ import {
     troop_select_input,
     troop_select_output,
 } from './js-modules/dom-selections.js';
-import make_player, { make_player_config } from './js-modules/game-objects/player.js';
+import { make_player, make_player_config, reapply_players, save_players } from './js-modules/game-objects/player.js';
 import game from './js-modules/game-objects/game.js';
 import ROUND_PHASES, { end_turn_btn_click_handling } from './js-modules/game-objects/round-phases/round-phases.js';
 import { plan_move } from './js-modules/game-objects/round-phases/movement-planning.js';
@@ -42,7 +42,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (previously_saved_game) {
         apply_savegame(game, game_data);
-        reapply_board(game);
+        reapply_board();
+        reapply_players(game);
     } else {
         make_hex_map(board_dimensions, game.board);
     }
@@ -54,6 +55,7 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
         save_game();
         save_board();
+        save_players();
         save_move_queue();
     }
 });

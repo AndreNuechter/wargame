@@ -1,4 +1,3 @@
-import { path_tmpl } from '../../dom-creations';
 
 const stroke_width = 0.5;
 // this allows us to draw the outline inside the region and not on top of its border
@@ -6,12 +5,15 @@ const stroke_width = 0.5;
 // TODO figure out a way to sort the line segments, so that we need only one `M` command and we could fill the pathes
 const edge_offset = stroke_width * 0.5;
 
-export default function outline_hexregion(cells, color, path_container) {
+export default function outline_hexregion(region, outline_element, {
+    color = 'white',
+    stroked_outline = false
+} = {}) {
     const line_segments = [];
 
-    // for ea cell, return edges to neighbors not in cells
-    cells.reduce((result, hex) => {
-        const neighbors = hex.neighbors.filter((cell) => !cells.includes(cell));
+    // for ea cell, return edges to neighbors not in the region
+    [...region].reduce((result, hex) => {
+        const neighbors = hex.neighbors.filter((cell) => !region.has(cell));
         const top = top_point(hex);
         const bottom = bottom_point(hex);
         const bottom_right = right_bottom_point(hex);
@@ -71,14 +73,15 @@ export default function outline_hexregion(cells, color, path_container) {
         return result;
     }, line_segments);
 
-    const path = path_tmpl.cloneNode(true);
+    outline_element.setAttribute('d', line_segments.join(''));
+    outline_element.setAttribute('stroke-width', stroke_width.toString());
+    outline_element.setAttribute('stroke', color);
 
-    path.setAttribute('d', line_segments.join(''));
-    path.setAttribute('stroke', color);
-    path.setAttribute('stroke-width', stroke_width);
+    if (stroked_outline) {
+        outline_element.setAttribute('stroke-dasharray', (1).toString());
+    }
 
-    // TODO rm old border when player gets a new cell
-    path_container.append(path);
+    return outline_element;
 }
 
 function top_point(hex) {

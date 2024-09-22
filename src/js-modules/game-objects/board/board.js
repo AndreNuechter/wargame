@@ -35,13 +35,7 @@ export function save_board() {
     ));
 }
 
-export function reapply_board(game) {
+export function reapply_board() {
     const stored_board = JSON.parse(localStorage.getItem(localStorage_key));
     reinstate_hex_map(stored_board, board);
-
-    // TODO mv this out...into player module
-    // give players their cells
-    game.players.forEach((player, id) => {
-        player.cells = [...game.board.values()].filter((cell) => cell.owner_id === id);
-    });
 }

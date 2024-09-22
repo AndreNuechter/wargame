@@ -4,6 +4,8 @@
     --player-3: gold;
     --player-4: aquamarine;
     --player-5: hotpink;
+    /* TODO output encampment size in player color */
+    --owner-color: black;
 }
 
 [data-owner_id="0"] {
