@@ -20,15 +20,11 @@ export const round_info = document.getElementById('round-info');
 export const season_of_move_select = document.getElementById('season-of-move-select');
 export const selection_highlight = document.getElementById('selection-highlight');
 export const start_game_form = document.getElementById('start-game-form');
-/** @type {HTMLDialogElement} */
-export const start_game_overlay = document.getElementById('start-game-overlay');
+export const start_game_overlay = /** @type {HTMLDialogElement} */ (document.getElementById('start-game-overlay'));
 export const movement_arrows = document.getElementById('movement-arrows');
-/** @type {HTMLDialogElement} */
-export const movement_config = document.getElementById('movement-config');
-/** @type {HTMLInputElement} */
-export const troop_select_input = movement_config.querySelector('[name="troop-strength"]');
-/** @type {HTMLOutputElement} */
-export const troop_select_output = movement_config.querySelector('[name="troop-strength-value"]');
+export const movement_config = /** @type {HTMLDialogElement} */ (document.getElementById('movement-config'));
+export const troop_select_input = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="troop-strength"]'));
+export const troop_select_output = /** @type {HTMLOutputElement} */ (movement_config.querySelector('[name="troop-strength-value"]'));
 export const troop_select_min_value = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="min-troop-strength-value"]'));
 export const troop_select_max_value = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="max-troop-strength-value"]'));
 export const settle_cell_toggle = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="settle-cell-toggle"]'));

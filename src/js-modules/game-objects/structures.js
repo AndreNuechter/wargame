@@ -2,6 +2,7 @@ import { BIOMES } from '../map-generation/biomes.js';
 import RESOURCES from './resources.js';
 
 // TODO finish this
+// TODO add more structures...offensive (eg citadel, spy_academy...)/defensive structures (eg wall...), others like streets and storage, schools (see Banished, trade slower pop growth for higher productivity)...
 const STRUCTURES = {
     tent: make_structure(
         'Tent',
@@ -12,7 +13,7 @@ const STRUCTURES = {
         [],
         0,
         {
-            // TODO housing should increase supported pop size ONCE...
+            // TODO make use of this...housing should increase supported pop size ONCE...
             on(cell) {
                 cell.housing_capacity += 5;
             },
@@ -50,7 +51,7 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.stone, 5),
         ]
     ),
-    // TODO we already have a stone producing structure...can we find another use? maybe coal used in forge, or chance of iron and gold?...
+    // TODO we already have a stone producing structure...can we find another use for this? maybe coal to be used in forges, or give random chance of iron and/or gold?
     // mine: make_structure('Mine',
     //     [
     //         make_resource_amount(RESOURCES.wood, 5),
@@ -87,11 +88,21 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.alcohol, 1),
         ]
     )
-    // offensive (eg citadel, spy_academy...)/defensive structures (eg wall...), others like streets and storage, schools (see Banished, trade slower pop growth for higher productivity)...
 };
 
 export default STRUCTURES;
 
+/**
+ * @param { string } display_name
+ * @param { Resource_Amount[] } construction_cost
+ * @param { Resource_Amount [] } output
+ * @param { number } required_workers
+ * @param { object } effects
+ * @param { Biome[] } unsupported_biomes
+ * @param { Resource_Amount[] } input
+ * @param { number } space_requirement
+ * @returns { Structure }
+ */
 function make_structure(
     display_name = 'Pretty Structure',
     construction_cost = [make_resource_amount(RESOURCES.wood, 5)],
@@ -121,8 +132,11 @@ function make_structure(
     };
 }
 
+/**
+ * @param { Resource } resource_name
+ * @param { number } amount
+ * @returns { Resource_Amount }
+ */
 function make_resource_amount(resource_name = RESOURCES.wood, amount = 1) {
-    return {
-        resource_name, amount
-    };
+    return { resource_name, amount };
 }

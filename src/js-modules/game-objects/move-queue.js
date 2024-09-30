@@ -50,7 +50,7 @@ export function reapply_move_queue(game) {
  * @param {Move_Type} type - The type of move being made.
  * @returns {Player_Move}
  */
-export function make_player_move(player_id, origin, target, units, season, type) {
+export function make_player_move(player_id, origin, target, units, season, type = 'unspecified') {
     const arrow = draw_movement_arrow(origin, target, units);
 
     return {
@@ -78,7 +78,7 @@ function draw_movement_arrow(origin, target, units) {
         y: target.cy + half_hex_size
     };
     const path_data = `M${path_start.x} ${path_start.y}A 3 3 0 0 0 ${path_end.x} ${path_end.y}`;
-    const movement_indicator = movement_indicator_tmpl.cloneNode(true);
+    const movement_indicator = /** @type {SVGGElement} */ (movement_indicator_tmpl.cloneNode(true));
     const sent_units_display = movement_indicator.lastElementChild.lastElementChild;
 
     movement_indicator.firstElementChild.setAttribute('d', path_data);

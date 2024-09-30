@@ -9,7 +9,7 @@ import {
     selection_highlight
 } from '../dom-selections.js';
 import { setup_overall_production_forecast } from '../setup-sidebar-content.js';
-import { calculate_resource_production } from './resources.js';
+import { calculate_resource_production, update_player_resources } from './resources.js';
 import { clear_move_queue } from './move-queue.js';
 import board from './board/board.js';
 import players from './player.js';
@@ -69,21 +69,7 @@ const game = {
         // increase player_id and if returning to the beginning, move to the next phase
         if (current_player_id === players.length - 1) {
             current_player_id = 0;
-            current_phase = (() => {
-                switch (current_phase) {
-                    case ROUND_PHASES.development.name:
-                        clear_move_queue();
-                        return ROUND_PHASES.movement_planning.name;
-                    case ROUND_PHASES.movement_planning.name:
-
-                        // in this phase we iterate over planned player_moves by season, not by player
-                        current_player_id = players.length - 1;
-                        return ROUND_PHASES.movement_execution.name;
-                    default:
-                        round += 1;
-                        return ROUND_PHASES.development.name;
-                }
-            })();
+            current_phase = increment_phase();
         } else {
             current_player_id += 1;
         }
@@ -94,6 +80,24 @@ const game = {
 };
 
 export default game;
+
+function increment_phase() {
+    switch (current_phase) {
+        case ROUND_PHASES.development.name:
+            clear_move_queue();
+            return ROUND_PHASES.movement_planning.name;
+        case ROUND_PHASES.movement_planning.name:
+            // reset player_id here already as the next phase will iterate over planned moves
+            current_player_id = players.length - 1;
+            return ROUND_PHASES.movement_execution.name;
+        default: case ROUND_PHASES.movement_execution.name:
+            if (round > 0) {
+                update_player_resources(players);
+            }
+            round += 1;
+            return ROUND_PHASES.development.name;
+    }
+}
 
 function adjust_ui() {
     // show phase specific end-turn-btn label

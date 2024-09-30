@@ -51,9 +51,7 @@ export function end_turn_btn_click_handling(game) {
         } else if (
             game.current_phase === ROUND_PHASES.movement_execution.name
         ) {
-            const { value, done } = game.moves.next();
-
-            console.log(value);
+            const { done } = game.moves.next();
 
             if (!done) return;
         }

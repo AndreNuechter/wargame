@@ -18,7 +18,7 @@ import RESOURCES from '../resources.js';
  */
 export function make_hex_cell(cx, cy, x, y, q, r, s) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);
-    const pop_size_display = cell.querySelector('.population-size');
+    const pop_size_display = /** @type {SVGTextElement} */ (cell.querySelector('.population-size'));
     let biome = null;
     let owner_id = -1;
     let population = 0;
@@ -42,6 +42,7 @@ export function make_hex_cell(cx, cy, x, y, q, r, s) {
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
+        // TODO omit the ones not supported by the biome
         structures: new Map(Object.values(STRUCTURES).map((structure) => [structure, 0])),
         pop_size_display,
         resources: {

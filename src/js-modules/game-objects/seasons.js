@@ -1,9 +1,12 @@
-const SEASONS = {
+import { make_frozen_null_obj } from '../helper-functions.js';
+
+/** @type {Seasons} */
+const SEASONS = make_frozen_null_obj({
     spring: 'spring',
     summer: 'summer',
     autumn: 'autumn',
     winter: 'winter'
-};
+});
 
 export default SEASONS;
 
