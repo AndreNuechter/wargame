@@ -68,7 +68,7 @@ export function* execute_moves(game) {
 
             // check for conflict (= there're more than one player's troops at target)
             if (armies.length === 1) {
-                const { player_id, units } = armies.at(-1);
+                const { player_id, units } = armies[0];
                 // give cell to player if they wanted to settle it
                 if (planned_settlements.get(move_target)?.has(player_id)) {
                     // FIXME cell is first marked as encamped
@@ -123,6 +123,7 @@ function move_units_from_origin_to_target(move, game) {
         const player = game.players[move.player_id];
         const new_encampment_size = (player.get_encampment(move.target) || 0) + move.units;
 
+        // FIXME cell may show units in wrong player color
         player.add_encampment(
             move.target,
             new_encampment_size

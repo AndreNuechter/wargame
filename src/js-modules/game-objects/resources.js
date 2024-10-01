@@ -99,17 +99,22 @@ export function update_player_resources(players) {
 }
 
 function increase_population(cell) {
-    // TODO inc/dec pop growth based on how many neighboring cells are inhabited
-    for (let pair_index = 0; pair_index < Math.floor(cell.resources.people / 2); pair_index += 1) {
+    const pair_count = Math.trunc(cell.resources.people / 2);
+    let population_increase = 0;
+
+    for (let pair_index = 0; pair_index < pair_count; pair_index += 1) {
         const random_num = Math.random();
 
-        // randomnly give 0 (20%), 1 (50%) or 2 (30%)
-        if (random_num < 0.3) {
-            cell.resources[RESOURCES.people] += 2;
-        } else if (random_num < 0.8) {
-            cell.resources[RESOURCES.people] += 1;
+        // TODO scale these up/down based on how many neighboring cells are inhabited (and other factors like starvation)
+        // randomnly give 0 (50%), 1 (40%) or 2 (10%) new people
+        if (random_num < 0.1) {
+            population_increase += 2;
+        } else if (random_num < 0.5) {
+            population_increase += 1;
         }
     }
+
+    cell.resources[RESOURCES.people] += population_increase;
 }
 
 export function calculate_resource_production(cells, tax_rate = 1) {
