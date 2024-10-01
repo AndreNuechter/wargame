@@ -5,7 +5,7 @@ import RESOURCES from '../game-objects/resources.js';
 
 // for more see https://rimworldwiki.com/wiki/Biomes
 // TODO balance resource production
-// /** @type {Biomes} */
+/** @type {Biomes} */
 export const BIOMES = {
     sea: make_biome('sea', { [RESOURCES.food]: 1 }),
     mountain: make_biome('mountain', {
@@ -124,8 +124,13 @@ const biome_matrix = {
     },
 };
 
+/** Create a biome object.
+ * @param { Biome_Name } [name='sea']
+ * @param {{}} [resource_production={}]
+ * @returns { Biome }
+ */
 function make_biome(
-    name = '',
+    name = 'sea',
     resource_production = {},
     // movement_speed = 1, // modify how fast work gets done here and how long it takes to traverse
     // pleasantness = 1 // modify population growth (and maybe maintenance)...a way to make resource rich biomes less attractive...defendability might be another aspect
