@@ -20,3 +20,7 @@ body:not([data-current_phase="movement_execution"]) #turn-info::before {
     border: 2px solid var(--active-player-color);
     margin-right: 10px;
 }
+
+#turn-info {
+    margin: 0 auto;
+}

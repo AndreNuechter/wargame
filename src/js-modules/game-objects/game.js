@@ -6,7 +6,8 @@ import {
     general_info,
     phase_label,
     player_name,
-    selection_highlight
+    selection_highlight,
+    toggle_menu_btn
 } from '../dom-selections.js';
 import { setup_overall_production_forecast } from '../setup-sidebar-content.js';
 import { calculate_resource_production, update_player_resources } from './resources.js';
@@ -91,12 +92,27 @@ function increment_phase() {
             current_player_id = players.length - 1;
             return ROUND_PHASES.movement_execution.name;
         default: case ROUND_PHASES.movement_execution.name:
+            if (check_for_win()) {
+                // TODO impl proper game end...congratulate winner, show stats/game summary
+                alert('The World is Yours');
+                toggle_menu_btn.click();
+            }
+
             if (round > 0) {
                 update_player_resources(players);
             }
             round += 1;
             return ROUND_PHASES.development.name;
     }
+}
+
+function check_for_win() {
+    // TODO other win conditions
+    return players
+        .filter(({ cells, encampments }) =>
+            encampments.size > 0 ||
+            cells.size > 0
+        ).length === 1;
 }
 
 function adjust_ui() {
