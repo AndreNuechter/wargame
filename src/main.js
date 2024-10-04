@@ -17,6 +17,7 @@ import {
     side_bar,
     start_game_form,
     start_game_overlay,
+    toggle_menu_btn,
     troop_select_input,
     troop_select_output,
 } from './js-modules/dom-selections.js';
@@ -31,6 +32,8 @@ import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 import { reapply_board, save_board } from './js-modules/game-objects/board/board.js';
 
 // TODO add way to config map gen
+const min_player_count = 2;
+const max_player_count = 5;
 
 // set up board
 window.addEventListener('DOMContentLoaded', () => {
@@ -67,14 +70,22 @@ troop_select_input.addEventListener('input', () => {
     troop_select_output.value = troop_select_input.value;
 });
 
+// re-open start_game_overlay
+toggle_menu_btn.addEventListener('click', () => {
+    // TODO the names of the dialog and the data-attr are no longer ok
+    start_game_overlay.dataset.priorSave = (game.players.length !== 0).toString();
+    start_game_overlay.showModal();
+});
+
+// player chose to start new game or continue
 start_game_form.addEventListener('submit', (event) => {
     if (event.submitter.id === 'continue-btn') {
-        // the continue-btn does nothing if there's no prior save
+        // the continue-btn only works if there's a prior save/running game
         if (start_game_overlay.dataset.priorSave === 'true') {
             start_game_overlay.close();
         }
     } else if (event.submitter.id === 'new-game-btn') {
-        // if there's a prior save, reroll the map, delete players and clear move_queue
+        // if there's a prior save/running game, reroll the map, delete players and clear move_queue
         if (start_game_overlay.dataset.priorSave === 'true') {
             Object.assign(game, {
                 round: 0,
@@ -82,11 +93,16 @@ start_game_form.addEventListener('submit', (event) => {
                 current_player_id: 0
             });
             reroll_map(game.board);
-            game.clear_players();
             clear_move_queue();
+            game.clear_players();
+
+            // delete player creation ui elements to prevent duplicates and clear config
+            for (const player_config of [...player_configs]) {
+                player_config.remove();
+            }
         }
 
-        // create player creation ui elements
+        // create 2 player creation ui elements
         Array.from({ length: 2 }, (_, id) => make_player_config(id + 1));
 
         // switch to game-config
@@ -94,28 +110,12 @@ start_game_form.addEventListener('submit', (event) => {
     }
 });
 
-// NOTE: we need this listener as swiping back on mobile closes the dialog
-start_game_overlay.addEventListener('close', () => {
-    if (game.players.length === 0) {
-        game.players = Array.from(
-            { length: 2 },
-            (_, id) => make_player(id, `Player ${id + 1}`, 'human')
-        );
-    }
-
-    game.run();
-});
-
-reroll_map_btn.addEventListener('click', () => reroll_map(game.board));
-
-end_turn_btn.addEventListener('click', end_turn_btn_click_handling(game));
-
+// player configured the game and pressed start btn
 config_game_form.addEventListener('submit', () => {
     // prevent duplicate names
     // TODO do this on input or change
     const duplicate_names = new Set();
-    /** @type {HTMLInputElement[]} */
-    const name_inputs = [...config_game_form.querySelectorAll('.player-name-input')];
+    const name_inputs = /** @type {HTMLInputElement[]} */ ([...config_game_form.querySelectorAll('.player-name-input')]);
 
     name_inputs
         .reduce((name_count, { value: name }) => {
@@ -145,8 +145,8 @@ config_game_form.addEventListener('submit', () => {
     game.players = Array.from(
         player_configs,
         (config, id) => {
-            const name = config.querySelector('.player-name-input').value;
-            const type = config.querySelector('.player-type-select-radio:checked').value;
+            const name = /** @type {HTMLInputElement} */ (config.querySelector('.player-name-input')).value;
+            const type = /** @type {Player_Type} */ (/** @type {HTMLInputElement} */ (config.querySelector('.player-type-select-radio:checked')).value);
             return make_player(id, name, type);
         }
     );
@@ -156,18 +156,36 @@ config_game_form.addEventListener('submit', () => {
     start_game_overlay.close();
 });
 
+// start the game when the dialog closes
+// NOTE: we use this event here, as swiping back on mobile closes the dialog no matter what
+start_game_overlay.addEventListener('close', () => {
+    // config a minimal viable game, if thats not yet the case
+    if (game.players.length === 0) {
+        game.players = Array.from(
+            { length: 2 },
+            (_, id) => make_player(id, `Player ${id + 1}`, 'human')
+        );
+    }
+
+    start_game_overlay.classList.remove('game-config');
+
+    game.run();
+});
+
+reroll_map_btn.addEventListener('click', () => reroll_map(game.board));
+
 add_player_btn.addEventListener('click', () => {
-    // allow at max 5 players
-    if (player_configs.length === 5) return;
+    if (player_configs.length === max_player_count) return;
 
     make_player_config(player_configs.length + 1);
 });
 
+end_turn_btn.addEventListener('click', end_turn_btn_click_handling(game));
+
 // delete player
 player_setup.addEventListener('click', ({ target }) => {
     if (!target.closest('.delete-player-btn')) return;
-    // enforce a minimum of at least 2 players
-    if (player_configs.length === 2) return;
+    if (player_configs.length === min_player_count) return;
 
     // rm config
     target.closest('.player-config').remove();
@@ -183,7 +201,7 @@ player_setup.addEventListener('click', ({ target }) => {
                 }
             );
             config.querySelectorAll('.player-type-select-radio')
-                .forEach((radio) => {
+                .forEach((/** @type {HTMLInputElement} */ radio) => {
                     radio.name = `player-${id}-type`;
                 });
         });

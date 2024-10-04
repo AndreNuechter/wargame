@@ -7,6 +7,7 @@ const PLAYER_TYPES = {
     human: 'human',
     ai: 'ai'
 };
+/** @type { Player[] } */
 const players = [];
 const localStorage_key = 'wargame-players';
 
@@ -65,7 +66,14 @@ export function make_player_config(id) {
     player_setup.append(config);
 }
 
-/** Create a player. */
+/** Create a player.
+ * @param {number} id
+ * @param {string} name
+ * @param {Player_Type} [type=PLAYER_TYPES.ai]
+ * @param {any[]} [owned_cells=[]]
+ * @param {any[]} [active_encampments=[]]
+ * @returns {Player}
+*/
 export function make_player(
     id,
     name = 'Player Name',

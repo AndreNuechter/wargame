@@ -28,11 +28,19 @@ type Biomes = {
     [Key in Biome_Name]: Biome;
 };
 
+type Player_Type = "human" | "ai";
+
 interface Player {
     id: number;
+    name: string;
+    type: Player_Type;
     cells: Set<Hex_Cell>;
+    /** Returns the combined values from all the player's cells. */
+    get resources(): Resources;
     tax_rate: number;
-    encampments: Map<Hex_Cell, number>
+    encampments: Map<Hex_Cell, number>;
+    /** Clean up the related svg paths. */
+    destroy: () => void;
 }
 
 type Move_Queue = Player_Move[]

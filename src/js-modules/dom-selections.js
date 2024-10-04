@@ -30,3 +30,4 @@ export const troop_select_max_value = /** @type {HTMLInputElement} */ (movement_
 export const settle_cell_toggle = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="settle-cell-toggle"]'));
 export const player_borders_container = document.getElementById('player-borders');
 export const player_encampments = document.getElementById('encampments');
+export const toggle_menu_btn = document.getElementById('burger-menu-btn');

@@ -44,9 +44,9 @@ body {
 
 h1 {
     padding-left: 8px;
+    margin: 0 auto 0 0;
 }
 
-h1,
 h2,
 h3 {
     margin: 12px 0;
@@ -80,6 +80,12 @@ h3 {
     background-color: transparent;
     border: 0;
     cursor: pointer;
+}
+
+#burger-menu-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .cell-wrapper {
@@ -167,7 +173,7 @@ path {
 }
 
 .content-hidden * {
-    opacity: 0;
+    opacity: 0 !important;
 }
 
 .hidden {

@@ -21,6 +21,7 @@ export function* execute_moves(game) {
 
         if (moves_in_this_season.length === 0) continue;
 
+        // TODO persist move_targets and planned_settlements
         /** @type {Set<Hex_Cell>} */
         const move_targets = new Set();
         const planned_settlements = new Map();
@@ -62,7 +63,6 @@ export function* execute_moves(game) {
         end_turn_btn.textContent = 'Make these moves';
         yield 'moves_laid_out';
 
-        // TODO persist move_targets
         for (const move_target of move_targets) {
             const armies = get_armies_at_cell(move_target, game.players);
 
