@@ -40,7 +40,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const game_data = localStorage.getItem('wargame-savegame');
     const previously_saved_game = game_data !== null;
 
-    start_game_overlay.dataset.priorSave = previously_saved_game.toString();
+    start_game_overlay.dataset.gameIsRunning = previously_saved_game.toString();
     start_game_overlay.showModal();
 
     if (previously_saved_game) {
@@ -72,8 +72,9 @@ troop_select_input.addEventListener('input', () => {
 
 // re-open start_game_overlay
 toggle_menu_btn.addEventListener('click', () => {
-    // TODO the names of the dialog and the data-attr are no longer ok
-    start_game_overlay.dataset.priorSave = (game.players.length !== 0).toString();
+    // FIXME after game end, game can be continued
+    // TODO the name of the dialog is no longer ok
+    start_game_overlay.dataset.gameIsRunning = (game.players.length !== 0).toString();
     start_game_overlay.showModal();
 });
 
@@ -81,12 +82,12 @@ toggle_menu_btn.addEventListener('click', () => {
 start_game_form.addEventListener('submit', (event) => {
     if (event.submitter.id === 'continue-btn') {
         // the continue-btn only works if there's a prior save/running game
-        if (start_game_overlay.dataset.priorSave === 'true') {
+        if (start_game_overlay.dataset.gameIsRunning === 'true') {
             start_game_overlay.close();
         }
     } else if (event.submitter.id === 'new-game-btn') {
         // if there's a prior save/running game, reroll the map, delete players and clear move_queue
-        if (start_game_overlay.dataset.priorSave === 'true') {
+        if (start_game_overlay.dataset.gameIsRunning === 'true') {
             Object.assign(game, {
                 round: 0,
                 current_phase: ROUND_PHASES.land_grab.name,

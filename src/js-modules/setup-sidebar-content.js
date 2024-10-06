@@ -10,7 +10,7 @@ export function setup_overall_production_forecast(resources, tax_rate) {
     overall_production_forecast.classList.remove('hidden');
 }
 
-export function setup_cell_production_forecast(resources, structure_builder_inputs) {
+export function setup_content_for_own_cell(resources, structure_builder_inputs) {
     // TODO enable turning population into other units (on cells w required structures)
     cell_production_forecast.querySelector('ul').replaceChildren(...make_resource_list(resources));
     cell_production_forecast.querySelector('fieldset').replaceChildren(...structure_builder_inputs);
@@ -18,11 +18,13 @@ export function setup_cell_production_forecast(resources, structure_builder_inpu
 }
 
 export function setup_cell_info(hex_obj, { wood, stone, cloth, food }) {
+    // TODO it sucks to create/discard this piece of dom repeatedly...it would be nicer to only set the values
     const supported_structures = Object.values(STRUCTURES)
         .filter((structure) => !structure.unsupported_biomes.includes(hex_obj.biome))
         .map(({ display_name }) => `<li>${display_name}</li>`)
         .join('');
 
+    // TODO use lists instead of the divs!?
     cell_info.innerHTML = `
         <h2>Cell Info</h2>
         <div>Biome: ${hex_obj.biome.name}</div>
@@ -145,10 +147,8 @@ export function make_structure_builder_inputs(hex_obj) {
 // TODO the name is too general as it only handles taxes...
 export function side_bar_input_handling(game) {
     return ({ target }) => {
-        const entered_value = Number(target.value);
-
         if (target.name === 'tax_rate') {
-            game.active_player.tax_rate = entered_value;
+            game.active_player.tax_rate = Number(target.value);
         }
     };
 }

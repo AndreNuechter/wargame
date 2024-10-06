@@ -46,11 +46,11 @@ export default ROUND_PHASES;
 
 export function end_turn_btn_click_handling(game) {
     return () => {
-        if (game.current_phase === ROUND_PHASES.land_grab.name) {
-            assign_starting_position(game);
-        } else if (
-            game.current_phase === ROUND_PHASES.movement_execution.name
-        ) {
+        // player did not choose a viable starting cell, so they cant end their turn
+        if (game.current_phase === ROUND_PHASES.land_grab.name && !assign_starting_position(game)) return;
+
+        // this phase consists of phases itself and we dont continue before they are done
+        if (game.current_phase === ROUND_PHASES.movement_execution.name) {
             const { done } = game.moves.next();
 
             if (!done) return;

@@ -63,8 +63,7 @@ export function reinstate_hex_map(board_state, board_map) {
         });
 
     compute_neighbors(hex_arr);
-
-    return hex_arr_to_map(hex_arr, board_map);
+    hex_arr_to_map(hex_arr, board_map);
 }
 
 export function make_hex_map(board_dimensions, board_map) {
@@ -76,31 +75,35 @@ export function make_hex_map(board_dimensions, board_map) {
     make_ice_and_sea(hex_arr);
     assign_humidity(hex_arr);
     assign_biomes(hex_arr);
-
-    return hex_arr_to_map(hex_arr, board_map);
+    hex_arr_to_map(hex_arr, board_map);
 }
 
 function hex_arr_to_map(hex_arr, board_map) {
-    // return map of svg-elements to hexes
-    // TODO no need to return anything?
-    return hex_arr.reduce((map, hex) => {
-        map.set(hex.cell, hex);
-        return map;
-    }, board_map);
+    // map svg-elements to hexes
+    hex_arr.forEach((hex) => {
+        board_map.set(hex.cell, hex);
+    });
 }
+
+// TODO find a way to conveniently zoom on mobile wo zooming overlays etc (cells are rather small on mobile)...perhaps we have to adjust the boards viewBox
+const cell_size = 6;
+const half_cell_size = cell_size * 0.5;
+const three_quarter_cell_size = cell_size * 0.75;
 
 function make_hex_grid({ height, width }) {
     const hex_grid = [];
 
     for (let row = 0; row < height; row += 1) {
+        // shift every other row by half the cell size
         const odd_row = Number(!is_even(row));
 
         for (let col = 0; col < width; col += 1) {
-            const q = col - (row - (row & 1)) / 2;
+            // thx to https://www.redblobgames.com/grids/hexagons/#conversions-offset
+            const q = col - (row - (row & 1)) * 0.5;
 
             hex_grid.push(make_hex_cell(
-                (col * 6) + (odd_row * 3),
-                row * 4.5,
+                (col * cell_size) + (odd_row * half_cell_size),
+                row * three_quarter_cell_size,
                 col,
                 row,
                 q,

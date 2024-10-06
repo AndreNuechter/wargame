@@ -11,7 +11,6 @@ import {
 } from '../dom-selections.js';
 import { setup_overall_production_forecast } from '../setup-sidebar-content.js';
 import { calculate_resource_production, update_player_resources } from './resources.js';
-import { clear_move_queue } from './move-queue.js';
 import board from './board/board.js';
 import players from './player.js';
 import ROUND_PHASES from './round-phases/round-phases.js';
@@ -65,12 +64,32 @@ const game = {
     },
     update_resource_display,
     next_turn() {
+        // rm highlighting of clicked cells neighbors
         selection_highlight.setAttribute('d', '');
 
-        // increase player_id and if returning to the beginning, move to the next phase
+        // increase player_id or reset it and move to the next phase
         if (current_player_id === players.length - 1) {
             current_player_id = 0;
             current_phase = increment_phase();
+
+            // did we finish a phase?
+            if (current_phase === ROUND_PHASES.development.name) {
+                // dont give resources (and check for win) after picking origin
+                if (round > 0) {
+                    const winner_id = is_the_game_over_and_who_won();
+
+                    if (winner_id >= 0) {
+                        // TODO impl proper game end...congratulate winner, show stats/game summary
+                        alert(`The World is Yours ${winner_id}`);
+                        toggle_menu_btn.click();
+                        return;
+                    }
+
+                    update_player_resources(players);
+                }
+
+                round += 1;
+            }
         } else {
             current_player_id += 1;
         }
@@ -85,37 +104,32 @@ export default game;
 function increment_phase() {
     switch (current_phase) {
         case ROUND_PHASES.development.name:
-            clear_move_queue();
             return ROUND_PHASES.movement_planning.name;
         case ROUND_PHASES.movement_planning.name:
-            // reset player_id here already as the next phase will iterate over planned moves
-            current_player_id = players.length - 1;
             return ROUND_PHASES.movement_execution.name;
         default: case ROUND_PHASES.movement_execution.name:
-            if (check_for_win()) {
-                // TODO impl proper game end...congratulate winner, show stats/game summary
-                alert('The World is Yours');
-                toggle_menu_btn.click();
-            }
-
-            if (round > 0) {
-                update_player_resources(players);
-            }
-            round += 1;
             return ROUND_PHASES.development.name;
     }
 }
 
-function check_for_win() {
-    // TODO other win conditions
-    return players
+/** Return the id of the winner or -1 if there isn't one. */
+function is_the_game_over_and_who_won() {
+    // TODO check for other win conditions
+    const remaining_players = players
         .filter(({ cells, encampments }) =>
             encampments.size > 0 ||
             cells.size > 0
-        ).length === 1;
+        );
+
+    if (remaining_players.length === 1) {
+        return remaining_players[0].id;
+    }
+
+    return -1;
 }
 
 function adjust_ui() {
+    // TODO add phase viz...string of dots representing phases, active is highlighted...
     // show phase specific end-turn-btn label
     end_turn_btn.textContent = ROUND_PHASES[current_phase].end_turn_btn_label;
     // show phase cta

@@ -25,8 +25,7 @@ export function click_on_cell_action(hex_obj) {
 }
 
 export function end_turn_action(game) {
-    // player did not choose a viable starting cell, so they cant end their turn
-    if (start_position_candidate === null) return;
+    if (start_position_candidate === null) return false;
 
     // set initial resources on cell
     Object.entries(initial_resources).forEach(([resource_name, amount]) => {
@@ -38,4 +37,6 @@ export function end_turn_action(game) {
     // unset starting cell candidate and its highlighting
     start_position_candidate.cell.classList.remove('clicked');
     start_position_candidate = null;
+
+    return true;
 }
