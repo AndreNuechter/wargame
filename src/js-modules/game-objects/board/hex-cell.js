@@ -77,7 +77,7 @@ export function make_hex_cell(cx, cy, x, y, q, r, s) {
         },
         set owner_id(id) {
             owner_id = id;
-            if (id !== -1) cell.dataset.owner_id = id.toString();
+            cell.dataset.owner_id = id === -1 ? '' : id.toString();
         },
         // TODO randomnly/procedurally define this
         developable_land: 10
