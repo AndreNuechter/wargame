@@ -76,13 +76,13 @@ const game = {
             if (current_phase === ROUND_PHASES.development.name) {
                 // dont give resources (and check for win) after picking origin
                 if (round > 0) {
-                    const winner_id = is_the_game_over_and_who_won();
+                    const winner = is_the_game_over_and_who_won();
 
-                    if (winner_id >= 0) {
+                    if (winner !== null) {
                         // ensure the finished game wont be saved
                         current_phase = ROUND_PHASES.game_over.name;
                         // TODO impl proper game end...congratulate winner, show stats/game summary
-                        alert(`The World is Yours ${winner_id}`);
+                        alert(`The World is Yours ${winner.name}`);
                         // visually disable continue btn
                         document.body.dataset.current_phase = ROUND_PHASES.game_over.name;
                         toggle_menu_btn.click();
@@ -116,7 +116,7 @@ function increment_phase() {
     }
 }
 
-/** Return the id of the winner or -1 if there isn't one. */
+/** Return the winner or null if there isn't one. */
 function is_the_game_over_and_who_won() {
     // TODO check for other win conditions
     const remaining_players = players
@@ -126,10 +126,10 @@ function is_the_game_over_and_who_won() {
         );
 
     if (remaining_players.length === 1) {
-        return remaining_players[0].id;
+        return remaining_players[0];
     }
 
-    return -1;
+    return null;
 }
 
 function adjust_ui() {
