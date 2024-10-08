@@ -24,6 +24,7 @@ interface Biome {
 }
 
 // TODO can we be more specific? the value should be the Biome w the name === Key
+// TODO same issue w player_types in player.js
 type Biomes = {
     [Key in Biome_Name]: Biome;
 };
@@ -35,10 +36,17 @@ interface Player {
     name: string;
     type: Player_Type;
     cells: Set<Hex_Cell>;
+    add_cell: (cell: Hex_Cell) => void;
+    delete_cell: (cell: Hex_Cell) => void;
     /** Returns the combined values from all the player's cells. */
     get resources(): Resources;
     tax_rate: number;
     encampments: Map<Hex_Cell, number>;
+    get_encampment: (cell: Hex_Cell) => number;
+    add_encampment: (cell: Hex_Cell) => void;
+    delete_encampment: (cell: Hex_Cell) => void;
+    outline_encampments: () => void;
+    border_path_container: SVGPathElement;
     /** Clean up the related svg paths. */
     destroy: () => void;
 }

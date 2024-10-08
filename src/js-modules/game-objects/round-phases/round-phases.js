@@ -39,6 +39,11 @@ const ROUND_PHASES = {
         'movement_execution',
         '',
         'Start Movement Phase'
+    ),
+    game_over: make_round_phase(
+        'game_over',
+        '',
+        'Pick your origin'
     )
 };
 

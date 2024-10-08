@@ -1,17 +1,9 @@
 import game from './game-objects/game.js';
-
-const localStorage_key = 'wargame-savegame';
+import storage_keys from './storage-keys.js';
 
 export default function save_game() {
-    // TODO make this more robust?!
-    // prevent saving incomplete state (ie when closing page while still in the game_config_form)
-    if (game.players.length === 0) {
-        localStorage.removeItem(localStorage_key);
-        return;
-    }
-
     localStorage.setItem(
-        localStorage_key,
+        storage_keys.game,
         JSON.stringify({
             round: game.round,
             current_phase: game.current_phase,
@@ -32,4 +24,9 @@ export function apply_savegame(game, game_data) {
         current_phase,
         current_player_id,
     });
+}
+
+export function delete_savegame() {
+    Object.values(storage_keys)
+        .forEach((key) => localStorage.removeItem(key));
 }

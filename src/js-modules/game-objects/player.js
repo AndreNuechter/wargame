@@ -2,20 +2,21 @@ import { player_borders_container, player_encampments, player_setup } from '../d
 import { player_border_path, player_config_tmpl } from '../dom-creations.js';
 import RESOURCES from './resources.js';
 import outline_hexregion from './board/outline-hexregion.js';
+import storage_keys from '../storage-keys.js';
 
+/** @type { {[K in Player_Type]: Player_Type} } */
 const PLAYER_TYPES = {
     human: 'human',
     ai: 'ai'
 };
 /** @type { Player[] } */
 const players = [];
-const localStorage_key = 'wargame-players';
 
 export default players;
 
 export function save_players() {
     localStorage.setItem(
-        localStorage_key,
+        storage_keys.players,
         JSON.stringify(
             players.map(({ name, type, encampments }) => ({
                 name,
@@ -28,7 +29,7 @@ export function save_players() {
 }
 
 export function reapply_players(game) {
-    const stored_players = JSON.parse(localStorage.getItem(localStorage_key));
+    const stored_players = JSON.parse(localStorage.getItem(storage_keys.players));
     const cells = [...game.board.values()];
 
     players.push(

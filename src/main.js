@@ -26,10 +26,11 @@ import game from './js-modules/game-objects/game.js';
 import ROUND_PHASES, { end_turn_btn_click_handling } from './js-modules/game-objects/round-phases/round-phases.js';
 import { plan_move } from './js-modules/game-objects/round-phases/movement-planning.js';
 import { clear_move_queue, reapply_move_queue, save_move_queue } from './js-modules/game-objects/move-queue.js';
-import save_game, { apply_savegame } from './js-modules/save-game.js';
+import save_game, { apply_savegame, delete_savegame } from './js-modules/save-game.js';
 import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
 import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 import { reapply_board, save_board } from './js-modules/game-objects/board/board.js';
+import storage_keys from './js-modules/storage-keys.js';
 
 // TODO add way to config map gen
 const min_player_count = 2;
@@ -37,7 +38,7 @@ const max_player_count = 5;
 
 // set up board
 window.addEventListener('DOMContentLoaded', () => {
-    const game_data = localStorage.getItem('wargame-savegame');
+    const game_data = localStorage.getItem(storage_keys.game);
     const previously_saved_game = game_data !== null;
 
     start_game_overlay.dataset.gameIsRunning = previously_saved_game.toString();
@@ -56,10 +57,19 @@ window.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-        save_game();
-        save_board();
-        save_players();
-        save_move_queue();
+        // we dont want to save an incomplete state (ie when closing page while still in the game_config_form) and
+        // we dont want to continue a finished game
+        if (
+            game.players.length === 0 ||
+            game.current_phase === ROUND_PHASES.game_over.name
+        ) {
+            delete_savegame();
+        } else {
+            save_game();
+            save_board();
+            save_players();
+            save_move_queue();
+        }
     }
 });
 
@@ -72,9 +82,11 @@ troop_select_input.addEventListener('input', () => {
 
 // re-open start_game_overlay
 toggle_menu_btn.addEventListener('click', () => {
-    // FIXME after game end, game can be continued
     // TODO the name of the dialog is no longer ok
-    start_game_overlay.dataset.gameIsRunning = (game.players.length !== 0).toString();
+    start_game_overlay.dataset.gameIsRunning = (
+        game.current_phase !== 'game_over' &&
+        game.players.length > 0
+    ).toString();
     start_game_overlay.showModal();
 });
 

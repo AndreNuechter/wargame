@@ -79,8 +79,12 @@ const game = {
                     const winner_id = is_the_game_over_and_who_won();
 
                     if (winner_id >= 0) {
+                        // ensure the finished game wont be saved
+                        current_phase = ROUND_PHASES.game_over.name;
                         // TODO impl proper game end...congratulate winner, show stats/game summary
                         alert(`The World is Yours ${winner_id}`);
+                        // visually disable continue btn
+                        document.body.dataset.current_phase = ROUND_PHASES.game_over.name;
                         toggle_menu_btn.click();
                         return;
                     }

@@ -1,14 +1,14 @@
 import { movement_indicator_tmpl } from '../dom-creations';
 import { movement_arrows } from '../dom-selections';
+import storage_keys from '../storage-keys';
 
 /** @type {Move_Queue} */
 const move_queue = [];
-const localStorage_key = 'wargame-planned-moves';
 
 export default move_queue;
 
 export function save_move_queue() {
-    localStorage.setItem(localStorage_key, JSON.stringify(
+    localStorage.setItem(storage_keys.move_queue, JSON.stringify(
         move_queue.map(({
             player_id, origin, target, units, season
         }) => ({
@@ -22,7 +22,7 @@ export function save_move_queue() {
 }
 
 export function reapply_move_queue(game) {
-    const stored_queue = JSON.parse(localStorage.getItem(localStorage_key));
+    const stored_queue = JSON.parse(localStorage.getItem(storage_keys.move_queue));
     const cells = [...game.board.values()];
 
     move_queue.push(
