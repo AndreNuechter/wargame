@@ -32,27 +32,26 @@ import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 import { reapply_board, save_board } from './js-modules/game-objects/board/board.js';
 import storage_keys from './js-modules/storage-keys.js';
 
-// TODO add way to config map gen
+// TODO add a way to config map gen
 const min_player_count = 2;
 const max_player_count = 5;
 
-// set up board
+// set up the board
 window.addEventListener('DOMContentLoaded', () => {
     const game_data = localStorage.getItem(storage_keys.game);
     const previously_saved_game = game_data !== null;
-
-    start_game_overlay.dataset.gameIsRunning = previously_saved_game.toString();
-    start_game_overlay.showModal();
 
     if (previously_saved_game) {
         apply_savegame(game, game_data);
         reapply_board();
         reapply_players(game);
+        reapply_move_queue(game);
     } else {
         make_hex_map(board_dimensions, game.board);
     }
 
-    reapply_move_queue(game);
+    start_game_overlay.dataset.gameIsRunning = previously_saved_game.toString();
+    start_game_overlay.showModal();
 }, { once: true });
 
 document.addEventListener('visibilitychange', () => {
@@ -84,22 +83,25 @@ troop_select_input.addEventListener('input', () => {
 toggle_menu_btn.addEventListener('click', () => {
     // TODO the name of the dialog is no longer ok
     start_game_overlay.dataset.gameIsRunning = (
-        game.current_phase !== 'game_over' &&
+        game.current_phase !== ROUND_PHASES.game_over.name &&
         game.players.length > 0
     ).toString();
     start_game_overlay.showModal();
 });
 
 // player chose to start new game or continue
-start_game_form.addEventListener('submit', (event) => {
-    if (event.submitter.id === 'continue-btn') {
+start_game_form.addEventListener('submit', ({ submitter }) => {
+    if (submitter.id === 'continue-btn') {
         // the continue-btn only works if there's a prior save/running game
         if (start_game_overlay.dataset.gameIsRunning === 'true') {
             start_game_overlay.close();
         }
-    } else if (event.submitter.id === 'new-game-btn') {
-        // if there's a prior save/running game, reroll the map, delete players and clear move_queue
-        if (start_game_overlay.dataset.gameIsRunning === 'true') {
+    } else if (submitter.id === 'new-game-btn') {
+        // if there's a prior save/running game or a game just finished, reroll the map, delete players and clear move_queue
+        if (
+            start_game_overlay.dataset.gameIsRunning === 'true' ||
+            game.current_phase === ROUND_PHASES.game_over.name
+        ) {
             Object.assign(game, {
                 round: 0,
                 current_phase: ROUND_PHASES.land_grab.name,
@@ -126,7 +128,7 @@ start_game_form.addEventListener('submit', (event) => {
 // player configured the game and pressed start btn
 config_game_form.addEventListener('submit', () => {
     // prevent duplicate names
-    // TODO do this on input or change
+    // TODO do this on input or change OR just prepend duplicates w sth like (1) and so on
     const duplicate_names = new Set();
     const name_inputs = /** @type {HTMLInputElement[]} */ ([...config_game_form.querySelectorAll('.player-name-input')]);
 
@@ -180,8 +182,8 @@ start_game_overlay.addEventListener('close', () => {
         );
     }
 
+    // rm the class now (and thereby reset the form to its initial state) cuz we might get here wo submitting the config_game_form
     start_game_overlay.classList.remove('game-config');
-
     game.run();
 });
 
