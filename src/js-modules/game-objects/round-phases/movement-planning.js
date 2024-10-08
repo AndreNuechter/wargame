@@ -146,6 +146,7 @@ function configure_move(configured_move, game, player_owns_origin, form_config) 
             player_moves,
             move_origin,
             form_config.season,
+            game.active_player.get_encampment(move_origin) || 0
         ) - Number(form_config.settle_cell) + form_config.current_value;
     }
 }
