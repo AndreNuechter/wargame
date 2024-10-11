@@ -51,21 +51,29 @@ export function reapply_move_queue(game) {
  * @returns {Player_Move}
  */
 export function make_player_move(player_id, origin, target, units, season, type = 'unspecified') {
-    const arrow = draw_movement_arrow(origin, target, units);
+    const arrow = draw_movement_arrow(origin, target, units, player_id);
+    let _units = units;
 
     return {
         player_id,
         origin,
         target,
         season,
-        units,
+        get units() {
+            return _units;
+        },
+        set units(value) {
+            _units = value;
+            // update units on arrow
+            arrow.lastElementChild.lastElementChild.textContent = value.toString();
+        },
         type,
         arrow
     };
 }
 
-// TODO take player_id and color the arrow accordingly
-function draw_movement_arrow(origin, target, units) {
+function draw_movement_arrow(origin, target, units, player_id) {
+    // TODO how can we better visualize multiple moves from the same origin to the same target (by different players; a player can only do a move once a round)
     // NOTE: adding half_hex_size to center the path...cx is apparently the upper left corner of the hex's viewBox
     const half_hex_size = 3;
     // TODO start/end further from the center to not overlay the population count and returing arrow
@@ -82,6 +90,8 @@ function draw_movement_arrow(origin, target, units) {
     const sent_units_display = movement_indicator.lastElementChild.lastElementChild;
 
     movement_indicator.firstElementChild.setAttribute('d', path_data);
+    // TODO the marker (arrow) isnt colored dynamically as its only referenced by movement_indicator...do we create one for ea player?
+    movement_indicator.dataset.owner_id = player_id;
     sent_units_display.setAttribute('path', path_data);
     sent_units_display.textContent = units;
 

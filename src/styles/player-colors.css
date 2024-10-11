@@ -27,3 +27,7 @@
 [data-owner_id="4"] {
     --owner-color: var(--player-5);
 }
+
+.movement-indicator path {
+    stroke: var(--owner-color);
+}

@@ -198,32 +198,34 @@ add_player_btn.addEventListener('click', () => {
 end_turn_btn.addEventListener('click', end_turn_btn_click_handling(game));
 
 // delete player
-player_setup.addEventListener('click', ({ target }) => {
-    if (!target.closest('.delete-player-btn')) return;
-    if (player_configs.length === min_player_count) return;
+player_setup.addEventListener('click',
+    // /** @param {{ target: HTMLElement }} event */
+    ({ target }) => {
+        if (/** @type {HTMLElement} */ (target).closest('.delete-player-btn') === null) return;
+        if (player_configs.length === min_player_count) return;
 
-    // rm config
-    target.closest('.player-config').remove();
-    // rewrite names etc on other player-configs
-    [...player_configs]
-        .forEach((config, id) => {
-            id = id + 1;
-            Object.assign(
-                config.querySelector('.player-name-input'),
-                {
-                    name: `player-${id}-name`,
-                    value: `Player ${id}`
-                }
-            );
-            config.querySelectorAll('.player-type-select-radio')
-                .forEach((/** @type {HTMLInputElement} */ radio) => {
-                    radio.name = `player-${id}-type`;
-                });
-        });
-});
+        // rm config
+        target.closest('.player-config').remove();
+        // rewrite names etc on other player-configs
+        [...player_configs]
+            .forEach((config, id) => {
+                id = id + 1;
+                Object.assign(
+                    config.querySelector('.player-name-input'),
+                    {
+                        name: `player-${id}-name`,
+                        value: `Player ${id}`
+                    }
+                );
+                config.querySelectorAll('.player-type-select-radio')
+                    .forEach((/** @type {HTMLInputElement} */ radio) => {
+                        radio.name = `player-${id}-type`;
+                    });
+            });
+    });
 
 board.addEventListener('click', ({ target }) => {
-    const cell_element = target.closest('.cell-wrapper');
+    const cell_element = /** @type {SVGGElement} */ (/** @type {Element} */ (target).closest('.cell-wrapper'));
 
     if (!cell_element) return;
 

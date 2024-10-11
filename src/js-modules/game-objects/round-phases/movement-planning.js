@@ -7,11 +7,14 @@ import {
     troop_select_min_value,
     troop_select_output
 } from '../../dom-selections';
+import { BIOMES } from '../../map-generation/biomes';
 import move_queue, { make_player_move } from '../move-queue';
 import RESOURCES from '../resources';
 import SEASONS, { increment_season, is_season_before } from '../seasons';
 
+/** @type {Hex_Cell} */
 let move_origin = null;
+/** @type {Hex_Cell} */
 let move_target = null;
 
 export function click_on_cell_action(hex_obj, game) {
@@ -56,14 +59,14 @@ export function click_on_cell_action(hex_obj, game) {
         ).disabled = false;
     });
     season_of_move_select.inert = false;
-    // enable setting movement type if player doesnt own the target
-    settle_cell_toggle.inert = player_owns_target;
+    // disallow settling owned cells and water
+    settle_cell_toggle.inert = player_owns_target || move_target.biome === BIOMES.sea;
 
     // determine appropriate modal config
     if (configured_move) {
-        configure_move(configured_move, game, player_owns_origin, form_config);
+        prepare_configure_move_form(configured_move, game, player_owns_origin, form_config);
     } else {
-        make_move(game, player_owns_origin, form_config);
+        prepare_make_move_form(game, player_owns_origin, form_config);
     }
 
     // if the move turns out to be invalid, unset target and do nothing else
@@ -73,7 +76,7 @@ export function click_on_cell_action(hex_obj, game) {
         return;
     }
 
-    // configure modal
+    // configure the modal
     /** @type {HTMLInputElement} */ (
         season_of_move_select.querySelector(`input[value="${form_config.season}"]`)
     ).checked = true;
@@ -89,13 +92,14 @@ export function click_on_cell_action(hex_obj, game) {
     troop_select_min_value.value = form_config.min_value;
     troop_select_max_value.value = form_config.max_value;
     settle_cell_toggle.checked = form_config.settle_cell;
-    // open modal
+    // open the modal
     movement_config.showModal();
 }
 
 // TODO limit sendable troops by available resources...moving 1 unit costs 1 gold per step (2 over water; 0 inside own territory)...food? people consume 1 food per turn...we'll not consider food here, but give negative effects when starvation occurs, like decreased efficieny or increased chance of revolts...
 
-function configure_move(configured_move, game, player_owns_origin, form_config) {
+/** Set up move config for a configured move. */
+function prepare_configure_move_form(configured_move, game, player_owns_origin, form_config) {
     const player_moves = move_queue.filter(({ player_id }) => player_id === game.current_player_id);
 
     form_config.settle_cell = configured_move.type === 'settle';
@@ -131,7 +135,7 @@ function configure_move(configured_move, game, player_owns_origin, form_config) 
 
     // TODO disable season options for which there'd be a move w insufficient troops, if this move'd be made then...for now we just disable it
     season_of_move_select.inert = true;
-    // TODO allow player to toggle this
+    // TODO allow player to toggle this, when appropriate
     settle_cell_toggle.inert = true;
 
     if (player_owns_origin) {
@@ -151,7 +155,8 @@ function configure_move(configured_move, game, player_owns_origin, form_config) 
     }
 }
 
-function make_move(game, player_owns_origin, form_config) {
+/** Set up move config for a new move. */
+function prepare_make_move_form(game, player_owns_origin, form_config) {
     const player_moves = move_queue.filter(({ player_id }) => player_id === game.current_player_id);
 
     form_config.current_value = 0;
@@ -275,7 +280,7 @@ function count_of_units_on_cell_at_season(
 
 export function plan_move(game) {
     return () => {
-        const season_of_move = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="season-of-move"]:checked')).value;
+        const season_of_move = /** @type {Season} */(/** @type {HTMLInputElement} */ (movement_config.querySelector('[name="season-of-move"]:checked')).value);
         const sent_troops = Number(troop_select_input.value);
         const settle_target_cell = settle_cell_toggle.checked;
         const configured_move_index = move_queue
@@ -301,13 +306,9 @@ export function plan_move(game) {
 
         if (configured_move_index > -1) {
             const configured_move = move_queue[configured_move_index];
-
             // TODO update season
             // TODO update movement type
             configured_move.units = sent_troops;
-            // update units on arrow
-            // TODO do this automatically when setting units
-            configured_move.arrow.lastElementChild.lastElementChild.textContent = sent_troops.toString();
         } else {
             move_queue.push(
                 make_player_move(

@@ -35,13 +35,12 @@
             <path d="M2 2 L8 8 M8 2 L 2 8"></path>
         </symbol>
         <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="2.2" markerHeight="2.2" stroke="none"
-            fill="white" orient="auto-start-reverse">
+            fill="var(--owner-color)" orient="auto-start-reverse">
             <path d="M 0 0 L 10 5 L 0 10 z" />
         </marker>
         <g class="movement-indicator">
-            <!-- TODO use player color -->
-            <path marker-end="url(#arrow)" stroke="white"></path>
-            <!-- TODO give text a background rect -->
+            <path marker-end="url(#arrow)"></path>
+            <!-- TODO give text a background rect for better legibility -->
             <text>
                 <textPath text-anchor="middle" startOffset="50%"></textPath>
             </text>
