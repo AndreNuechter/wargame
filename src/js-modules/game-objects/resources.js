@@ -11,11 +11,9 @@ const RESOURCES = make_frozen_null_obj({
     iron: 'iron', // forge. soldiers, housing
     food: 'food', // cell, farm. used by pop
     alcohol: 'alcohol', // distillery. lowers chance of uprisings
+    coal: 'coal' // mine. used in forge to make iron.
 });
-
-export default RESOURCES;
-
-export const initial_resources = make_frozen_null_obj({
+const initial_resources = make_frozen_null_obj({
     [RESOURCES.people]: 5,
     [RESOURCES.gold]: 5,
     [RESOURCES.cloth]: 25,

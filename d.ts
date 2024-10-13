@@ -59,7 +59,7 @@ type Seasons = {
     [Key in Season]: Key;
 };
 
-type Resource = "people" | "wood" | "stone" | "food" | "alcohol" | "gold" | "cloth" | "iron";
+type Resource = "people" | "wood" | "stone" | "food" | "alcohol" | "gold" | "cloth" | "iron" | "coal";
 
 type Resources = {
     [Key in Resource]: Key
@@ -69,6 +69,8 @@ interface Resource_Amount {
     resource_name: string;
     amount: number;
 }
+
+type Structure_Name = "tent" | "textile_factory" | "lumber_mill" | "quarry" | "forge" | "farm" | "distillery" | "mine";
 
 interface Structure {
     display_name: string;
@@ -81,6 +83,10 @@ interface Structure {
     input: Resource_Amount[];
     required_workers: number;
 }
+
+type Structures = {
+    [Key in Structure_Name]: Structure;
+};
 
 interface Hex_Cell {
     owner_id: number;

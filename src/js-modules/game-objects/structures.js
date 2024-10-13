@@ -1,8 +1,9 @@
-import { BIOMES } from '../map-generation/biomes.js';
+import BIOMES from '../map-generation/biomes.js';
 import RESOURCES from './resources.js';
 
-// TODO finish this
+// TODO finish this...required workers, input, unsupported biomes, space-req, effects
 // TODO add more structures...offensive (eg citadel, spy_academy...)/defensive structures (eg wall...), others like streets and storage, schools (see Banished, trade slower pop growth for higher productivity)...
+/** @type {Structures} */
 const STRUCTURES = {
     tent: make_structure(
         'Tent',
@@ -13,7 +14,7 @@ const STRUCTURES = {
         [],
         0,
         {
-            // TODO make use of this...housing should increase supported pop size ONCE...
+            // TODO use this...housing should increase supported pop size ONCE...
             on(cell) {
                 cell.housing_capacity += 5;
             },
@@ -31,9 +32,11 @@ const STRUCTURES = {
         ],
         [
             make_resource_amount(RESOURCES.cloth, 5),
-        ]
+        ],
+        5
     ),
-    lumber_mill: make_structure('Lumber Mill',
+    lumber_mill: make_structure(
+        'Lumber Mill',
         [
             make_resource_amount(RESOURCES.wood, 15),
             make_resource_amount(RESOURCES.stone, 15),
@@ -42,7 +45,8 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.wood, 5)
         ]
     ),
-    quarry: make_structure('Quarry',
+    quarry: make_structure(
+        'Quarry',
         [
             make_resource_amount(RESOURCES.wood, 15),
             make_resource_amount(RESOURCES.stone, 15),
@@ -51,17 +55,18 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.stone, 5),
         ]
     ),
-    // TODO we already have a stone producing structure...can we find another use for this? maybe coal to be used in forges, or give random chance of iron and/or gold?
-    // mine: make_structure('Mine',
-    //     [
-    //         make_resource_amount(RESOURCES.wood, 5),
-    //         make_resource_amount(RESOURCES.stone, 5),
-    //     ],
-    //     [
-    //         make_resource_amount(RESOURCES.stone, 5),
-    //     ]
-    // ),
-    forge: make_structure('Forge',
+    mine: make_structure(
+        'Mine',
+        [
+            make_resource_amount(RESOURCES.wood, 5),
+            make_resource_amount(RESOURCES.stone, 5),
+        ],
+        [
+            make_resource_amount(RESOURCES.coal, 5),
+        ]
+    ),
+    forge: make_structure(
+        'Forge',
         [
             make_resource_amount(RESOURCES.wood, 5),
             make_resource_amount(RESOURCES.stone, 5),
@@ -70,7 +75,8 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.iron, 1),
         ]
     ),
-    farm: make_structure('Farm',
+    farm: make_structure(
+        'Farm',
         [
             make_resource_amount(RESOURCES.wood, 5),
             make_resource_amount(RESOURCES.stone, 5),
@@ -79,7 +85,8 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.food, 5),
         ]
     ),
-    distillery: make_structure('Distillery',
+    distillery: make_structure(
+        'Distillery',
         [
             make_resource_amount(RESOURCES.wood, 5),
             make_resource_amount(RESOURCES.stone, 5),
