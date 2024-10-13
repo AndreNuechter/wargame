@@ -1,7 +1,7 @@
 import { board } from '../../dom-selections.js';
 import { cell_group_tmpl } from '../../dom-creations.js';
-import TEMPERATURES from '../../map-generation/assign-temperature.js';
-import HUMIDITY_LEVELS from '../../map-generation/assign-humidity.js';
+import TEMPERATURES from '../../map-generation/temperatures.js';
+import HUMIDITY_LEVELS from '../../map-generation/humidity-levels.js';
 import STRUCTURES from '../structures.js';
 import RESOURCES from '../resources.js';
 

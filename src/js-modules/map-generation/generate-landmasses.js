@@ -1,5 +1,5 @@
 import board_dimensions from './board-dimensions.js';
-import { decrease_temperature, increase_temperature } from './assign-temperature.js';
+import { decrease_temperature, increase_temperature } from './temperatures.js';
 import { random_int, random_pick } from '../helper-functions.js';
 
 // TODO instead of sharp cutoffs, use a chance-based approach so this is unlikely and not impossible

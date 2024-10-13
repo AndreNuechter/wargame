@@ -1,8 +1,8 @@
 import compute_neighbors from './compute-neighbors.js';
 import generate_landmasses from '../../map-generation/generate-landmasses.js';
-import TEMPERATURES, { assign_temperature } from '../../map-generation/assign-temperature.js';
+import TEMPERATURES, { assign_temperature } from '../../map-generation/temperatures.js';
 import BIOMES, { assign_biomes, make_ice_and_sea } from '../../map-generation/biomes.js';
-import HUMIDITY_LEVELS, { assign_humidity } from '../../map-generation/assign-humidity.js';
+import HUMIDITY_LEVELS, { assign_humidity } from '../../map-generation/humidity-levels.js';
 import { is_even } from '../../helper-functions.js';
 import make_hex_cell from './hex-cell.js';
 

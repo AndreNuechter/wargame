@@ -1,6 +1,6 @@
 import board_dimensions from './board-dimensions.js';
-import TEMPERATURES from './assign-temperature.js';
-import HUMIDITY_LEVELS from './assign-humidity.js';
+import TEMPERATURES from './temperatures.js';
+import HUMIDITY_LEVELS from './humidity-levels.js';
 import RESOURCES from '../game-objects/resources.js';
 
 // TODO balance resource production
