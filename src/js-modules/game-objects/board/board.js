@@ -5,8 +5,10 @@ const board = new Map;
 
 export default board;
 
+export { save_board, reapply_board };
+
 // TODO structures and developable_land arent saved yet
-export function save_board() {
+function save_board() {
     localStorage.setItem(storage_keys.board, JSON.stringify(
         [...board.values()]
             .map(({
@@ -35,7 +37,7 @@ export function save_board() {
     ));
 }
 
-export function reapply_board() {
+function reapply_board() {
     const stored_board = JSON.parse(localStorage.getItem(storage_keys.board));
     reinstate_hex_map(stored_board, board);
 }

@@ -1,13 +1,15 @@
 import compute_neighbors from './compute-neighbors.js';
 import generate_landmasses from '../../map-generation/generate-landmasses.js';
-import assign_temperatures, { TEMPERATURES } from '../../map-generation/assign-temperature.js';
-import assign_biomes, { BIOMES, make_ice_and_sea } from '../../map-generation/biomes.js';
-import assign_humidity, { HUMIDITY_LEVELS } from '../../map-generation/assign-humidity.js';
+import TEMPERATURES, { assign_temperature } from '../../map-generation/assign-temperature.js';
+import BIOMES, { assign_biomes, make_ice_and_sea } from '../../map-generation/biomes.js';
+import HUMIDITY_LEVELS, { assign_humidity } from '../../map-generation/assign-humidity.js';
 import { is_even } from '../../helper-functions.js';
-import { make_hex_cell } from './hex-cell.js';
+import make_hex_cell from './hex-cell.js';
+
+export { reroll_map, reinstate_hex_map, make_hex_map };
 
 /** Clear previous config and create new map, while leaving the DOM intact */
-export function reroll_map(hex_map) {
+function reroll_map(hex_map) {
     const hex_arr = [...hex_map.values()];
 
     hex_arr.forEach((hex_obj) => Object.assign(hex_obj, {
@@ -21,7 +23,7 @@ export function reroll_map(hex_map) {
         }, hex_obj.resources),
         owner_id: -1
     }));
-    assign_temperatures(hex_arr);
+    assign_temperature(hex_arr);
     generate_landmasses(hex_arr);
     make_ice_and_sea(hex_arr);
     assign_humidity(hex_arr);
@@ -31,7 +33,7 @@ export function reroll_map(hex_map) {
 }
 
 /** Recreate previous boardstate after reload. */
-export function reinstate_hex_map(board_state, board_map) {
+function reinstate_hex_map(board_state, board_map) {
     const hex_arr = board_state
         .map(({
             cx, cy, x, y, q, r, s,
@@ -66,11 +68,11 @@ export function reinstate_hex_map(board_state, board_map) {
     hex_arr_to_map(hex_arr, board_map);
 }
 
-export function make_hex_map(board_dimensions, board_map) {
+function make_hex_map(board_dimensions, board_map) {
     const hex_arr = make_hex_grid(board_dimensions);
 
     compute_neighbors(hex_arr);
-    assign_temperatures(hex_arr);
+    assign_temperature(hex_arr);
     generate_landmasses(hex_arr);
     make_ice_and_sea(hex_arr);
     assign_humidity(hex_arr);

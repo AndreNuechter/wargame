@@ -25,7 +25,7 @@ const ROUND_PHASES = {
     ),
     development: make_round_phase(
         'development',
-        'Distribute your wealth',
+        'Pick one of your cells and develop it',
         undefined,
         handle_development
     ),
@@ -49,7 +49,9 @@ const ROUND_PHASES = {
 
 export default ROUND_PHASES;
 
-export function end_turn_btn_click_handling(game) {
+export { end_turn_btn_click_handling };
+
+function end_turn_btn_click_handling(game) {
     return () => {
         // player did not choose a viable starting cell, so they cant end their turn
         if (game.current_phase === ROUND_PHASES.land_grab.name && !assign_starting_position(game)) return;

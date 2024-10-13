@@ -7,7 +7,9 @@ const move_queue = [];
 
 export default move_queue;
 
-export function save_move_queue() {
+export { save_move_queue, reapply_move_queue, make_player_move, clear_move_queue };
+
+function save_move_queue() {
     localStorage.setItem(storage_keys.move_queue, JSON.stringify(
         move_queue.map(({
             player_id, origin, target, units, season
@@ -21,7 +23,7 @@ export function save_move_queue() {
     ));
 }
 
-export function reapply_move_queue(game) {
+function reapply_move_queue(game) {
     const stored_queue = JSON.parse(localStorage.getItem(storage_keys.move_queue));
     const cells = [...game.board.values()];
 
@@ -50,7 +52,7 @@ export function reapply_move_queue(game) {
  * @param {Move_Type} type - The type of move being made.
  * @returns {Player_Move}
  */
-export function make_player_move(player_id, origin, target, units, season, type = 'unspecified') {
+function make_player_move(player_id, origin, target, units, season, type = 'unspecified') {
     const arrow = draw_movement_arrow(origin, target, units, player_id);
     let _units = units;
 
@@ -100,7 +102,7 @@ function draw_movement_arrow(origin, target, units, player_id) {
     return movement_indicator;
 }
 
-export function clear_move_queue() {
+function clear_move_queue() {
     move_queue.length = 0;
     movement_arrows.replaceChildren();
 }

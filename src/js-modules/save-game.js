@@ -1,7 +1,11 @@
 import game from './game-objects/game.js';
 import storage_keys from './storage-keys.js';
 
-export default function save_game() {
+export default save_game;
+
+export { apply_savegame, delete_savegame };
+
+function save_game() {
     localStorage.setItem(
         storage_keys.game,
         JSON.stringify({
@@ -12,7 +16,7 @@ export default function save_game() {
     );
 }
 
-export function apply_savegame(game, game_data) {
+function apply_savegame(game, game_data) {
     const {
         round,
         current_phase,
@@ -26,7 +30,7 @@ export function apply_savegame(game, game_data) {
     });
 }
 
-export function delete_savegame() {
+function delete_savegame() {
     Object.values(storage_keys)
         .forEach((key) => localStorage.removeItem(key));
 }

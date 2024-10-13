@@ -1,12 +1,16 @@
-import { BIOMES } from './biomes';
+import BIOMES from './biomes';
 
-export const HUMIDITY_LEVELS = {
+const HUMIDITY_LEVELS = {
     arid: 'arid',
     dry: 'dry',
     moderate: 'moderate',
     moist: 'moist',
     wet: 'wet'
 };
+
+export default HUMIDITY_LEVELS;
+
+export { assign_humidity };
 
 function increase_humidity_level(level) {
     switch (level) {
@@ -21,7 +25,7 @@ function increase_humidity_level(level) {
     }
 }
 
-export default function assign_humidity(hex_arr) {
+function assign_humidity(hex_arr) {
     // TODO finish me
     // humidity of a land-tile is based on 3 factors:
     // 1. proximity to the sea (tiles adjacent to sea-tiles get +1 level for each)

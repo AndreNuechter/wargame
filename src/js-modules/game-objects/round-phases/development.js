@@ -6,12 +6,14 @@ import {
 } from '../../setup-sidebar-content';
 import { calculate_resource_production } from '../resources';
 
+export { click_on_cell_action };
+
 /**
  * Handle clicks on cells during development phase.
  * @param {Hex_Cell} hex_obj - The clicked cell.
  * @param {Game} game - The currently running game.
  */
-export function click_on_cell_action(hex_obj, game) {
+function click_on_cell_action(hex_obj, game) {
     // did the player click on a cell they own?
     if (hex_obj.owner_id === game.current_player_id) {
         // hide empire overview and show cell specific overview

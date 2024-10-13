@@ -4,20 +4,29 @@ import { calculate_resource_production } from './game-objects/resources.js';
 import game from './game-objects/game.js';
 import STRUCTURES from './game-objects/structures.js';
 
-export function setup_overall_production_forecast(resources, tax_rate) {
+export {
+    setup_overall_production_forecast,
+    setup_content_for_own_cell,
+    setup_cell_info,
+    make_resource_list,
+    make_structure_builder_inputs,
+    side_bar_input_handling
+};
+
+function setup_overall_production_forecast(resources, tax_rate) {
     overall_production_forecast.querySelector('ul').replaceChildren(...make_resource_list(resources));
     overall_production_forecast.querySelector('input').value = tax_rate;
     overall_production_forecast.classList.remove('hidden');
 }
 
-export function setup_content_for_own_cell(resources, structure_builder_inputs) {
+function setup_content_for_own_cell(resources, structure_builder_inputs) {
     // TODO enable turning population into other units (on cells w required structures)
     cell_production_forecast.querySelector('ul').replaceChildren(...make_resource_list(resources));
     cell_production_forecast.querySelector('fieldset').replaceChildren(...structure_builder_inputs);
     cell_production_forecast.classList.remove('hidden');
 }
 
-export function setup_cell_info(hex_obj, { wood, stone, cloth, food }) {
+function setup_cell_info(hex_obj, { wood, stone, cloth, food }) {
     // TODO it sucks to create/discard this piece of dom repeatedly...it would be nicer to only set the values
     const supported_structures = Object.values(STRUCTURES)
         .filter((structure) => !structure.unsupported_biomes.includes(hex_obj.biome))
@@ -42,7 +51,7 @@ export function setup_cell_info(hex_obj, { wood, stone, cloth, food }) {
     cell_info.classList.remove('hidden');
 }
 
-export function make_resource_list(resources) {
+function make_resource_list(resources) {
     return Object
         .entries(resources)
         .map(([resource, value]) => Object.assign(
@@ -52,7 +61,7 @@ export function make_resource_list(resources) {
 }
 
 /** Create a set of UI elements to build or deconstruct structures supported on the given cell's biome. */
-export function make_structure_builder_inputs(hex_obj) {
+function make_structure_builder_inputs(hex_obj) {
     return Object
         .entries(STRUCTURES)
         .filter(([, structure]) => !structure.unsupported_biomes.includes(hex_obj.biome))
@@ -145,7 +154,7 @@ export function make_structure_builder_inputs(hex_obj) {
 }
 
 // TODO the name is too general as it only handles taxes...
-export function side_bar_input_handling(game) {
+function side_bar_input_handling(game) {
     return ({ target }) => {
         if (target.name === 'tax_rate') {
             game.active_player.tax_rate = Number(target.value);

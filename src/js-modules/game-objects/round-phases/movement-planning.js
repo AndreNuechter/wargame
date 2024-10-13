@@ -7,7 +7,7 @@ import {
     troop_select_min_value,
     troop_select_output
 } from '../../dom-selections';
-import { BIOMES } from '../../map-generation/biomes';
+import BIOMES from '../../map-generation/biomes';
 import move_queue, { make_player_move } from '../move-queue';
 import RESOURCES from '../resources';
 import SEASONS, { increment_season, is_season_before } from '../seasons';
@@ -17,7 +17,9 @@ let move_origin = null;
 /** @type {Hex_Cell} */
 let move_target = null;
 
-export function click_on_cell_action(hex_obj, game) {
+export { click_on_cell_action, plan_move };
+
+function click_on_cell_action(hex_obj, game) {
     // player picked origin
     if (move_origin === null) {
         set_move_origin(hex_obj, game);
@@ -278,7 +280,7 @@ function count_of_units_on_cell_at_season(
         );
 }
 
-export function plan_move(game) {
+function plan_move(game) {
     return () => {
         const season_of_move = /** @type {Season} */(/** @type {HTMLInputElement} */ (movement_config.querySelector('[name="season-of-move"]:checked')).value);
         const sent_troops = Number(troop_select_input.value);

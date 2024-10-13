@@ -14,7 +14,14 @@ const players = [];
 
 export default players;
 
-export function save_players() {
+export {
+    save_players,
+    reapply_players,
+    make_player_config,
+    make_player
+};
+
+function save_players() {
     localStorage.setItem(
         storage_keys.players,
         JSON.stringify(
@@ -28,7 +35,7 @@ export function save_players() {
     );
 }
 
-export function reapply_players(game) {
+function reapply_players(game) {
     const stored_players = JSON.parse(localStorage.getItem(storage_keys.players));
     const cells = [...game.board.values()];
 
@@ -49,7 +56,7 @@ export function reapply_players(game) {
 }
 
 /** Create an UI element to config a player. */
-export function make_player_config(id) {
+function make_player_config(id) {
     const config = /** @type {HTMLDivElement} */ (player_config_tmpl.cloneNode(true));
 
     Object.assign(
@@ -75,7 +82,7 @@ export function make_player_config(id) {
  * @param {any[]} [active_encampments=[]]
  * @returns {Player}
 */
-export function make_player(
+function make_player(
     id,
     name = 'Player Name',
     type = PLAYER_TYPES.ai,

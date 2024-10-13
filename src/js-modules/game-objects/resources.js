@@ -24,11 +24,15 @@ const initial_resources = make_frozen_null_obj({
     [RESOURCES.alcohol]: 5
 });
 
+export default RESOURCES;
+
+export { initial_resources, update_player_resources, calculate_resource_production };
+
 /**
  * Update the resources of the players at the beginning of a new round.
  * @param {Player[]} players
 */
-export function update_player_resources(players) {
+function update_player_resources(players) {
     players.forEach(
         ({ cells, encampments, tax_rate }) => {
             // TODO handle homelessness (total_pop > total_housing_capacity)...only housed population helps w res production
@@ -123,7 +127,7 @@ function increase_population(cell) {
     cell.resources[RESOURCES.people] += population_increase;
 }
 
-export function calculate_resource_production(cells, tax_rate = 1) {
+function calculate_resource_production(cells, tax_rate = 1) {
     const result = {
         [RESOURCES.gold]: 0,
         [RESOURCES.cloth]: 0,

@@ -1,7 +1,9 @@
 import board_dimensions from '../../map-generation/board-dimensions';
 import { is_even } from '../../helper-functions';
 
-export default function compute_neighbors(hex_arr) {
+export default compute_neighbors;
+
+function compute_neighbors(hex_arr) {
     hex_arr.forEach((hex_obj) => {
         hex_obj.neighbors = get_neighboring_cells(hex_obj, hex_arr, board_dimensions);
     });

@@ -3,7 +3,7 @@ import { is_num_between } from '../helper-functions.js';
 
 // NOTE: we want our world map to be "freezing" on the poles and "hot" along the equator
 // between those two points we move along a scale w the three values "warm", "temperate" and "cold"
-export const TEMPERATURES = {
+const TEMPERATURES = {
     freezing: 'freezing',
     cold: 'cold',
     temperate: 'temperate',
@@ -11,7 +11,11 @@ export const TEMPERATURES = {
     hot: 'hot'
 };
 
-export default function assign_temperature(hex_arr) {
+export default TEMPERATURES;
+
+export { assign_temperature, decrease_temperature, increase_temperature };
+
+function assign_temperature(hex_arr) {
     hex_arr.forEach((hex_obj) => {
         const random_num = Math.random();
         // add bias to mimick axial tilt
@@ -61,7 +65,7 @@ function get_temperature(hex_relative_height) {
     }
 }
 
-export function decrease_temperature(temperature) {
+function decrease_temperature(temperature) {
     switch (temperature) {
         case TEMPERATURES.hot:
             return TEMPERATURES.warm;
@@ -74,7 +78,7 @@ export function decrease_temperature(temperature) {
     }
 }
 
-export function increase_temperature(temperature) {
+function increase_temperature(temperature) {
     switch (temperature) {
         case TEMPERATURES.freezing:
             return TEMPERATURES.cold;

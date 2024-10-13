@@ -1,12 +1,11 @@
 import board_dimensions from './board-dimensions.js';
-import { TEMPERATURES } from './assign-temperature.js';
-import { HUMIDITY_LEVELS } from './assign-humidity.js';
+import TEMPERATURES from './assign-temperature.js';
+import HUMIDITY_LEVELS from './assign-humidity.js';
 import RESOURCES from '../game-objects/resources.js';
 
-// for more see https://rimworldwiki.com/wiki/Biomes
 // TODO balance resource production
 /** @type {Biomes} */
-export const BIOMES = {
+const BIOMES = {
     sea: make_biome('sea', { [RESOURCES.food]: 1 }),
     mountain: make_biome('mountain', {
         [RESOURCES.wood]: 2,
@@ -124,6 +123,10 @@ const biome_matrix = {
     },
 };
 
+export default BIOMES;
+
+export { assign_biomes, make_ice_and_sea };
+
 /** Create a biome object.
  * @param { Biome_Name } [name='sea']
  * @param {{}} [resource_production={}]
@@ -150,13 +153,13 @@ function make_biome(
     };
 }
 
-export default function assign_biomes(hex_arr) {
+function assign_biomes(hex_arr) {
     hex_arr.forEach((hex_obj) => {
         hex_obj.biome = pick_biome(hex_obj);
     });
 }
 
-export function make_ice_and_sea(hex_arr) {
+function make_ice_and_sea(hex_arr) {
     hex_arr
         .filter(({ elevation }) => elevation === 0)
         .forEach((hex) => {
@@ -165,6 +168,7 @@ export function make_ice_and_sea(hex_arr) {
 }
 
 function pick_water_based_tile(hex, height = board_dimensions.height) {
+    // TODO set developable land to 0 for sea
     // TODO set humidity based on temperature
     // TODO programmatically determine ranges
     const random_num = Math.random();

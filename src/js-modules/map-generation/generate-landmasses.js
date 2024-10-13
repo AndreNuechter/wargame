@@ -7,7 +7,9 @@ const offlimit_rows = new Set(
     [0, 1, 2, board_dimensions.height - 1, board_dimensions.height - 2, board_dimensions.height - 3]
 );
 
-export default function generate_landmasses(hex_grid) {
+export default generate_landmasses;
+
+function generate_landmasses(hex_grid) {
     const min_landmass_size = 4;
     const max_landmass_size = 13;
     // about 2/3 of the map should be covered by water

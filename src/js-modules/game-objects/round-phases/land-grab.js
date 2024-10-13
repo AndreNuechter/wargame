@@ -1,12 +1,14 @@
 import { cell_info, general_info, selection_highlight } from '../../dom-selections';
-import { BIOMES } from '../../map-generation/biomes';
+import BIOMES from '../../map-generation/biomes';
 import { setup_cell_info } from '../../setup-sidebar-content';
 import outline_hexregion from '../board/outline-hexregion';
 import { initial_resources } from '../resources';
 
 let start_position_candidate = null;
 
-export function click_on_cell_action(hex_obj) {
+export { click_on_cell_action, end_turn_action };
+
+function click_on_cell_action(hex_obj) {
     // did player click on a viable starting cell?
     if (!hex_obj.has_owner && hex_obj.biome !== BIOMES.sea) {
         // set the candidate starting cell
@@ -24,7 +26,7 @@ export function click_on_cell_action(hex_obj) {
     }
 }
 
-export function end_turn_action(game) {
+function end_turn_action(game) {
     if (start_position_candidate === null) return false;
 
     // set initial resources on cell

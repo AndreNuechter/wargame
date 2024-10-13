@@ -4,7 +4,9 @@ import move_queue from '../move-queue';
 import { end_turn_btn, phase_label } from '../../dom-selections';
 import { random_int, random_pick } from '../../helper-functions';
 
-export function* execute_moves(game) {
+export { execute_moves };
+
+function* execute_moves(game) {
     for (const season in SEASONS) {
         const moves_in_this_season = move_queue
             .filter((move) => season === move.season)

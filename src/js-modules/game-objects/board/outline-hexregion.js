@@ -5,7 +5,9 @@ const stroke_width = 0.5;
 // TODO figure out a way to sort the line segments, so that we need only one `M` command and we could fill the pathes
 const edge_offset = stroke_width * 0.5;
 
-export default function outline_hexregion(region, outline_element, {
+export default outline_hexregion;
+
+function outline_hexregion(region, outline_element, {
     color = 'white',
     stroked_outline = false
 } = {}) {

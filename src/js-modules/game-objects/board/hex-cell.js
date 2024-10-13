@@ -1,9 +1,11 @@
 import { board } from '../../dom-selections.js';
 import { cell_group_tmpl } from '../../dom-creations.js';
-import { TEMPERATURES } from '../../map-generation/assign-temperature.js';
-import { HUMIDITY_LEVELS } from '../../map-generation/assign-humidity.js';
+import TEMPERATURES from '../../map-generation/assign-temperature.js';
+import HUMIDITY_LEVELS from '../../map-generation/assign-humidity.js';
 import STRUCTURES from '../structures.js';
 import RESOURCES from '../resources.js';
+
+export default make_hex_cell;
 
 /**
  * Create a Hex_Cell object.
@@ -16,7 +18,7 @@ import RESOURCES from '../resources.js';
  * @param {Number} s Vertical component of the hex cell's position.
  * @returns {Hex_Cell}
  */
-export function make_hex_cell(cx, cy, x, y, q, r, s) {
+function make_hex_cell(cx, cy, x, y, q, r, s) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);
     const pop_size_display = /** @type {SVGTextElement} */ (cell.querySelector('.population-size'));
     let biome = null;
