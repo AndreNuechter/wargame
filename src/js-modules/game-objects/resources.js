@@ -97,18 +97,26 @@ export function update_player_resources(players) {
 }
 
 function increase_population(cell) {
-    const pair_count = Math.trunc(cell.resources.people / 2);
+    // TODO scale chances up/down based on how many neighboring cells are inhabited (and other factors like starvation)
     let population_increase = 0;
 
-    for (let pair_index = 0; pair_index < pair_count; pair_index += 1) {
-        const random_num = Math.random();
+    // give tiny chance to gain 1 to cells w only 1 inhabitant
+    if (cell.resources.people === 1) {
+        if (Math.random() < 0.05) {
+            population_increase = 1;
+        }
+    } else {
+        const pair_count = Math.trunc(cell.resources.people / 2);
 
-        // TODO scale these up/down based on how many neighboring cells are inhabited (and other factors like starvation)
-        // randomnly give 0 (50%), 1 (40%) or 2 (10%) new people
-        if (random_num < 0.1) {
-            population_increase += 2;
-        } else if (random_num < 0.5) {
-            population_increase += 1;
+        for (let pair_index = 0; pair_index < pair_count; pair_index += 1) {
+            const random_num = Math.random();
+
+            // randomnly give 0 (50%), 1 (40%) or 2 (10%) new people
+            if (random_num < 0.1) {
+                population_increase += 2;
+            } else if (random_num < 0.5) {
+                population_increase += 1;
+            }
         }
     }
 
