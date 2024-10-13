@@ -1,5 +1,5 @@
-import './js-modules/service-worker-init.js';
-import './js-modules/wakelock.js';
+import './js-modules/service-worker/service-worker-init.js';
+import './js-modules/service-worker/wakelock.js';
 import { make_hex_map, reroll_map } from './js-modules/game-objects/board/hex-grid.js';
 import board_dimensions from './js-modules/map-generation/board-dimensions.js';
 import {

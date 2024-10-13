@@ -1,3 +1,4 @@
+// @ts-ignore
 import serviceWorkerUrl from './service-worker?worker&url';
 
 export default (() => window.navigator.serviceWorker
