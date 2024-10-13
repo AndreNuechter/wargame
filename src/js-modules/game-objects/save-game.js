@@ -1,4 +1,4 @@
-import game from './game-objects/game.js';
+import game from './game.js';
 import storage_keys from './storage-keys.js';
 
 export default save_game;

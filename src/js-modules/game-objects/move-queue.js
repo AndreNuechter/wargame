@@ -1,6 +1,6 @@
 import { movement_indicator_tmpl } from '../dom-creations';
 import { movement_arrows } from '../dom-selections';
-import storage_keys from '../storage-keys';
+import storage_keys from './storage-keys';
 
 /** @type {Move_Queue} */
 const move_queue = [];

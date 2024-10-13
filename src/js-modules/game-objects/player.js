@@ -2,7 +2,7 @@ import { player_borders_container, player_encampments, player_setup } from '../d
 import { player_border_path, player_config_tmpl } from '../dom-creations.js';
 import RESOURCES from './resources.js';
 import outline_hexregion from './board/outline-hexregion.js';
-import storage_keys from '../storage-keys.js';
+import storage_keys from './storage-keys.js';
 
 /** @type { {[K in Player_Type]: Player_Type} } */
 const PLAYER_TYPES = {

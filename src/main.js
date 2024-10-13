@@ -26,11 +26,11 @@ import game from './js-modules/game-objects/game.js';
 import ROUND_PHASES, { end_turn_btn_click_handling } from './js-modules/game-objects/round-phases/round-phases.js';
 import { plan_move } from './js-modules/game-objects/round-phases/movement-planning.js';
 import { clear_move_queue, reapply_move_queue, save_move_queue } from './js-modules/game-objects/move-queue.js';
-import save_game, { apply_savegame, delete_savegame } from './js-modules/save-game.js';
+import save_game, { apply_savegame, delete_savegame } from './js-modules/game-objects/save-game.js';
 import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
 import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 import { reapply_board, save_board } from './js-modules/game-objects/board/board.js';
-import storage_keys from './js-modules/storage-keys.js';
+import storage_keys from './js-modules/game-objects/storage-keys.js';
 
 // TODO add a way to config map gen
 const min_player_count = 2;

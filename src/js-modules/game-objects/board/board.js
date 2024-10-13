@@ -1,4 +1,4 @@
-import storage_keys from '../../storage-keys';
+import storage_keys from '../storage-keys';
 import { reinstate_hex_map } from './hex-grid';
 
 const board = new Map;
