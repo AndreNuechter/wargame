@@ -21,7 +21,8 @@ const initial_resources = make_frozen_null_obj({
     [RESOURCES.stone]: 25,
     [RESOURCES.iron]: 0,
     [RESOURCES.food]: 50,
-    [RESOURCES.alcohol]: 5
+    [RESOURCES.alcohol]: 5,
+    [RESOURCES.coal]: 5
 });
 
 export default RESOURCES;
@@ -136,6 +137,7 @@ function calculate_resource_production(cells, tax_rate = 1) {
         [RESOURCES.iron]: 0,
         [RESOURCES.food]: 0,
         [RESOURCES.alcohol]: 0,
+        [RESOURCES.coal]: 0
     };
     let total_population = 0;
 

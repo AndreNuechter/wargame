@@ -163,7 +163,8 @@ function make_player(
                 [RESOURCES.stone]: 0,
                 [RESOURCES.iron]: 0,
                 [RESOURCES.food]: 0,
-                [RESOURCES.alcohol]: 0
+                [RESOURCES.alcohol]: 0,
+                [RESOURCES.coal]: 0
             });
         },
         border_path_container: border_outline,
