@@ -140,7 +140,7 @@ function adjust_ui() {
     phase_label.textContent = ROUND_PHASES[current_phase].call_to_action;
     // show name of active player
     player_name.classList.remove('hidden');
-    player_name.textContent = players[current_player_id].name;
+    player_name.textContent = game.active_player.name;
     // mark current phase in dom (to be used w css)
     document.body.dataset.current_phase = ROUND_PHASES[current_phase].name;
     // set player color
@@ -158,16 +158,16 @@ function adjust_ui() {
         general_info.classList.add('hidden');
         // show overall resource production
         current_player_total_production = calculate_resource_production(
-            players[current_player_id].cells,
-            players[current_player_id].tax_rate
+            game.active_player.cells,
+            game.active_player.tax_rate
         );
         cell_production_forecast.classList.add('hidden');
         setup_overall_production_forecast(
             calculate_resource_production(
-                players[current_player_id].cells,
-                players[current_player_id].tax_rate
+                game.active_player.cells,
+                game.active_player.tax_rate
             ),
-            players[current_player_id].tax_rate
+            game.active_player.tax_rate
         );
         bottom_bar.classList.remove('content-hidden');
         update_resource_display();
@@ -180,12 +180,17 @@ function adjust_ui() {
 
 function update_resource_display() {
     bottom_bar.replaceChildren(
-        ...Object.entries(players[current_player_id].resources).map(([name, value]) => {
-            // TODO use icons instead of labels for resources
-            return Object.assign(
-                document.createElement('div'),
-                { textContent: `${name}: ${value}` }
-            );
-        })
+        ...Object
+            .entries(game.active_player.resources)
+            .map(([name, value]) => {
+                return Object.assign(
+                    document.createElement('div'),
+                    {
+                        title: name,
+                        innerHTML: `<svg class="icon"><use href="#${name}"></use></svg>
+                        <span>${value}</span>`
+                    }
+                );
+            })
     );
 }
