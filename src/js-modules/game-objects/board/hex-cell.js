@@ -44,7 +44,7 @@ function make_hex_cell(cx, cy, x, y, q, r, s) {
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
-        // TODO omit the ones not supported by the biome
+        // TODO reflect development via icon or sth (eg shantytown, village, city...)
         structures: new Map(Object.values(STRUCTURES).map((structure) => [structure, 0])),
         pop_size_display,
         resources: {
@@ -69,7 +69,6 @@ function make_hex_cell(cx, cy, x, y, q, r, s) {
             return biome;
         },
         set biome(new_biome) {
-            // TODO biome icon or texture
             if (biome !== null) cell.classList.remove(biome.name);
             if (new_biome !== null) cell.classList.add(new_biome.name);
             biome = new_biome;

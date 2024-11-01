@@ -16,6 +16,8 @@
     --extreme_desert: #f9e79f;
 }
 
+/* TODO give biomes specific texture or sth...use gradient, svg filter, prepared bg-img or svg <pattern> element? */
+
 .sea {
     fill: var(--sea);
 }

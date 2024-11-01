@@ -20,7 +20,7 @@ export const round_info = document.getElementById('round-info');
 export const season_of_move_select = document.getElementById('season-of-move-select');
 export const selection_highlight = document.getElementById('selection-highlight');
 export const start_game_form = document.getElementById('start-game-form');
-export const start_game_overlay = /** @type {HTMLDialogElement} */ (document.getElementById('start-game-overlay'));
+export const main_overlay = /** @type {HTMLDialogElement} */ (document.getElementById('main-overlay'));
 export const movement_arrows = document.getElementById('movement-arrows');
 export const movement_config = /** @type {HTMLDialogElement} */ (document.getElementById('movement-config'));
 export const troop_select_input = /** @type {HTMLInputElement} */ (movement_config.querySelector('[name="troop-strength"]'));

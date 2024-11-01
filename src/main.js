@@ -16,7 +16,7 @@ import {
     selection_highlight,
     side_bar,
     start_game_form,
-    start_game_overlay,
+    main_overlay,
     toggle_menu_btn,
     troop_select_input,
     troop_select_output,
@@ -32,11 +32,11 @@ import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 import { reapply_board, save_board } from './js-modules/game-objects/board/board.js';
 import storage_keys from './js-modules/game-objects/storage-keys.js';
 
+// TODO board is too small on mobile and pinch zoom cant be fixed to the board (in other words we cant prevent the modals etc being zoomed as well)...add btns to change zoom level (viewbox) of board
 // TODO add a way to config map gen
 const min_player_count = 2;
 const max_player_count = 5;
 
-// set up the board
 window.addEventListener('DOMContentLoaded', () => {
     const game_data = localStorage.getItem(storage_keys.game);
     const previously_saved_game = game_data !== null;
@@ -50,8 +50,8 @@ window.addEventListener('DOMContentLoaded', () => {
         make_hex_map(board_dimensions, game.board);
     }
 
-    start_game_overlay.dataset.gameIsRunning = previously_saved_game.toString();
-    start_game_overlay.showModal();
+    main_overlay.dataset.gameIsRunning = previously_saved_game.toString();
+    main_overlay.showModal();
 }, { once: true });
 
 document.addEventListener('visibilitychange', () => {
@@ -75,31 +75,31 @@ document.addEventListener('visibilitychange', () => {
 // all formdata will be handled client-side
 document.addEventListener('submit', prevent_default_event_behavior);
 
+// display configured troop size after input
 troop_select_input.addEventListener('input', () => {
     troop_select_output.value = troop_select_input.value;
 });
 
-// re-open start_game_overlay
+// re-open main_overlay
 toggle_menu_btn.addEventListener('click', () => {
-    // TODO the name of the dialog is no longer ok
-    start_game_overlay.dataset.gameIsRunning = (
+    main_overlay.dataset.gameIsRunning = (
         game.current_phase !== ROUND_PHASES.game_over.name &&
         game.players.length > 0
     ).toString();
-    start_game_overlay.showModal();
+    main_overlay.showModal();
 });
 
-// player chose to start new game or continue
+// player started or continued a game
 start_game_form.addEventListener('submit', ({ submitter }) => {
     if (submitter.id === 'continue-btn') {
         // the continue-btn only works if there's a prior save/running game
-        if (start_game_overlay.dataset.gameIsRunning === 'true') {
-            start_game_overlay.close();
+        if (main_overlay.dataset.gameIsRunning === 'true') {
+            main_overlay.close();
         }
     } else if (submitter.id === 'new-game-btn') {
         // if there's a prior save/running game or a game just finished, reroll the map, delete players and clear move_queue
         if (
-            start_game_overlay.dataset.gameIsRunning === 'true' ||
+            main_overlay.dataset.gameIsRunning === 'true' ||
             game.current_phase === ROUND_PHASES.game_over.name
         ) {
             Object.assign(game, {
@@ -121,60 +121,31 @@ start_game_form.addEventListener('submit', ({ submitter }) => {
         Array.from({ length: 2 }, (_, id) => make_player_config(id + 1));
 
         // switch to game-config
-        start_game_overlay.classList.add('game-config');
+        main_overlay.classList.add('game-config');
     }
 });
 
 // player configured the game and pressed start btn
 config_game_form.addEventListener('submit', () => {
-    // prevent duplicate names
-    // TODO do this on input or change OR just prepend duplicates w sth like (1) and so on
-    const duplicate_names = new Set();
-    const name_inputs = /** @type {HTMLInputElement[]} */ ([...config_game_form.querySelectorAll('.player-name-input')]);
+    // create players
+    let id = 0;
+    for (const player_config of player_configs) {
+        const name = /** @type {HTMLInputElement} */ (player_config.querySelector('.player-name-input')).value;
+        const type = /** @type {Player_Type} */ (/** @type {HTMLInputElement} */ (player_config.querySelector('.player-type-select-radio:checked')).value);
 
-    name_inputs
-        .reduce((name_count, { value: name }) => {
-            name_count[name] = name in name_count
-                ? name_count[name] + 1
-                : 1;
-
-            if (name_count[name] > 1) {
-                duplicate_names.add(name);
-            }
-
-            return name_count;
-        }, {});
-
-    if (duplicate_names.size > 0) {
-        // TODO add message below input and show toast
-        // add highlight to related input field
-        name_inputs.forEach((input) => {
-            if (duplicate_names.has(input.value)) {
-                input.classList.add('invalid');
-            }
-        });
-        return;
+        game.players.push(make_player(id, name, type));
+        id += 1;
     }
-
-    // create player objects
-    game.players = Array.from(
-        player_configs,
-        (config, id) => {
-            const name = /** @type {HTMLInputElement} */ (config.querySelector('.player-name-input')).value;
-            const type = /** @type {Player_Type} */ (/** @type {HTMLInputElement} */ (config.querySelector('.player-type-select-radio:checked')).value);
-            return make_player(id, name, type);
-        }
-    );
 
     // TODO use other config options
 
-    start_game_overlay.close();
+    main_overlay.close();
 });
 
 // start the game when the dialog closes
-// NOTE: we use this event here, as swiping back on mobile closes the dialog no matter what
-start_game_overlay.addEventListener('close', () => {
-    // config a minimal viable game, if thats not yet the case
+// NOTE: we use this event to actually start the game, as swiping back on mobile closes the dialog no matter what
+main_overlay.addEventListener('close', () => {
+    // config a minimal viable game, if that's not yet the case
     if (game.players.length === 0) {
         game.players = Array.from(
             { length: 2 },
@@ -183,7 +154,7 @@ start_game_overlay.addEventListener('close', () => {
     }
 
     // rm the class now (and thereby reset the form to its initial state) cuz we might get here wo submitting the config_game_form
-    start_game_overlay.classList.remove('game-config');
+    main_overlay.classList.remove('game-config');
     game.run();
 });
 
@@ -224,6 +195,7 @@ player_setup.addEventListener('click',
             });
     });
 
+// select a cell
 board.addEventListener('click', ({ target }) => {
     const cell_element = /** @type {SVGGElement} */ (/** @type {Element} */ (target).closest('.cell-wrapper'));
 
@@ -266,7 +238,7 @@ coord_system_toggle_btn.addEventListener(
 function output_cell_info(hex_obj) {
     cell_debug_info.textContent = JSON.stringify(
         hex_obj,
-        // NOTE: `neighbors` is cyclic
+        // NOTE: `neighbors` is cyclic and therefore needs to be filtered out
         (key, value) => key === 'neighbors' ? undefined : value,
         4
     );

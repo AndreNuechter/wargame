@@ -146,7 +146,7 @@ function make_player(
 
     return {
         id,
-        name,
+        name: deduplicate_name(name),
         type,
         tax_rate: 1,
         get resources() {
@@ -215,4 +215,16 @@ function make_player(
             encampment_outline.remove();
         }
     };
+}
+
+function deduplicate_name(name) {
+    const name_is_duplicate = players.some((player) => player.name === name);
+
+    if (!name_is_duplicate) return name;
+
+    const name_has_postfix = /^(?<name>.+)_(?<id>\d+)$/.exec(name);
+
+    if (name_has_postfix === null) return deduplicate_name(`${name}_2`);
+
+    return deduplicate_name(`${name_has_postfix.groups.name}_${(Number(name_has_postfix.groups.id) || 0) + 1}`);
 }
