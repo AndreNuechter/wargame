@@ -11,22 +11,27 @@
 body {
     --side-bar-width: 240px;
     --info-bar-height: 40px;
+    --zoom-btns-width: 40px;
 
     overflow: hidden;
     user-select: none;
     display: grid;
-    grid-template-columns: 1fr var(--side-bar-width);
+    grid-template-columns: 1fr var(--zoom-btns-width) var(--side-bar-width);
     grid-template-rows: var(--info-bar-height) 1fr var(--info-bar-height);
     grid-template-areas:
-        "header header"
-        "board sideBar"
-        "footer footer"
+        "header header header"
+        "board zoomBtns sideBar"
+        "footer footer footer"
     ;
 
     #board-container {
         grid-area: board;
         align-self: center;
         justify-self: center;
+    }
+
+    #zoom-btns {
+        grid-area: zoomBtns
     }
 
     #side-bar {
@@ -58,15 +63,28 @@ h3 {
     position: absolute;
 }
 
-#board,
-#board-container {
+#board {
     height: 100%;
+    transition: height 0.1s;
+
+    &[data-zoom_level="1"] {
+        height: 150%;
+    }
+
+    &[data-zoom_level="2"] {
+        height: 200%;
+    }
+
+    &[data-zoom_level="3"] {
+        height: 250%;
+    }
 }
 
 #board-container {
-    overflow-x: scroll;
-    overflow-y: hidden;
-    width: calc(100vw - var(--side-bar-width));
+    padding: 8px;
+    overflow: scroll;
+    height: 100%;
+    width: calc(100vw - var(--zoom-btns-width) - var(--side-bar-width));
 }
 
 .icon {
@@ -74,18 +92,11 @@ h3 {
     stroke: black;
     width: 16px;
     height: 16px;
-}
 
-.icon-btn {
-    background-color: transparent;
-    border: 0;
-    cursor: pointer;
-}
-
-#burger-menu-btn {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    #bottom-bar & {
+        width: 18px;
+        height: 18px;
+    }
 }
 
 .cell-wrapper {
@@ -101,22 +112,6 @@ h3 {
 
     &.contested {
         animation: 0.75s infinite alternate blink-red ease forwards;
-    }
-}
-
-@keyframes blink {
-    0% {
-        filter: brightness(1.5);
-    }
-
-    100% {
-        filter: brightness(1);
-    }
-}
-
-@keyframes blink-red {
-    100% {
-        fill: red;
     }
 }
 
@@ -178,4 +173,20 @@ path {
 
 .hidden {
     display: none !important;
+}
+
+@keyframes blink {
+    0% {
+        filter: brightness(1.5);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
+}
+
+@keyframes blink-red {
+    100% {
+        fill: red;
+    }
 }

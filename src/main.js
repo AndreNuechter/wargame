@@ -32,7 +32,6 @@ import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 import { reapply_board, save_board } from './js-modules/game-objects/board/board.js';
 import storage_keys from './js-modules/game-objects/storage-keys.js';
 
-// TODO board is too small on mobile and pinch zoom cant be fixed to the board (in other words we cant prevent the modals etc being zoomed as well)...add btns to change zoom level (viewbox) of board
 // TODO add a way to config map gen
 const min_player_count = 2;
 const max_player_count = 5;
@@ -218,6 +217,25 @@ board.addEventListener('click', ({ target }) => {
     output_cell_info(hex_obj);
 
     ROUND_PHASES[game.current_phase].handle_click_on_cell(hex_obj, game);
+});
+
+// zoom in or out
+document.getElementById('zoom-btns').addEventListener('click', ({ target }) => {
+    const clicked_btn = target.closest('button');
+
+    if (clicked_btn === null) return;
+
+    const current_zoom_level = Number(board.dataset.zoom_level);
+
+    if (clicked_btn.id === 'zoom-in') {
+        if (current_zoom_level === 3) return;
+
+        board.dataset.zoom_level = (current_zoom_level + 1).toString();
+    } else {
+        if (current_zoom_level === 0) return;
+
+        board.dataset.zoom_level = (current_zoom_level - 1).toString();
+    }
 });
 
 side_bar.addEventListener('input', side_bar_input_handling(game));

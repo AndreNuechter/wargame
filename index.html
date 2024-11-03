@@ -29,12 +29,24 @@
         <button id="end-turn-btn">End Turn</button>
     </div>
     <div id="board-container">
-        <svg id="board" preserveAspectRatio="xMinYMin meet" viewBox="0 0 185 110">
+        <svg id="board" preserveAspectRatio="xMinYMin meet" viewBox="0 0 185 110" data-zoom_level="0">
             <path id="selection-highlight"></path>
             <g id="player-borders"></g>
             <g id="encampments"></g>
             <g id="movement-arrows"></g>
         </svg>
+    </div>
+    <div id="zoom-btns">
+        <button id="zoom-in" class="icon-btn">
+            <svg class="icon">
+                <use href="#plus"></use>
+            </svg>
+        </button>
+        <button id="zoom-out" class="icon-btn">
+            <svg class="icon">
+                <use href="#minus"></use>
+            </svg>
+        </button>
     </div>
     {{> side-bar }}
     <div id="bottom-bar" class="info-bar"></div>

@@ -6,3 +6,25 @@ button {
     background-color: var(--high_mountain);
     cursor: pointer;
 }
+
+.icon-btn {
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+#burger-menu-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#zoom-btns {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    button {
+        padding: 0;
+    }
+}
