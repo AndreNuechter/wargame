@@ -12,6 +12,7 @@ body {
     --side-bar-width: 240px;
     --info-bar-height: 40px;
     --zoom-btns-width: 40px;
+    --border-style: 1px solid black;
 
     overflow: hidden;
     user-select: none;
@@ -67,16 +68,20 @@ h3 {
     height: 100%;
     transition: height 0.1s;
 
+    &[data-zoom_level="-1"] {
+        height: 75%;
+    }
+
     &[data-zoom_level="1"] {
-        height: 150%;
+        height: 125%;
     }
 
     &[data-zoom_level="2"] {
-        height: 200%;
+        height: 163%;
     }
 
     &[data-zoom_level="3"] {
-        height: 250%;
+        height: 200%;
     }
 }
 

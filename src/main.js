@@ -232,7 +232,7 @@ document.getElementById('zoom-btns').addEventListener('click', ({ target }) => {
 
         board.dataset.zoom_level = (current_zoom_level + 1).toString();
     } else {
-        if (current_zoom_level === 0) return;
+        if (current_zoom_level === -1) return;
 
         board.dataset.zoom_level = (current_zoom_level - 1).toString();
     }

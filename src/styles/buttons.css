@@ -20,6 +20,7 @@ button {
 }
 
 #zoom-btns {
+    border-left: var(--border-style);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
