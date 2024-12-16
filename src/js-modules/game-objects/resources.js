@@ -88,6 +88,7 @@ function update_player_resources(players) {
                         food_requirement = 0;
                     }
                 }
+                // TODO consume other resources...wood and coal for heat (c Banished); cloth
 
                 // TODO consume alc to decrease unhappiness!?
                 // TODO decay some resources to prevent overstacking?

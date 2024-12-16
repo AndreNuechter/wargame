@@ -32,7 +32,10 @@ import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 import { reapply_board, save_board } from './js-modules/game-objects/board/board.js';
 import storage_keys from './js-modules/game-objects/storage-keys.js';
 
+// TODO divide sidebar content into chunks and make it swipable horizontally (use scroll snap...what on larger screens?)
+// TODO in dev phase, empire overview, have list of owned cells w link to them
 // TODO add a way to config map gen
+// TODO dark theme colors
 const min_player_count = 2;
 const max_player_count = 5;
 
@@ -124,17 +127,15 @@ start_game_form.addEventListener('submit', ({ submitter }) => {
     }
 });
 
-// player configured the game and pressed start btn
+// player configured the game and pressed the start btn
 config_game_form.addEventListener('submit', () => {
     // create players
-    let id = 0;
-    for (const player_config of player_configs) {
+    Array.from(player_configs, (player_config, id) => {
         const name = /** @type {HTMLInputElement} */ (player_config.querySelector('.player-name-input')).value;
         const type = /** @type {Player_Type} */ (/** @type {HTMLInputElement} */ (player_config.querySelector('.player-type-select-radio:checked')).value);
 
         game.players.push(make_player(id, name, type));
-        id += 1;
-    }
+    });
 
     // TODO use other config options
 

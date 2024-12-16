@@ -29,13 +29,12 @@ function click_on_cell_action(hex_obj) {
 function end_turn_action(game) {
     if (start_position_candidate === null) return false;
 
-    // set initial resources on cell
+    // set initial resources on the cell
     Object.entries(initial_resources).forEach(([resource_name, amount]) => {
         start_position_candidate.resources[resource_name] = amount;
     });
     // give the cell to the player
     game.active_player.add_cell(start_position_candidate);
-
     // unset starting cell candidate and its highlighting
     start_position_candidate.cell.classList.remove('clicked');
     start_position_candidate = null;
