@@ -43,17 +43,18 @@ window.addEventListener('DOMContentLoaded', () => {
     const game_data = localStorage.getItem(storage_keys.game);
     const previously_saved_game = game_data !== null;
 
+    main_overlay.dataset.gameIsRunning = previously_saved_game.toString();
+
     if (previously_saved_game) {
         apply_savegame(game, game_data);
         reapply_board();
         reapply_players(game);
         reapply_move_queue(game);
+        game.run();
     } else {
         make_hex_map(board_dimensions, game.board);
+        main_overlay.showModal();
     }
-
-    main_overlay.dataset.gameIsRunning = previously_saved_game.toString();
-    main_overlay.showModal();
 }, { once: true });
 
 document.addEventListener('visibilitychange', () => {
@@ -169,11 +170,14 @@ add_player_btn.addEventListener('click', () => {
 end_turn_btn.addEventListener('click', end_turn_btn_click_handling(game));
 
 // delete player
-player_setup.addEventListener('click',
-    // /** @param {{ target: HTMLElement }} event */
+player_setup.addEventListener(
+    'click',
     ({ target }) => {
-        if (/** @type {HTMLElement} */ (target).closest('.delete-player-btn') === null) return;
-        if (player_configs.length === min_player_count) return;
+        if (
+            !(target instanceof HTMLElement) ||
+            target.closest('.delete-player-btn') === null ||
+            player_configs.length === min_player_count
+        ) return;
 
         // rm config
         target.closest('.player-config').remove();
@@ -222,6 +226,8 @@ board.addEventListener('click', ({ target }) => {
 
 // zoom in or out
 document.getElementById('zoom-btns').addEventListener('click', ({ target }) => {
+    if (!(target instanceof HTMLElement)) return;
+
     const clicked_btn = target.closest('button');
 
     if (clicked_btn === null) return;
