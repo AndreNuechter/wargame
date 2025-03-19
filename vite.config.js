@@ -22,6 +22,9 @@ export default defineConfig({
             }
         }
     },
+    server: {
+        open: true,
+    },
     base: './',
     worker: {
         /* We dont want a hash on the worker file,
