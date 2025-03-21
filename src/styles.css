@@ -20,8 +20,8 @@
 }
 
 .icon {
-    fill: black;
-    stroke: black;
+    fill: var(--icon-color);
+    stroke: var(--icon-color);
     width: 16px;
     height: 16px;
 
@@ -32,7 +32,7 @@
 }
 
 .cell {
-    stroke: #2c2c2c;
+    stroke: var(--cell-border-color);
     stroke-width: 0.1px;
 }
 

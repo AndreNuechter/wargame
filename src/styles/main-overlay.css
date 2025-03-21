@@ -2,6 +2,8 @@ dialog {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    background-color: inherit;
+    color: inherit;
 
     &:focus-visible {
         outline: none;
@@ -50,7 +52,7 @@ dialog {
     position: absolute;
     right: 7px;
     top: -30px;
-    background-color: white;
+    background-color: var(--bg-color);
 }
 
 .player-name-input {

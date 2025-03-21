@@ -2,5 +2,24 @@
     --side-bar-width: 240px;
     --info-bar-height: 40px;
     --zoom-btns-width: 40px;
+
+    --bright-color: rgb(120, 120, 120);
+    --dark-color: rgb(40, 40, 40);
+
     --border-style: 1px solid black;
+    --btn-color: rgb(200, 200, 200);
+    --bg-color: var(--bright-color);
+    --cell-border-color: var(--dark-color);
+    --text-color: var(--dark-color);
+    --icon-color: var(--dark-color);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --border-style: 1px solid var(--bright-color);
+        --bg-color: var(--dark-color);
+        --cell-border-color: var(--bright-color);
+        --text-color: var(--bright-color);
+        --icon-color: var(--bright-color);
+    }
 }

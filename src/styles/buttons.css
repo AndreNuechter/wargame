@@ -3,7 +3,8 @@ button {
     padding: 0 16px;
     outline: 0;
     border: 0;
-    background-color: var(--high_mountain);
+    background-color: var(--btn-color);
+    color: var(--text-color);
     cursor: pointer;
 }
 
