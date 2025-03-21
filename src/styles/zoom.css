@@ -1,0 +1,20 @@
+#board {
+    height: 100%;
+    transition: height 0.1s;
+
+    &[data-zoom_level="-1"] {
+        height: 75%;
+    }
+
+    &[data-zoom_level="1"] {
+        height: 125%;
+    }
+
+    &[data-zoom_level="2"] {
+        height: 163%;
+    }
+
+    &[data-zoom_level="3"] {
+        height: 200%;
+    }
+}

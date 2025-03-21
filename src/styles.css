@@ -1,89 +1,16 @@
+@import url("styles/variables.css");
 @import url("styles/base.css");
+@import url("styles/modifiers.css");
+@import url("styles/grid.css");
+@import url("styles/label.css");
+@import url("styles/buttons.css");
 @import url("styles/cell-coordinates.css");
 @import url("styles/main-overlay.css");
 @import url("styles/biome-colors.css");
 @import url("styles/player-colors.css");
-@import url("styles/buttons.css");
 @import url("styles/info-bar.css");
 @import url("styles/side-bar.css");
-@import url("styles/label.css");
-
-body {
-    --side-bar-width: 240px;
-    --info-bar-height: 40px;
-    --zoom-btns-width: 40px;
-    --border-style: 1px solid black;
-
-    overflow: hidden;
-    user-select: none;
-    display: grid;
-    grid-template-columns: 1fr var(--zoom-btns-width) var(--side-bar-width);
-    grid-template-rows: var(--info-bar-height) 1fr var(--info-bar-height);
-    grid-template-areas:
-        "header header header"
-        "board zoomBtns sideBar"
-        "footer footer footer"
-    ;
-
-    #board-container {
-        grid-area: board;
-        align-self: center;
-        justify-self: center;
-    }
-
-    #zoom-btns {
-        grid-area: zoomBtns
-    }
-
-    #side-bar {
-        grid-area: sideBar;
-    }
-
-    #top-bar {
-        grid-area: header;
-    }
-
-    #bottom-bar {
-        grid-area: footer;
-    }
-}
-
-h1 {
-    padding-left: 8px;
-    margin: 0;
-}
-
-h2,
-h3 {
-    margin: 12px 0;
-}
-
-#defs {
-    width: 0;
-    height: 0;
-    position: absolute;
-}
-
-#board {
-    height: 100%;
-    transition: height 0.1s;
-
-    &[data-zoom_level="-1"] {
-        height: 75%;
-    }
-
-    &[data-zoom_level="1"] {
-        height: 125%;
-    }
-
-    &[data-zoom_level="2"] {
-        height: 163%;
-    }
-
-    &[data-zoom_level="3"] {
-        height: 200%;
-    }
-}
+@import url("styles/zoom.css");
 
 #board-container {
     padding: 8px;
@@ -102,6 +29,11 @@ h3 {
         width: 18px;
         height: 18px;
     }
+}
+
+.cell {
+    stroke: #2c2c2c;
+    stroke-width: 0.1px;
 }
 
 .cell-wrapper {
@@ -150,34 +82,20 @@ h3 {
     align-items: flex-end;
 }
 
-path {
-    stroke-linecap: round;
 
-    .movement-indicator & {
+.movement-indicator {
+    text {
+        font-size: 0.1em;
+        transform: translateX(-0.3em);
+    }
+
+    path {
         fill: none;
     }
-}
 
-.cell {
-    stroke: #2c2c2c;
-    stroke-width: 0.1px;
-}
-
-.movement-indicator text {
-    font-size: 0.1em;
-    transform: translateX(-0.3em);
-}
-
-[data-current_phase="movement_execution"] .movement-indicator {
-    display: none;
-}
-
-.content-hidden * {
-    opacity: 0 !important;
-}
-
-.hidden {
-    display: none !important;
+    [data-current_phase="movement_execution"] & {
+        display: none;
+    }
 }
 
 @keyframes blink {

@@ -1,0 +1,32 @@
+body {
+    display: grid;
+    grid-template-columns: 1fr var(--zoom-btns-width) var(--side-bar-width);
+    grid-template-rows: var(--info-bar-height) 1fr var(--info-bar-height);
+    grid-template-areas:
+        "header header header"
+        "board zoomBtns sideBar"
+        "footer footer footer"
+    ;
+
+    #board-container {
+        grid-area: board;
+        align-self: center;
+        justify-self: center;
+    }
+
+    #zoom-btns {
+        grid-area: zoomBtns
+    }
+
+    #side-bar {
+        grid-area: sideBar;
+    }
+
+    #top-bar {
+        grid-area: header;
+    }
+
+    #bottom-bar {
+        grid-area: footer;
+    }
+}

@@ -1,0 +1,7 @@
+.content-hidden * {
+    opacity: 0 !important;
+}
+
+.hidden {
+    display: none !important;
+}
