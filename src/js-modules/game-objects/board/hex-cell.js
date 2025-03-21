@@ -18,7 +18,15 @@ export default make_hex_cell;
  * @param {Number} s Vertical component of the hex cell's position.
  * @returns {Hex_Cell}
  */
-function make_hex_cell(cx, cy, x, y, q, r, s) {
+function make_hex_cell(
+    cx,
+    cy,
+    x,
+    y,
+    q,
+    r,
+    s
+) {
     const cell = render_hex_cell(cx, cy, x, y, q, r, s);
     const pop_size_display = /** @type {SVGTextElement} */ (cell.querySelector('.population-size'));
     let biome = null;
@@ -86,12 +94,17 @@ function make_hex_cell(cx, cy, x, y, q, r, s) {
 }
 
 function render_hex_cell(
-    cx, cy, x, y, q, r, s
+    cx,
+    cy,
+    x,
+    y,
+    q,
+    r,
+    s
 ) {
     const cell_wrapper = /** @type {SVGGElement} */ (cell_group_tmpl.cloneNode(true));
 
     cell_wrapper.setAttribute('transform', `translate(${cx}, ${cy})`);
-
     // render coords
     cell_wrapper.querySelector('.q-coord').textContent = q;
     cell_wrapper.querySelector('.r-coord').textContent = r;

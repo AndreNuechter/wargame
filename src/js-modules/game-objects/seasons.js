@@ -9,8 +9,10 @@ const SEASONS = make_frozen_null_obj({
 });
 
 export default SEASONS;
-
-export { increment_season, is_season_before };
+export {
+    increment_season,
+    is_season_before
+};
 
 function increment_season(season) {
     switch (season) {
@@ -27,12 +29,10 @@ function increment_season(season) {
 
 /** Is season_a before season_b? */
 function is_season_before(season_a, season_b) {
-    if (
+    return !(
         season_a === season_b ||
         season_a === SEASONS.winter ||
         season_a === SEASONS.summer && season_b === SEASONS.spring ||
         season_a === SEASONS.autumn && season_b !== SEASONS.winter
-    ) return false;
-
-    return true;
+    );
 }

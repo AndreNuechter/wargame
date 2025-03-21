@@ -1,34 +1,47 @@
 import board_dimensions from '../../map-generation/board-dimensions';
 import { is_even } from '../../helper-functions';
 
+const direction_vectors = [
+    { q: 1, r: 0, s: -1 },
+    { q: 1, r: -1, s: 0 },
+    { q: 0, r: 1, s: -1 },
+    { q: 0, r: -1, s: 1 },
+    { q: -1, r: 0, s: 1 },
+    { q: -1, r: 1, s: 0 }
+];
+
 export default compute_neighbors;
 
 function compute_neighbors(hex_arr) {
     hex_arr.forEach((hex_obj) => {
-        hex_obj.neighbors = get_neighboring_cells(hex_obj, hex_arr, board_dimensions);
+        hex_obj.neighbors = get_neighboring_cells(
+            hex_obj,
+            hex_arr,
+            board_dimensions
+        );
     });
 }
 
 // credits to https://www.redblobgames.com/grids/hexagons/
-function get_neighboring_cells({
-    q, r, s, x, y
-}, cells, board_dimensions) {
-    const direction_vectors = [
-        { q: 1, r: 0, s: -1 },
-        { q: 1, r: -1, s: 0 },
-        { q: 0, r: 1, s: -1 },
-        { q: 0, r: -1, s: 1 },
-        { q: -1, r: 0, s: 1 },
-        { q: -1, r: 1, s: 0 }
-    ];
-    const neighbors = direction_vectors.map((vec) =>
-        cells.find(
-            (cell) =>
+function get_neighboring_cells(
+    {
+        q,
+        r,
+        s,
+        x,
+        y
+    },
+    cells,
+    board_dimensions
+) {
+    const neighbors = direction_vectors
+        .map((vec) => cells
+            .find((cell) =>
                 cell.q === q + vec.q &&
                 cell.r === r + vec.r &&
                 cell.s === s + vec.s
-        )
-    ).filter(Boolean);
+            ))
+        .filter(Boolean);
 
     // wrap around left edge
     if (x === 0) {

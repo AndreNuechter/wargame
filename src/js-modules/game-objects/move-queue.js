@@ -6,41 +6,44 @@ import storage_keys from './storage-keys';
 const move_queue = [];
 
 export default move_queue;
+export {
+    clear_move_queue,
+    make_player_move,
+    reapply_move_queue,
+    save_move_queue,
+};
 
-export { save_move_queue, reapply_move_queue, make_player_move, clear_move_queue };
-
-function save_move_queue() {
-    localStorage.setItem(storage_keys.move_queue, JSON.stringify(
-        move_queue.map(({
-            player_id, origin, target, units, season
-        }) => ({
-            player_id,
-            origin: { cx: origin.cx, cy: origin.cy },
-            target: { cx: target.cx, cy: target.cy },
-            units,
-            season
-        }))
-    ));
+function clear_move_queue() {
+    move_queue.length = 0;
+    movement_arrows.replaceChildren();
 }
 
-function reapply_move_queue(game) {
-    const stored_queue = JSON.parse(localStorage.getItem(storage_keys.move_queue));
-    const cells = [...game.board.values()];
+function draw_movement_arrow(origin, target, units, player_id) {
+    // TODO how can we better visualize multiple moves from the same origin to the same target (by different players; a player can only do a move once a round)
+    // NOTE: adding half_hex_size to center the path...cx is apparently the upper left corner of the hex's viewBox
+    const half_hex_size = 3;
+    // TODO start/end further from the center to not overlay the population count and returing arrow
+    const path_start = {
+        x: origin.cx + half_hex_size,
+        y: origin.cy + half_hex_size
+    };
+    const path_end = {
+        x: target.cx + half_hex_size,
+        y: target.cy + half_hex_size
+    };
+    const path_data = `M${path_start.x} ${path_start.y}A 3 3 0 0 0 ${path_end.x} ${path_end.y}`;
+    const movement_indicator = /** @type {SVGGElement} */ (movement_indicator_tmpl.cloneNode(true));
+    const sent_units_display = movement_indicator.lastElementChild.lastElementChild;
 
-    move_queue.push(
-        // reconnect the stored values with the live cells
-        ...stored_queue.map(
-            ({
-                player_id, origin, target, units, season
-            }) => make_player_move(
-                player_id,
-                cells.find(({ cx, cy }) => cx === origin.cx && cy === origin.cy),
-                cells.find(({ cx, cy }) => cx === target.cx && cy === target.cy),
-                units,
-                season
-            )
-        )
-    );
+    movement_indicator.firstElementChild.setAttribute('d', path_data);
+    // TODO the marker (arrow) isnt colored dynamically as its only referenced by movement_indicator...do we create one for ea player?
+    movement_indicator.dataset.owner_id = player_id;
+    sent_units_display.setAttribute('path', path_data);
+    sent_units_display.textContent = units;
+
+    movement_arrows.append(movement_indicator);
+
+    return movement_indicator;
 }
 
 /**
@@ -74,35 +77,36 @@ function make_player_move(player_id, origin, target, units, season, type = 'unsp
     };
 }
 
-function draw_movement_arrow(origin, target, units, player_id) {
-    // TODO how can we better visualize multiple moves from the same origin to the same target (by different players; a player can only do a move once a round)
-    // NOTE: adding half_hex_size to center the path...cx is apparently the upper left corner of the hex's viewBox
-    const half_hex_size = 3;
-    // TODO start/end further from the center to not overlay the population count and returing arrow
-    const path_start = {
-        x: origin.cx + half_hex_size,
-        y: origin.cy + half_hex_size
-    };
-    const path_end = {
-        x: target.cx + half_hex_size,
-        y: target.cy + half_hex_size
-    };
-    const path_data = `M${path_start.x} ${path_start.y}A 3 3 0 0 0 ${path_end.x} ${path_end.y}`;
-    const movement_indicator = /** @type {SVGGElement} */ (movement_indicator_tmpl.cloneNode(true));
-    const sent_units_display = movement_indicator.lastElementChild.lastElementChild;
+function reapply_move_queue(game) {
+    const stored_queue = JSON.parse(localStorage.getItem(storage_keys.move_queue));
+    const cells = [...game.board.values()];
 
-    movement_indicator.firstElementChild.setAttribute('d', path_data);
-    // TODO the marker (arrow) isnt colored dynamically as its only referenced by movement_indicator...do we create one for ea player?
-    movement_indicator.dataset.owner_id = player_id;
-    sent_units_display.setAttribute('path', path_data);
-    sent_units_display.textContent = units;
-
-    movement_arrows.append(movement_indicator);
-
-    return movement_indicator;
+    move_queue.push(
+        // reconnect the stored values with the live cells
+        ...stored_queue.map(
+            ({
+                player_id, origin, target, units, season
+            }) => make_player_move(
+                player_id,
+                cells.find(({ cx, cy }) => cx === origin.cx && cy === origin.cy),
+                cells.find(({ cx, cy }) => cx === target.cx && cy === target.cy),
+                units,
+                season
+            )
+        )
+    );
 }
 
-function clear_move_queue() {
-    move_queue.length = 0;
-    movement_arrows.replaceChildren();
+function save_move_queue() {
+    localStorage.setItem(storage_keys.move_queue, JSON.stringify(
+        move_queue.map(({
+            player_id, origin, target, units, season
+        }) => ({
+            player_id,
+            origin: { cx: origin.cx, cy: origin.cy },
+            target: { cx: target.cx, cy: target.cy },
+            units,
+            season
+        }))
+    ));
 }

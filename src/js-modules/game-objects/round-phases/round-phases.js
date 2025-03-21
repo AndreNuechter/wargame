@@ -48,7 +48,6 @@ const ROUND_PHASES = {
 };
 
 export default ROUND_PHASES;
-
 export { end_turn_btn_click_handling };
 
 function end_turn_btn_click_handling(game) {

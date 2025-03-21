@@ -13,67 +13,24 @@ const PLAYER_TYPES = {
 const players = [];
 
 export default players;
-
 export {
-    save_players,
-    reapply_players,
+    make_player,
     make_player_config,
-    make_player
+    reapply_players,
+    save_players,
 };
 
-function save_players() {
-    localStorage.setItem(
-        storage_keys.players,
-        JSON.stringify(
-            players.map(({ name, type, encampments }) => ({
-                name,
-                type,
-                encampments: [...encampments.entries()]
-                    .map(([{ cx, cy }, units]) => ({ cx, cy, units }))
-            }))
-        )
-    );
+function deduplicate_name(name) {
+    const name_is_duplicate = players.some((player) => player.name === name);
+
+    if (!name_is_duplicate) return name;
+
+    const name_has_postfix = /^(?<name>.+)_(?<id>\d+)$/.exec(name);
+
+    if (name_has_postfix === null) return deduplicate_name(`${name}_2`);
+
+    return deduplicate_name(`${name_has_postfix.groups.name}_${(Number(name_has_postfix.groups.id) || 0) + 1}`);
 }
-
-function reapply_players(game) {
-    const stored_players = JSON.parse(localStorage.getItem(storage_keys.players));
-    const cells = [...game.board.values()];
-
-    players.push(
-        ...stored_players.map(
-            ({ name, type, encampments }, id) => make_player(
-                id,
-                name,
-                type,
-                cells.filter((cell) => cell.owner_id === id),
-                encampments.map(({ cx, cy, units }) => [
-                    cells.find((cell) => cell.cx === cx && cell.cy === cy),
-                    units
-                ])
-            )
-        )
-    );
-}
-
-/** Create an UI element to config a player. */
-function make_player_config(id) {
-    const config = /** @type {HTMLDivElement} */ (player_config_tmpl.cloneNode(true));
-
-    Object.assign(
-        config.querySelector('.player-name-input'),
-        {
-            name: `player-${id}-name`,
-            value: `Player ${id}`
-        }
-    );
-    config.querySelectorAll('.player-type-select-radio')
-        .forEach((/** @type {HTMLInputElement} */ radio) => {
-            radio.name = `player-${id}-type`;
-        });
-
-    player_setup.append(config);
-}
-
 /** Create a player.
  * @param {number} id
  * @param {string} name
@@ -217,14 +174,55 @@ function make_player(
     };
 }
 
-function deduplicate_name(name) {
-    const name_is_duplicate = players.some((player) => player.name === name);
+/** Create an UI element to config a player. */
+function make_player_config(id) {
+    const config = /** @type {HTMLDivElement} */ (player_config_tmpl.cloneNode(true));
 
-    if (!name_is_duplicate) return name;
+    Object.assign(
+        config.querySelector('.player-name-input'),
+        {
+            name: `player-${id}-name`,
+            value: `Player ${id}`
+        }
+    );
+    config.querySelectorAll('.player-type-select-radio')
+        .forEach((/** @type {HTMLInputElement} */ radio) => {
+            radio.name = `player-${id}-type`;
+        });
 
-    const name_has_postfix = /^(?<name>.+)_(?<id>\d+)$/.exec(name);
+    player_setup.append(config);
+}
 
-    if (name_has_postfix === null) return deduplicate_name(`${name}_2`);
+function reapply_players(game) {
+    const stored_players = JSON.parse(localStorage.getItem(storage_keys.players));
+    const cells = [...game.board.values()];
 
-    return deduplicate_name(`${name_has_postfix.groups.name}_${(Number(name_has_postfix.groups.id) || 0) + 1}`);
+    players.push(
+        ...stored_players.map(
+            ({ name, type, encampments }, id) => make_player(
+                id,
+                name,
+                type,
+                cells.filter((cell) => cell.owner_id === id),
+                encampments.map(({ cx, cy, units }) => [
+                    cells.find((cell) => cell.cx === cx && cell.cy === cy),
+                    units
+                ])
+            )
+        )
+    );
+}
+
+function save_players() {
+    localStorage.setItem(
+        storage_keys.players,
+        JSON.stringify(
+            players.map(({ name, type, encampments }) => ({
+                name,
+                type,
+                encampments: [...encampments.entries()]
+                    .map(([{ cx, cy }, units]) => ({ cx, cy, units }))
+            }))
+        )
+    );
 }

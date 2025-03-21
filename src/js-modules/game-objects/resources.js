@@ -26,8 +26,76 @@ const initial_resources = make_frozen_null_obj({
 });
 
 export default RESOURCES;
+export {
+    calculate_resource_production,
+    initial_resources,
+    update_player_resources,
+};
 
-export { initial_resources, update_player_resources, calculate_resource_production };
+function calculate_resource_production(cells, tax_rate = 1) {
+    const result = {
+        [RESOURCES.gold]: 0,
+        [RESOURCES.cloth]: 0,
+        [RESOURCES.wood]: 0,
+        [RESOURCES.stone]: 0,
+        [RESOURCES.iron]: 0,
+        [RESOURCES.food]: 0,
+        [RESOURCES.alcohol]: 0,
+        [RESOURCES.coal]: 0
+    };
+    let total_population = 0;
+
+    cells.forEach((cell) => {
+        // TODO consume resources needed for production
+        total_population += cell.resources.people;
+
+        // add default production
+        Object.entries(cell.biome.resource_production).forEach(([resource, gain]) => {
+            result[resource] += gain;
+        });
+
+        // add construction based production
+        [...cell.structures.entries()].forEach(([structure, count]) => {
+            // TODO overemployment...lower production if total_population < total_required_workers
+            structure.output.forEach(({ resource_name, amount }) => {
+                result[resource_name] += amount * count;
+            });
+        });
+    });
+
+    // calculate gold/taxes
+    // TODO homelessness...only housed pop helps w res production, pays taxes and can be used for war
+    result[RESOURCES.gold] = total_population * tax_rate;
+
+    return result;
+}
+
+function increase_population(cell) {
+    // TODO scale chances up/down based on how many neighboring cells are inhabited (and other factors like starvation)
+    let population_increase = 0;
+
+    // give tiny chance to gain 1 to cells w only 1 inhabitant
+    if (cell.resources.people === 1) {
+        if (Math.random() < 0.05) {
+            population_increase = 1;
+        }
+    } else {
+        const pair_count = Math.trunc(cell.resources.people / 2);
+
+        for (let pair_index = 0; pair_index < pair_count; pair_index += 1) {
+            const random_num = Math.random();
+
+            // randomnly give 0 (50%), 1 (40%) or 2 (10%) new people
+            if (random_num < 0.1) {
+                population_increase += 2;
+            } else if (random_num < 0.5) {
+                population_increase += 1;
+            }
+        }
+    }
+
+    cell.resources[RESOURCES.people] += population_increase;
+}
 
 /**
  * Update the resources of the players at the beginning of a new round.
@@ -100,69 +168,4 @@ function update_player_resources(players) {
             // if (food_requirement > 0) {}
         }
     );
-}
-
-function increase_population(cell) {
-    // TODO scale chances up/down based on how many neighboring cells are inhabited (and other factors like starvation)
-    let population_increase = 0;
-
-    // give tiny chance to gain 1 to cells w only 1 inhabitant
-    if (cell.resources.people === 1) {
-        if (Math.random() < 0.05) {
-            population_increase = 1;
-        }
-    } else {
-        const pair_count = Math.trunc(cell.resources.people / 2);
-
-        for (let pair_index = 0; pair_index < pair_count; pair_index += 1) {
-            const random_num = Math.random();
-
-            // randomnly give 0 (50%), 1 (40%) or 2 (10%) new people
-            if (random_num < 0.1) {
-                population_increase += 2;
-            } else if (random_num < 0.5) {
-                population_increase += 1;
-            }
-        }
-    }
-
-    cell.resources[RESOURCES.people] += population_increase;
-}
-
-function calculate_resource_production(cells, tax_rate = 1) {
-    const result = {
-        [RESOURCES.gold]: 0,
-        [RESOURCES.cloth]: 0,
-        [RESOURCES.wood]: 0,
-        [RESOURCES.stone]: 0,
-        [RESOURCES.iron]: 0,
-        [RESOURCES.food]: 0,
-        [RESOURCES.alcohol]: 0,
-        [RESOURCES.coal]: 0
-    };
-    let total_population = 0;
-
-    cells.forEach((cell) => {
-        // TODO consume resources needed for production
-        total_population += cell.resources.people;
-
-        // add default production
-        Object.entries(cell.biome.resource_production).forEach(([resource, gain]) => {
-            result[resource] += gain;
-        });
-
-        // add construction based production
-        [...cell.structures.entries()].forEach(([structure, count]) => {
-            // TODO overemployment...lower production if total_population < total_required_workers
-            structure.output.forEach(({ resource_name, amount }) => {
-                result[resource_name] += amount * count;
-            });
-        });
-    });
-
-    // calculate gold/taxes
-    // TODO homelessness...only housed pop helps w res production, pays taxes and can be used for war
-    result[RESOURCES.gold] = total_population * tax_rate;
-
-    return result;
 }

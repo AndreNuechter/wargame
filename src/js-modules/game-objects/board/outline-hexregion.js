@@ -1,16 +1,19 @@
 
 const stroke_width = 0.5;
 // this allows us to draw the outline inside the region and not on top of its border
-// FIXME path segments dont connect so that there's a visible gap and we cant fill a region
-// TODO figure out a way to sort the line segments, so that we need only one `M` command and we could fill the pathes
 const edge_offset = stroke_width * 0.5;
 
 export default outline_hexregion;
 
-function outline_hexregion(region, outline_element, {
-    color = 'white',
-    stroked_outline = false
-} = {}) {
+// FIXME path segments dont connect so that there's a visible gap and we cant fill a region... figure out a way to sort the line segments, so that we need only one `M` command and we could fill the pathes
+function outline_hexregion(
+    region,
+    outline_element,
+    {
+        color = 'white',
+        stroked_outline = false
+    } = {}
+) {
     const line_segments = [];
 
     // for ea cell, return edges to neighbors not in the region
@@ -31,6 +34,7 @@ function outline_hexregion(region, outline_element, {
         )) {
             result.push(`M${bottom_left}L${top_left}`);
         }
+
         // top left
         if (neighbors.find(
             (neighbor) =>
@@ -39,6 +43,7 @@ function outline_hexregion(region, outline_element, {
         )) {
             result.push(`M${top_left}L${top}`);
         }
+
         // top right
         if (neighbors.find(
             (neighbor) =>
@@ -47,6 +52,7 @@ function outline_hexregion(region, outline_element, {
         )) {
             result.push(`M${top}L${top_right}`);
         }
+
         // right
         if (neighbors.find(
             (neighbor) =>
@@ -55,6 +61,7 @@ function outline_hexregion(region, outline_element, {
         )) {
             result.push(`M${top_right}L${bottom_right}`);
         }
+
         // bottom right
         if (neighbors.find(
             (neighbor) =>
@@ -63,6 +70,7 @@ function outline_hexregion(region, outline_element, {
         )) {
             result.push(`M${bottom_right}L${bottom}`);
         }
+
         // bottom left
         if (neighbors.find(
             (neighbor) =>

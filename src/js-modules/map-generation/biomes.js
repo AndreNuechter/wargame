@@ -124,8 +124,16 @@ const biome_matrix = {
 };
 
 export default BIOMES;
+export {
+    assign_biomes,
+    make_ice_and_sea
+};
 
-export { assign_biomes, make_ice_and_sea };
+function assign_biomes(hex_arr) {
+    hex_arr.forEach((hex_obj) => {
+        hex_obj.biome = pick_biome(hex_obj);
+    });
+}
 
 /** Create a biome object.
  * @param { Biome_Name } [name='sea']
@@ -151,12 +159,6 @@ function make_biome(
             [RESOURCES.alcohol]: 0,
         }, resource_production),
     };
-}
-
-function assign_biomes(hex_arr) {
-    hex_arr.forEach((hex_obj) => {
-        hex_obj.biome = pick_biome(hex_obj);
-    });
 }
 
 function make_ice_and_sea(hex_arr) {

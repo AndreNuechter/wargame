@@ -12,8 +12,11 @@ const TEMPERATURES = {
 };
 
 export default TEMPERATURES;
-
-export { assign_temperature, decrease_temperature, increase_temperature };
+export {
+    assign_temperature,
+    decrease_temperature,
+    increase_temperature
+};
 
 function assign_temperature(hex_arr) {
     hex_arr.forEach((hex_obj) => {
@@ -33,6 +36,19 @@ function assign_temperature(hex_arr) {
 
         hex_obj.temperature = get_temperature(hex_relative_height);
     });
+}
+
+function decrease_temperature(temperature) {
+    switch (temperature) {
+        case TEMPERATURES.hot:
+            return TEMPERATURES.warm;
+        case TEMPERATURES.warm:
+            return TEMPERATURES.temperate;
+        case TEMPERATURES.temperate:
+            return TEMPERATURES.cold;
+        default:
+            return TEMPERATURES.freezing;
+    }
 }
 
 // TODO derive ranges programmatically
@@ -62,19 +78,6 @@ function get_temperature(hex_relative_height) {
             return TEMPERATURES.warm;
         default:
             return TEMPERATURES.hot;
-    }
-}
-
-function decrease_temperature(temperature) {
-    switch (temperature) {
-        case TEMPERATURES.hot:
-            return TEMPERATURES.warm;
-        case TEMPERATURES.warm:
-            return TEMPERATURES.temperate;
-        case TEMPERATURES.temperate:
-            return TEMPERATURES.cold;
-        default:
-            return TEMPERATURES.freezing;
     }
 }
 

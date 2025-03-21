@@ -4,8 +4,10 @@ import { reinstate_hex_map } from './hex-grid';
 const board = new Map;
 
 export default board;
-
-export { save_board, reapply_board };
+export {
+    save_board,
+    reapply_board
+};
 
 // TODO structures and developable_land arent saved yet
 function save_board() {
@@ -39,5 +41,6 @@ function save_board() {
 
 function reapply_board() {
     const stored_board = JSON.parse(localStorage.getItem(storage_keys.board));
+
     reinstate_hex_map(stored_board, board);
 }

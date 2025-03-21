@@ -1,29 +1,16 @@
+import { make_frozen_null_obj } from '../helper-functions';
 import BIOMES from './biomes';
 
-const HUMIDITY_LEVELS = {
+const HUMIDITY_LEVELS = make_frozen_null_obj({
     arid: 'arid',
     dry: 'dry',
     moderate: 'moderate',
     moist: 'moist',
     wet: 'wet'
-};
+});
 
 export default HUMIDITY_LEVELS;
-
 export { assign_humidity };
-
-function increase_humidity_level(level) {
-    switch (level) {
-        case HUMIDITY_LEVELS.arid:
-            return HUMIDITY_LEVELS.dry;
-        case HUMIDITY_LEVELS.dry:
-            return HUMIDITY_LEVELS.moderate;
-        case HUMIDITY_LEVELS.moderate:
-            return HUMIDITY_LEVELS.moist;
-        default:
-            return HUMIDITY_LEVELS.wet;
-    }
-}
 
 function assign_humidity(hex_arr) {
     // TODO finish me
@@ -44,4 +31,17 @@ function assign_humidity(hex_arr) {
     // 3. humidity of adjacent tiles (tiles adjacent to tiles w humidity > 0 get that level - 1; do we decrease humidity of og?)
 
     // TODO should temperature and wind influence humidity? rn there's very little dryness...
+}
+
+function increase_humidity_level(level) {
+    switch (level) {
+        case HUMIDITY_LEVELS.arid:
+            return HUMIDITY_LEVELS.dry;
+        case HUMIDITY_LEVELS.dry:
+            return HUMIDITY_LEVELS.moderate;
+        case HUMIDITY_LEVELS.moderate:
+            return HUMIDITY_LEVELS.moist;
+        default:
+            return HUMIDITY_LEVELS.wet;
+    }
 }
