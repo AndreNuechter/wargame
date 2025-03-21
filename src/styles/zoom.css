@@ -1,5 +1,5 @@
 #board {
-    height: 100%;
+    height: 99%;
     transition: height 0.1s;
 
     &[data-zoom_level="-1"] {
