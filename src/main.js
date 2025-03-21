@@ -1,7 +1,6 @@
 import './js-modules/service-worker/service-worker-init.js';
 import './js-modules/service-worker/wakelock.js';
-import { make_hex_map, reroll_map } from './js-modules/game-objects/board/hex-grid.js';
-import board_dimensions from './js-modules/map-generation/board-dimensions.js';
+import { reroll_map } from './js-modules/game-objects/board/hex-grid.js';
 import {
     add_player_btn,
     board,
@@ -21,68 +20,55 @@ import {
     troop_select_input,
     troop_select_output,
 } from './js-modules/dom-selections.js';
-import { make_player, make_player_config, reapply_players, save_players } from './js-modules/game-objects/player.js';
-import game from './js-modules/game-objects/game.js';
+import { make_player, make_player_config } from './js-modules/game-objects/player.js';
+import game, { close_window, start_game } from './js-modules/game-objects/game.js';
 import ROUND_PHASES, { end_turn_btn_click_handling } from './js-modules/game-objects/round-phases/round-phases.js';
 import { plan_move } from './js-modules/game-objects/round-phases/movement-planning.js';
-import { clear_move_queue, reapply_move_queue, save_move_queue } from './js-modules/game-objects/move-queue.js';
-import save_game, { apply_savegame, delete_savegame } from './js-modules/game-objects/save-game.js';
+import { clear_move_queue } from './js-modules/game-objects/move-queue.js';
 import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
 import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
-import { reapply_board, save_board } from './js-modules/game-objects/board/board.js';
-import storage_keys from './js-modules/game-objects/storage-keys.js';
 
+// TODO dark color theme (also provide a light theme?)
 // TODO divide sidebar content into chunks and make it swipable horizontally (use scroll snap...what on larger screens?)
 // TODO in dev phase, empire overview, have list of owned cells w link to them
 // TODO add a way to config map gen
-// TODO dark theme colors
+// TODO use the following eslint rule? padding-line-between-statements
+
 const min_player_count = 2;
 const max_player_count = 5;
 
-window.addEventListener('DOMContentLoaded', () => {
-    const game_data = localStorage.getItem(storage_keys.game);
-    const previously_saved_game = game_data !== null;
-
-    main_overlay.dataset.gameIsRunning = previously_saved_game.toString();
-
-    if (previously_saved_game) {
-        apply_savegame(game, game_data);
-        reapply_board();
-        reapply_players(game);
-        reapply_move_queue(game);
-        game.run();
-    } else {
-        make_hex_map(board_dimensions, game.board);
-        main_overlay.showModal();
-    }
-}, { once: true });
-
-document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-        // we dont want to save an incomplete state (ie when closing page while still in the game_config_form) and
-        // we dont want to continue a finished game
-        if (
-            game.players.length === 0 ||
-            game.current_phase === ROUND_PHASES.game_over.name
-        ) {
-            delete_savegame();
-        } else {
-            save_game();
-            save_board();
-            save_players();
-            save_move_queue();
-        }
-    }
-});
-
+document.addEventListener('visibilitychange', close_window);
 // all formdata will be handled client-side
 document.addEventListener('submit', prevent_default_event_behavior);
+document.querySelector('h1').addEventListener(
+    'dblclick',
+    () => document.body.classList.toggle('debug')
+);
+// zoom in or out
+document.getElementById('zoom-btns').addEventListener('click', ({ target }) => {
+    if (!(target instanceof HTMLElement || target instanceof SVGElement)) return;
 
+    const clicked_btn = target.closest('button');
+
+    if (clicked_btn === null) return;
+
+    const current_zoom_level = Number(board.dataset.zoom_level);
+
+    if (clicked_btn.id === 'zoom-in') {
+        if (current_zoom_level === 3) return;
+
+        board.dataset.zoom_level = (current_zoom_level + 1).toString();
+    } else {
+        if (current_zoom_level === -1) return;
+
+        board.dataset.zoom_level = (current_zoom_level - 1).toString();
+    }
+});
+window.addEventListener('DOMContentLoaded', start_game, { once: true });
 // display configured troop size after input
 troop_select_input.addEventListener('input', () => {
     troop_select_output.value = troop_select_input.value;
 });
-
 // re-open main_overlay
 toggle_menu_btn.addEventListener('click', () => {
     main_overlay.dataset.gameIsRunning = (
@@ -91,7 +77,6 @@ toggle_menu_btn.addEventListener('click', () => {
     ).toString();
     main_overlay.showModal();
 });
-
 // player started or continued a game
 start_game_form.addEventListener('submit', ({ submitter }) => {
     if (submitter.id === 'continue-btn') {
@@ -127,7 +112,6 @@ start_game_form.addEventListener('submit', ({ submitter }) => {
         main_overlay.classList.add('game-config');
     }
 });
-
 // player configured the game and pressed the start btn
 config_game_form.addEventListener('submit', () => {
     // create players
@@ -142,7 +126,6 @@ config_game_form.addEventListener('submit', () => {
 
     main_overlay.close();
 });
-
 // start the game when the dialog closes
 // NOTE: we use this event to actually start the game, as swiping back on mobile closes the dialog no matter what
 main_overlay.addEventListener('close', () => {
@@ -158,17 +141,13 @@ main_overlay.addEventListener('close', () => {
     main_overlay.classList.remove('game-config');
     game.run();
 });
-
 reroll_map_btn.addEventListener('click', () => reroll_map(game.board));
-
 add_player_btn.addEventListener('click', () => {
     if (player_configs.length === max_player_count) return;
 
     make_player_config(player_configs.length + 1);
 });
-
 end_turn_btn.addEventListener('click', end_turn_btn_click_handling(game));
-
 // delete player
 player_setup.addEventListener(
     'click',
@@ -198,7 +177,6 @@ player_setup.addEventListener(
                     });
             });
     });
-
 // select a cell
 board.addEventListener('click', ({ target }) => {
     const cell_element = /** @type {SVGGElement} */ (/** @type {Element} */ (target).closest('.cell-wrapper'));
@@ -223,42 +201,10 @@ board.addEventListener('click', ({ target }) => {
 
     ROUND_PHASES[game.current_phase].handle_click_on_cell(hex_obj, game);
 });
-
-// zoom in or out
-document.getElementById('zoom-btns').addEventListener('click', ({ target }) => {
-    if (!(target instanceof HTMLElement)) return;
-
-    const clicked_btn = target.closest('button');
-
-    if (clicked_btn === null) return;
-
-    const current_zoom_level = Number(board.dataset.zoom_level);
-
-    if (clicked_btn.id === 'zoom-in') {
-        if (current_zoom_level === 3) return;
-
-        board.dataset.zoom_level = (current_zoom_level + 1).toString();
-    } else {
-        if (current_zoom_level === -1) return;
-
-        board.dataset.zoom_level = (current_zoom_level - 1).toString();
-    }
-});
-
 side_bar.addEventListener('input', side_bar_input_handling(game));
-
 movement_config.addEventListener('close', plan_move(game));
 movement_config.addEventListener('submit', () => movement_config.close());
-
-document.querySelector('h1').addEventListener(
-    'dblclick',
-    () => document.body.classList.toggle('debug')
-);
-
-coord_system_toggle_btn.addEventListener(
-    'click',
-    () => document.body.classList.toggle('use-offset-coords')
-);
+coord_system_toggle_btn.addEventListener('click', () => document.body.classList.toggle('use-offset-coords'));
 
 function output_cell_info(hex_obj) {
     cell_debug_info.textContent = JSON.stringify(

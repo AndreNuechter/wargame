@@ -1,2 +1,6 @@
+import { make_frozen_null_obj } from '../helper-functions';
+
 // TODO make dims configurable
-export default { width: 30, height: 24 };
+const board_dimensions = make_frozen_null_obj({ width: 30, height: 24 });
+
+export default board_dimensions;

@@ -4,6 +4,7 @@ import {
     cell_production_forecast,
     end_turn_btn,
     general_info,
+    main_overlay,
     phase_label,
     player_name,
     selection_highlight,
@@ -11,10 +12,14 @@ import {
 } from '../dom-selections.js';
 import { setup_overall_production_forecast } from '../setup-sidebar-content.js';
 import { calculate_resource_production, update_player_resources } from './resources.js';
-import board from './board/board.js';
-import players from './player.js';
+import board, { reapply_board, save_board } from './board/board.js';
+import players, { reapply_players, save_players } from './player.js';
 import ROUND_PHASES from './round-phases/round-phases.js';
 import { execute_moves } from './round-phases/movement-execution.js';
+import storage_keys from './storage-keys.js';
+import { reapply_move_queue, save_move_queue } from './move-queue.js';
+import { make_hex_map } from './board/hex-grid.js';
+import board_dimensions from '../map-generation/board-dimensions.js';
 
 let round = 0;
 let current_phase = ROUND_PHASES.land_grab.name;
@@ -104,33 +109,12 @@ const game = {
 };
 
 export default game;
-
-function increment_phase() {
-    switch (current_phase) {
-        case ROUND_PHASES.development.name:
-            return ROUND_PHASES.movement_planning.name;
-        case ROUND_PHASES.movement_planning.name:
-            return ROUND_PHASES.movement_execution.name;
-        default: case ROUND_PHASES.movement_execution.name:
-            return ROUND_PHASES.development.name;
-    }
-}
-
-/** Return the winner or null if there isn't one. */
-function is_the_game_over_and_who_won() {
-    // TODO check for other win conditions
-    const remaining_players = players
-        .filter(({ cells, encampments }) =>
-            encampments.size > 0 ||
-            cells.size > 0
-        );
-
-    if (remaining_players.length === 1) {
-        return remaining_players[0];
-    }
-
-    return null;
-}
+export {
+    close_window,
+    delete_savegame,
+    save_game,
+    start_game
+};
 
 function adjust_ui() {
     // TODO add phase viz...string of dots representing phases, active is highlighted...
@@ -175,6 +159,99 @@ function adjust_ui() {
         moves = execute_moves(game);
         // hide player name
         player_name.classList.add('hidden');
+    }
+}
+
+function apply_savegame(game_data) {
+    const {
+        round,
+        current_phase,
+        current_player_id
+    } = JSON.parse(game_data);
+
+    Object.assign(game, {
+        round,
+        current_phase,
+        current_player_id,
+    });
+}
+
+function close_window() {
+    if (document.visibilityState !== 'hidden') return;
+
+    // we dont want to save an incomplete state (ie when closing page while still in the game_config_form) and
+    // we dont want to continue a finished game
+    if (
+        game.players.length === 0 ||
+        game.current_phase === ROUND_PHASES.game_over.name
+    ) {
+        delete_savegame();
+    } else {
+        save_game();
+        save_board();
+        save_players();
+        save_move_queue();
+    }
+}
+
+function delete_savegame() {
+    Object.values(storage_keys)
+        .forEach((key) => localStorage.removeItem(key));
+}
+
+function increment_phase() {
+    switch (current_phase) {
+        case ROUND_PHASES.development.name:
+            return ROUND_PHASES.movement_planning.name;
+        case ROUND_PHASES.movement_planning.name:
+            return ROUND_PHASES.movement_execution.name;
+        default: case ROUND_PHASES.movement_execution.name:
+            return ROUND_PHASES.development.name;
+    }
+}
+
+/** Return the winner or null if there isn't one. */
+function is_the_game_over_and_who_won() {
+    // TODO check for other win conditions
+    const remaining_players = players
+        .filter(({ cells, encampments }) =>
+            encampments.size > 0 ||
+            cells.size > 0
+        );
+
+    if (remaining_players.length === 1) {
+        return remaining_players[0];
+    }
+
+    return null;
+}
+
+function save_game() {
+    localStorage.setItem(
+        storage_keys.game,
+        JSON.stringify({
+            round: game.round,
+            current_phase: game.current_phase,
+            current_player_id: game.current_player_id,
+        })
+    );
+}
+
+function start_game() {
+    const game_data = localStorage.getItem(storage_keys.game);
+    const previously_saved_game = game_data !== null;
+
+    main_overlay.dataset.gameIsRunning = previously_saved_game.toString();
+
+    if (previously_saved_game) {
+        apply_savegame(game_data);
+        reapply_board();
+        reapply_players(game);
+        reapply_move_queue(game);
+        game.run();
+    } else {
+        make_hex_map(board_dimensions, game.board);
+        main_overlay.showModal();
     }
 }
 
