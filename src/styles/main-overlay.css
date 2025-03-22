@@ -34,6 +34,14 @@ dialog {
             display: none;
         }
     }
+
+    #game-over-screen {
+        display: none;
+
+        [data-current_phase="game_over"] & {
+            display: block;
+        }
+    }
 }
 
 .player-config {

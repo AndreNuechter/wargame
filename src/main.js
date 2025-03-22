@@ -28,7 +28,7 @@ import { clear_move_queue } from './js-modules/game-objects/move-queue.js';
 import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
 import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 
-// TODO dark color theme (also provide a light theme?)
+// TODO light theme toggle (in bottom of start_game_overlay)
 // TODO divide sidebar content into chunks and make it swipable horizontally (use scroll snap...what on larger screens?)
 // TODO in dev phase, empire overview, have list of owned cells w link to them
 // TODO add a way to config map gen
@@ -40,13 +40,10 @@ const max_player_count = 5;
 document.addEventListener('visibilitychange', close_window);
 // all formdata will be handled client-side
 document.addEventListener('submit', prevent_default_event_behavior);
-document.querySelector('h1').addEventListener(
-    'dblclick',
-    () => document.body.classList.toggle('debug')
-);
+document.querySelector('h1').addEventListener('dblclick', () => document.body.classList.toggle('debug'));
 // zoom in or out
 document.getElementById('zoom-btns').addEventListener('click', ({ target }) => {
-    if (!(target instanceof HTMLElement || target instanceof SVGElement)) return;
+    if (!(target instanceof Element)) return;
 
     const clicked_btn = target.closest('button');
 
@@ -153,7 +150,7 @@ player_setup.addEventListener(
     'click',
     ({ target }) => {
         if (
-            !(target instanceof HTMLElement) ||
+            !(target instanceof HTMLElement || target instanceof SVGElement) ||
             target.closest('.delete-player-btn') === null ||
             player_configs.length === min_player_count
         ) return;

@@ -86,10 +86,11 @@ const game = {
                     if (winner !== null) {
                         // ensure the finished game wont be saved
                         current_phase = ROUND_PHASES.game_over.name;
-                        // TODO impl proper game end...congratulate winner, show stats/game summary
-                        alert(`The World is Yours ${winner.name}`);
                         // visually disable continue btn
                         document.body.dataset.current_phase = ROUND_PHASES.game_over.name;
+                        // TODO show stats/game summary
+                        document.getElementById('winner-name').textContent = winner.name;
+                        main_overlay.showModal();
                         toggle_menu_btn.click();
                         return;
                     }
