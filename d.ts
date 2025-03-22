@@ -92,7 +92,7 @@ interface Hex_Cell {
     owner_id: number;
     biome: Biome;
     cell: SVGGElement;
-    resources: object;
+    resources: { [Key in Resource]: number };
     structures: Map<Structure, number>;
     cx: number;
     cy: number;

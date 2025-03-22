@@ -64,7 +64,7 @@ function make_hex_map(board_dimensions, board_map) {
 }
 
 /** Recreate previous boardstate after reload. */
-function reinstate_hex_map(board_state, board_map) {
+function reinstate_hex_map(board_state = [], board_map) {
     const hex_arr = board_state
         .map(({
             cx, cy, x, y, q, r, s,
@@ -77,25 +77,30 @@ function reinstate_hex_map(board_state, board_map) {
         }) => {
             const hex_cell = make_hex_cell(cx, cy, x, y, q, r, s);
 
-            Object.assign(
+            return Object.assign(
                 hex_cell,
                 {
                     biome: BIOMES[biome_name],
                     elevation,
                     humidity,
+                    // NOTE: we dont use `resources` directly to not overwrite the setter/getter on resources.people
+                    resources: Object.assign(hex_cell.resources, resources),
                     temperature,
                     owner_id,
                 }
             );
-            // NOTE: assigning resources directly above would overwrite the setter/getter on resources.people
-            Object.entries(resources).forEach(([resource, value]) => {
-                hex_cell.resources[resource] = value;
-            });
-
-            return hex_cell;
         });
 
     compute_neighbors(hex_arr);
+
+    // sea-tiles neighboring land get a different color
+    hex_arr
+        .filter((hex_obj) =>
+            hex_obj.elevation === 0 &&
+            hex_obj.neighbors.some((neighboring_hex_obj) => neighboring_hex_obj.elevation > 0)
+        )
+        .forEach((sea_tile_bordering_land) => sea_tile_bordering_land.cell.classList.add('shore'));
+
     hex_arr_to_map(hex_arr, board_map);
 }
 
@@ -103,22 +108,25 @@ function reinstate_hex_map(board_state, board_map) {
 function reroll_map(hex_map) {
     const hex_arr = [...hex_map.values()];
 
-    hex_arr.forEach((hex_obj) => Object.assign(hex_obj, {
-        biome: null,
-        elevation: 0,
-        humidity: HUMIDITY_LEVELS.arid,
-        temperature: TEMPERATURES.freezing,
-        resources: Object.keys(hex_obj.resources).reduce((result, resource_name) => {
-            result[resource_name] = 0;
-            return result;
-        }, hex_obj.resources),
-        owner_id: -1
-    }));
+    hex_arr.forEach((hex_obj) => {
+        hex_obj.cell.classList.remove('shore');
+
+        Object.assign(hex_obj, {
+            biome: null,
+            elevation: 0,
+            humidity: HUMIDITY_LEVELS.arid,
+            temperature: TEMPERATURES.freezing,
+            resources: Object.keys(hex_obj.resources)
+                .reduce((result, resource_name) => {
+                    result[resource_name] = 0;
+                    return result;
+                }, hex_obj.resources),
+            owner_id: -1
+        });
+    });
     assign_temperature(hex_arr);
     generate_landmasses(hex_arr);
     make_ice_and_sea(hex_arr);
     assign_humidity(hex_arr);
     assign_biomes(hex_arr);
-
-    return hex_map;
 }

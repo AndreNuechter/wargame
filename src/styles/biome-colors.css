@@ -1,5 +1,6 @@
 :root {
-    --sea: #212150;
+    --sea: #0a0a42;
+    --shore: #1b1b79;
     --mountain: #404040;
     --high_mountain: #A9A9A9;
     --ice: lightblue;
@@ -20,6 +21,10 @@
 
 .sea {
     fill: var(--sea);
+
+    &.shore {
+        fill: var(--shore);
+    }
 }
 
 .mountain {

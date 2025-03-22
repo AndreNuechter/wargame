@@ -82,7 +82,7 @@ start_game_form.addEventListener('submit', ({ submitter }) => {
             main_overlay.close();
         }
     } else if (submitter.id === 'new-game-btn') {
-        // if there's a prior save/running game or a game just finished, reroll the map, delete players and clear move_queue
+        // if there's a prior save/running game or a game just finished, reroll the map, clear move_queue and delete players
         if (
             main_overlay.dataset.gameIsRunning === 'true' ||
             game.current_phase === ROUND_PHASES.game_over.name

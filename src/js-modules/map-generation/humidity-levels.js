@@ -21,7 +21,9 @@ function assign_humidity(hex_arr) {
         .forEach((hex) => {
             hex.neighbors
                 .filter(({ biome }) => biome === BIOMES.sea)
-                .forEach(() => {
+                .forEach((sea_tile) => {
+                    // sea-tiles neighboring land get a different color
+                    sea_tile.cell.classList.add('shore');
                     hex.humidity = increase_humidity_level(hex.humidity);
                 });
         });
@@ -30,7 +32,7 @@ function assign_humidity(hex_arr) {
 
     // 3. humidity of adjacent tiles (tiles adjacent to tiles w humidity > 0 get that level - 1; do we decrease humidity of og?)
 
-    // TODO should temperature and wind influence humidity? rn there's very little dryness...
+    // TODO should temperature and wind influence humidity (carry it off)? rn there's very little dryness...
 }
 
 function increase_humidity_level(level) {
