@@ -83,7 +83,7 @@ dialog {
 [data-game-is-running="false"],
 [data-current_phase="game_over"] {
     #continue-btn {
-        filter: brightness(1.3);
+        filter: brightness(0.7);
         cursor: not-allowed;
     }
 }

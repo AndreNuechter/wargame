@@ -1,9 +1,8 @@
-import board_dimensions from './board-dimensions.js';
-import TEMPERATURES from './temperatures.js';
+import board_dimensions from '../game-objects/board/board-dimensions.js';
 import HUMIDITY_LEVELS from './humidity-levels.js';
 import RESOURCES from '../game-objects/resources.js';
+import TEMPERATURES from './temperatures.js';
 
-// TODO balance resource production
 /** @type {Biomes} */
 const BIOMES = {
     sea: make_biome('sea', { [RESOURCES.food]: 1 }),

@@ -1,10 +1,9 @@
 export const add_player_btn = document.getElementById('add-player-btn');
 export const board = document.getElementById('board');
+export const board_size_select = /** @type {HTMLSelectElement} */ (document.getElementById('board-size-select'));
 export const bottom_bar = document.getElementById('bottom-bar');
 export const cell_info = document.getElementById('cell-info');
-export const cell_debug_info = document.getElementById('cell-debug-info');
 export const cell_production_forecast = document.getElementById('cell-production-forecast');
-export const coord_system_toggle_btn = document.getElementById('toggle-coord-system-btn');
 export const config_game_form = document.getElementById('config-game-form');
 export const defs = document.getElementById('defs');
 export const end_turn_btn = document.getElementById('end-turn-btn');

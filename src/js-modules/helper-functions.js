@@ -20,6 +20,12 @@ export function make_frozen_null_obj(obj) {
     );
 }
 
+export function make_sealed_null_obj(obj) {
+    return Object.seal(
+        Object.assign(Object.create(null), obj)
+    );
+}
+
 export function prevent_default_event_behavior(event) {
     event.preventDefault();
 }

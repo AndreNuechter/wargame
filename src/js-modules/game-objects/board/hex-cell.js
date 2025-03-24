@@ -27,7 +27,7 @@ function make_hex_cell(
     r,
     s
 ) {
-    const cell = render_hex_cell(cx, cy, x, y, q, r, s);
+    const cell = render_hex_cell(cx, cy);
     const pop_size_display = /** @type {SVGTextElement} */ (cell.querySelector('.population-size'));
     let biome = null;
     let owner_id = -1;
@@ -52,7 +52,6 @@ function make_hex_cell(
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
         temperature: TEMPERATURES.freezing,
-        // TODO reflect development via icon or sth (eg shantytown, village, city...)
         structures: new Map(Object.values(STRUCTURES).map((structure) => [structure, 0])),
         pop_size_display,
         resources: {
@@ -94,23 +93,10 @@ function make_hex_cell(
     };
 }
 
-function render_hex_cell(
-    cx,
-    cy,
-    x,
-    y,
-    q,
-    r,
-    s
-) {
+function render_hex_cell(cx, cy) {
     const cell_wrapper = /** @type {SVGGElement} */ (cell_group_tmpl.cloneNode(true));
 
     cell_wrapper.setAttribute('transform', `translate(${cx}, ${cy})`);
-    // render coords
-    cell_wrapper.querySelector('.q-coord').textContent = q;
-    cell_wrapper.querySelector('.r-coord').textContent = r;
-    cell_wrapper.querySelector('.s-coord').textContent = s;
-    cell_wrapper.querySelector('.offset-coords').textContent = `${x}, ${y}`;
 
     board.prepend(cell_wrapper);
 

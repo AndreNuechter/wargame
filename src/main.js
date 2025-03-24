@@ -1,13 +1,12 @@
 import './js-modules/service-worker/service-worker-init.js';
 import './js-modules/service-worker/wakelock.js';
-import { reroll_map } from './js-modules/game-objects/board/hex-grid.js';
 import {
     add_player_btn,
     board,
-    cell_debug_info,
+    board_size_select,
     config_game_form,
-    coord_system_toggle_btn,
     end_turn_btn,
+    main_overlay,
     movement_config,
     player_configs,
     player_setup,
@@ -15,19 +14,21 @@ import {
     selection_highlight,
     side_bar,
     start_game_form,
-    main_overlay,
     toggle_menu_btn,
     troop_select_input,
     troop_select_output,
 } from './js-modules/dom-selections.js';
-import { make_player, make_player_config } from './js-modules/game-objects/player.js';
+import board_dimensions, { set_board_dimensions } from './js-modules/game-objects/board/board-dimensions.js';
 import game, { close_window, start_game } from './js-modules/game-objects/game.js';
 import ROUND_PHASES, { end_turn_btn_click_handling } from './js-modules/game-objects/round-phases/round-phases.js';
-import { plan_move } from './js-modules/game-objects/round-phases/movement-planning.js';
+import { make_player, make_player_config } from './js-modules/game-objects/player.js';
 import { clear_move_queue } from './js-modules/game-objects/move-queue.js';
+import { plan_move } from './js-modules/game-objects/round-phases/movement-planning.js';
 import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
+import { reroll_map } from './js-modules/game-objects/board/hex-grid.js';
 import { side_bar_input_handling } from './js-modules/setup-sidebar-content.js';
 
+// TODO rethink what info we want to show on a cell...pop size, strength of classes, type of settlement, structures, pestilence, starvation, revolt, fire, war... reflect development of cell via icon or sth (eg shantytown, village, city...)
 // TODO light theme toggle (in bottom of start_game_overlay)
 // TODO divide sidebar content into chunks and make it swipable horizontally (use scroll snap...what on larger screens?)
 // TODO in dev phase, empire overview, have list of owned cells w link to them
@@ -40,9 +41,9 @@ const max_player_count = 5;
 document.addEventListener('visibilitychange', close_window);
 // all formdata will be handled client-side
 document.addEventListener('submit', prevent_default_event_behavior);
-document.querySelector('h1').addEventListener('dblclick', () => document.body.classList.toggle('debug'));
 // zoom in or out
 document.getElementById('zoom-btns').addEventListener('click', ({ target }) => {
+    // TODO rethink zoom...btn placement sucks, limit to 3 lvls [farthest out: show entire map; middle: ???; closest: show a cell large enough to show details] w ea lvl showing different bits of information [closest: pop. split by class; farthest out: just outline?]
     if (!(target instanceof Element)) return;
 
     const clicked_btn = target.closest('button');
@@ -62,6 +63,10 @@ document.getElementById('zoom-btns').addEventListener('click', ({ target }) => {
     }
 });
 window.addEventListener('DOMContentLoaded', start_game, { once: true });
+board_size_select.addEventListener('change', () => {
+    set_board_dimensions();
+    reroll_map(game.board, board_dimensions);
+});
 // display configured troop size after input
 troop_select_input.addEventListener('input', () => {
     troop_select_output.value = troop_select_input.value;
@@ -92,7 +97,7 @@ start_game_form.addEventListener('submit', ({ submitter }) => {
                 current_phase: ROUND_PHASES.land_grab.name,
                 current_player_id: 0
             });
-            reroll_map(game.board);
+            reroll_map(game.board, board_dimensions);
             clear_move_queue();
             game.clear_players();
 
@@ -138,7 +143,7 @@ main_overlay.addEventListener('close', () => {
     main_overlay.classList.remove('game-config');
     game.run();
 });
-reroll_map_btn.addEventListener('click', () => reroll_map(game.board));
+reroll_map_btn.addEventListener('click', () => reroll_map(game.board, board_dimensions));
 add_player_btn.addEventListener('click', () => {
     if (player_configs.length === max_player_count) return;
 
@@ -194,20 +199,8 @@ board.addEventListener('click', ({ target }) => {
         cell_element.classList.add('clicked');
     }
 
-    output_cell_info(hex_obj);
-
     ROUND_PHASES[game.current_phase].handle_click_on_cell(hex_obj, game);
 });
 side_bar.addEventListener('input', side_bar_input_handling(game));
 movement_config.addEventListener('close', plan_move(game));
 movement_config.addEventListener('submit', () => movement_config.close());
-coord_system_toggle_btn.addEventListener('click', () => document.body.classList.toggle('use-offset-coords'));
-
-function output_cell_info(hex_obj) {
-    cell_debug_info.textContent = JSON.stringify(
-        hex_obj,
-        // NOTE: `neighbors` is cyclic and therefore needs to be filtered out
-        (key, value) => key === 'neighbors' ? undefined : value,
-        4
-    );
-}

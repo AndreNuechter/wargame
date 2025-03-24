@@ -1,15 +1,15 @@
-import board_dimensions from './board-dimensions.js';
-import { is_num_between } from '../helper-functions.js';
+import board_dimensions from '../game-objects/board/board-dimensions.js';
+import { is_num_between, make_frozen_null_obj } from '../helper-functions.js';
 
 // NOTE: we want our world map to be "freezing" on the poles and "hot" along the equator
 // between those two points we move along a scale w the three values "warm", "temperate" and "cold"
-const TEMPERATURES = {
+const TEMPERATURES = make_frozen_null_obj({
     freezing: 'freezing',
     cold: 'cold',
     temperate: 'temperate',
     warm: 'warm',
     hot: 'hot'
-};
+});
 
 export default TEMPERATURES;
 export {

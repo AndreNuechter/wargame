@@ -19,7 +19,7 @@ import { execute_moves } from './round-phases/movement-execution.js';
 import storage_keys from './storage-keys.js';
 import { reapply_move_queue, save_move_queue } from './move-queue.js';
 import { make_hex_map } from './board/hex-grid.js';
-import board_dimensions from '../map-generation/board-dimensions.js';
+import board_dimensions, { initialize_board_dimensions, save_board_dimensions } from './board/board-dimensions.js';
 
 let round = 0;
 let current_phase = ROUND_PHASES.land_grab.name;
@@ -133,33 +133,36 @@ function adjust_ui() {
     // hide player resources
     bottom_bar.classList.add('content-hidden');
 
-    if (current_phase === ROUND_PHASES.land_grab.name) {
-        // hide cell info and show general info
-        cell_info.classList.add('hidden');
-        general_info.classList.remove('hidden');
-    } else if (current_phase === ROUND_PHASES.development.name) {
-        // hide info panels for landgrab phase
-        cell_info.classList.add('hidden');
-        general_info.classList.add('hidden');
-        // show overall resource production
-        current_player_total_production = calculate_resource_production(
-            game.active_player.cells,
-            game.active_player.tax_rate
-        );
-        cell_production_forecast.classList.add('hidden');
-        setup_overall_production_forecast(
-            calculate_resource_production(
+    switch (current_phase) {
+        case ROUND_PHASES.land_grab.name:
+            // hide cell info and show general info
+            cell_info.classList.add('hidden');
+            general_info.classList.remove('hidden');
+            break;
+        case ROUND_PHASES.development.name:
+            // hide info panels for landgrab phase
+            cell_info.classList.add('hidden');
+            general_info.classList.add('hidden');
+            // show overall resource production
+            current_player_total_production = calculate_resource_production(
                 game.active_player.cells,
                 game.active_player.tax_rate
-            ),
-            game.active_player.tax_rate
-        );
-        bottom_bar.classList.remove('content-hidden');
-        update_resource_display();
-    } else if (current_phase === ROUND_PHASES.movement_execution.name) {
-        moves = execute_moves(game);
-        // hide player name
-        player_name.classList.add('hidden');
+            );
+            cell_production_forecast.classList.add('hidden');
+            setup_overall_production_forecast(
+                calculate_resource_production(
+                    game.active_player.cells,
+                    game.active_player.tax_rate
+                ),
+                game.active_player.tax_rate
+            );
+            bottom_bar.classList.remove('content-hidden');
+            update_resource_display();
+            break;
+        case ROUND_PHASES.movement_execution.name:
+            moves = execute_moves(game);
+            // hide player name
+            player_name.classList.add('hidden');
     }
 }
 
@@ -189,9 +192,10 @@ function close_window() {
         delete_savegame();
     } else {
         save_game();
-        save_board();
         save_players();
         save_move_queue();
+        save_board();
+        save_board_dimensions();
     }
 }
 
@@ -244,14 +248,18 @@ function start_game() {
 
     main_overlay.dataset.gameIsRunning = previously_saved_game.toString();
 
+    initialize_board_dimensions();
+
     if (previously_saved_game) {
+        // there's a saved game, so we apply that and continue
         apply_savegame(game_data);
         reapply_board();
         reapply_players(game);
         reapply_move_queue(game);
         game.run();
     } else {
-        make_hex_map(board_dimensions, game.board);
+        // no prior game so we make a map and show the modal
+        make_hex_map(game.board, board_dimensions);
         main_overlay.showModal();
     }
 }

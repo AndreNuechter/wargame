@@ -4,7 +4,6 @@
 @import url("styles/grid.css");
 @import url("styles/label.css");
 @import url("styles/buttons.css");
-@import url("styles/cell-coordinates.css");
 @import url("styles/main-overlay.css");
 @import url("styles/biome-colors.css");
 @import url("styles/player-colors.css");
@@ -55,15 +54,6 @@
 .population-size {
     font-size: 0.2rem;
     fill: var(--owner-color);
-}
-
-#cell-debug-info {
-    display: none;
-    white-space: preserve;
-
-    .debug & {
-        display: block;
-    }
 }
 
 #movement-config {

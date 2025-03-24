@@ -77,6 +77,9 @@ function make_player_move(player_id, origin, target, units, season, type = 'unsp
     };
 }
 
+/**
+ * @param {Game} game
+ */
 function reapply_move_queue(game) {
     const stored_queue = JSON.parse(localStorage.getItem(storage_keys.move_queue));
     const cells = [...game.board.values()];

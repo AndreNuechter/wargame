@@ -7,7 +7,7 @@
     --dark-color: rgb(40, 40, 40);
 
     --border-style: 1px solid black;
-    --btn-color: rgb(200, 200, 200);
+    --btn-color: rgb(220, 220, 220);
     --bg-color: var(--bright-color);
     --cell-border-color: var(--dark-color);
     --text-color: var(--dark-color);

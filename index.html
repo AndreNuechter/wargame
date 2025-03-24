@@ -21,7 +21,6 @@
             </svg>
         </button>
         <h1>War</h1>
-        <button id="toggle-coord-system-btn">Switch coord system</button>
         <div id="turn-info">
             <span id="player-name"></span>
             <span id="phase-label"></span>
@@ -29,11 +28,13 @@
         <button id="end-turn-btn">End Turn</button>
     </div>
     <div id="board-container">
-        <svg id="board" preserveAspectRatio="xMinYMin meet" viewBox="0 0 185 110" data-zoom_level="0">
-            <path id="selection-highlight"></path>
-            <g id="player-borders"></g>
-            <g id="encampments"></g>
-            <g id="movement-arrows"></g>
+        <svg id="board" preserveAspectRatio="xMinYMin meet" data-zoom_level="0">
+            <g id="utils">
+                <path id="selection-highlight"></path>
+                <g id="player-borders"></g>
+                <g id="encampments"></g>
+                <g id="movement-arrows"></g>
+            </g>
         </svg>
     </div>
     <div id="zoom-btns">

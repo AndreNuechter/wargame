@@ -7,6 +7,14 @@
 
     <form id="config-game-form">
         <h2>Game setup</h2>
+        <label>
+            <span class="label-text">Board Size</span>
+            <select id="board-size-select">
+                <option value="s">Small</option>
+                <option value="m" selected>Normal</option>
+                <option value="l">Big</option>
+            </select>
+        </label>
         <button id="reroll-map-btn" type="button">Generate new Map</button>
         <!-- TODO start game types -->
         <!-- <fieldset id="landgrab-type">

@@ -1,10 +1,11 @@
-import compute_neighbors from './compute-neighbors.js';
-import generate_landmasses from '../../map-generation/generate-landmasses.js';
-import TEMPERATURES, { assign_temperature } from '../../map-generation/temperatures.js';
+import { assign_temperature } from '../../map-generation/temperatures.js';
+import { assign_humidity } from '../../map-generation/humidity-levels.js';
 import BIOMES, { assign_biomes, make_ice_and_sea } from '../../map-generation/biomes.js';
-import HUMIDITY_LEVELS, { assign_humidity } from '../../map-generation/humidity-levels.js';
+import generate_landmasses from '../../map-generation/generate-landmasses.js';
 import { is_even } from '../../helper-functions.js';
+import compute_neighbors from './compute-neighbors.js';
 import make_hex_cell from './hex-cell.js';
+import { board } from '../../dom-selections.js';
 
 const cell_size = 6;
 const half_cell_size = cell_size * 0.5;
@@ -51,7 +52,7 @@ function make_hex_grid({ height, width }) {
     return hex_grid;
 }
 
-function make_hex_map(board_dimensions, board_map) {
+function make_hex_map(board_map, board_dimensions) {
     const hex_arr = make_hex_grid(board_dimensions);
 
     compute_neighbors(hex_arr);
@@ -104,29 +105,12 @@ function reinstate_hex_map(board_state = [], board_map) {
     hex_arr_to_map(hex_arr, board_map);
 }
 
-/** Clear previous config and create new map, while leaving the DOM intact */
-function reroll_map(hex_map) {
-    const hex_arr = [...hex_map.values()];
-
-    hex_arr.forEach((hex_obj) => {
-        hex_obj.cell.classList.remove('shore');
-
-        Object.assign(hex_obj, {
-            biome: null,
-            elevation: 0,
-            humidity: HUMIDITY_LEVELS.arid,
-            temperature: TEMPERATURES.freezing,
-            resources: Object.keys(hex_obj.resources)
-                .reduce((result, resource_name) => {
-                    result[resource_name] = 0;
-                    return result;
-                }, hex_obj.resources),
-            owner_id: -1
-        });
-    });
-    assign_temperature(hex_arr);
-    generate_landmasses(hex_arr);
-    make_ice_and_sea(hex_arr);
-    assign_humidity(hex_arr);
-    assign_biomes(hex_arr);
+/** Clear board and create new map. */
+function reroll_map(board_map, board_dimensions) {
+    // rm data
+    board_map.clear();
+    // rm cells while keeping the utils
+    board.replaceChildren(board.lastElementChild);
+    // create a new board
+    make_hex_map(board_map, board_dimensions);
 }

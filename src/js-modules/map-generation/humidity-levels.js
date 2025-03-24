@@ -1,5 +1,4 @@
 import { make_frozen_null_obj } from '../helper-functions';
-import BIOMES from './biomes';
 
 const HUMIDITY_LEVELS = make_frozen_null_obj({
     arid: 'arid',
@@ -20,7 +19,7 @@ function assign_humidity(hex_arr) {
         .filter((hex) => hex.elevation > 0)
         .forEach((hex) => {
             hex.neighbors
-                .filter(({ biome }) => biome === BIOMES.sea)
+                .filter((neighboring_hex) => neighboring_hex.elevation === 0)
                 .forEach((sea_tile) => {
                     // sea-tiles neighboring land get a different color
                     sea_tile.cell.classList.add('shore');
