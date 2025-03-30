@@ -16,13 +16,22 @@ export function random_int(max, min = 0) {
 
 export function make_frozen_null_obj(obj) {
     return Object.freeze(
-        Object.assign(Object.create(null), obj)
+        Object.assign(Object.create(null), obj),
     );
+}
+
+export function make_resource_list(resources) {
+    return Object
+        .entries(resources)
+        .map(([resource, value]) => Object.assign(
+            document.createElement('li'),
+            { textContent: `${resource}: ${value}` },
+        ));
 }
 
 export function make_sealed_null_obj(obj) {
     return Object.seal(
-        Object.assign(Object.create(null), obj)
+        Object.assign(Object.create(null), obj),
     );
 }
 

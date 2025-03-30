@@ -11,7 +11,7 @@ const RESOURCES = make_frozen_null_obj({
     iron: 'iron', // forge. soldiers, housing
     food: 'food', // cell, farm. used by pop
     alcohol: 'alcohol', // distillery. lowers chance of uprisings
-    coal: 'coal' // mine. used in forge to make iron.
+    coal: 'coal', // mine. used in forge to make iron.
 });
 const initial_resources = make_frozen_null_obj({
     [RESOURCES.people]: 5,
@@ -22,7 +22,7 @@ const initial_resources = make_frozen_null_obj({
     [RESOURCES.iron]: 0,
     [RESOURCES.food]: 50,
     [RESOURCES.alcohol]: 5,
-    [RESOURCES.coal]: 5
+    [RESOURCES.coal]: 5,
 });
 
 export default RESOURCES;
@@ -41,7 +41,7 @@ function calculate_resource_production(cells, tax_rate = 1) {
         [RESOURCES.iron]: 0,
         [RESOURCES.food]: 0,
         [RESOURCES.alcohol]: 0,
-        [RESOURCES.coal]: 0
+        [RESOURCES.coal]: 0,
     };
     let total_population = 0;
 
@@ -112,11 +112,12 @@ function update_player_resources(players) {
                         .reduce(
                             (required_workers, [structure, count]) =>
                                 required_workers + structure.required_workers * count,
-                            0
+                            0,
                         );
+
                     return result;
                 },
-                { total_population: 0, total_required_workers: 0 }
+                { total_population: 0, total_required_workers: 0 },
             );
             // we scale down output of structures when there arent enough workers
             const productivity_modifier = Math.min(1.0, total_population / total_required_workers);
@@ -139,7 +140,7 @@ function update_player_resources(players) {
                     .forEach(([structure, count]) =>
                         structure.output.forEach(({ resource_name, amount }) => {
                             cell.resources[resource_name] += Math.trunc(amount * count * productivity_modifier);
-                        })
+                        }),
                     );
                 // collect taxes
                 // TODO only tax housed and working population
@@ -166,6 +167,6 @@ function update_player_resources(players) {
 
             // TODO starvation contributes to unhappiness in the population
             // if (food_requirement > 0) {}
-        }
+        },
     );
 }

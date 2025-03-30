@@ -3,7 +3,8 @@
     "env": {
         "browser": true,
         "node": true,
-        "es6": true
+        "es6": true,
+        "serviceworker": true
     },
     "extends": [
         "eslint:recommended",
@@ -31,8 +32,8 @@
         ],
         "camelcase": 0,
         "comma-dangle": [
-            "warn",
-            "only-multiline"
+            "error",
+            "always-multiline"
         ],
         "comma-spacing": "error",
         "comma-style": [
@@ -55,6 +56,7 @@
             "error",
             "always"
         ],
+        "import/no-cycle": "error",
         "indent": [
             "error",
             4,
@@ -146,6 +148,52 @@
         "padded-blocks": [
             "error",
             "never"
+        ],
+        "padding-line-between-statements": [
+            "error",
+            {
+                "blankLine": "always",
+                "prev": "*",
+                "next": [
+                    "function",
+                    "return",
+                    "switch",
+                    "if"
+                ]
+            },
+            {
+                "blankLine": "always",
+                "prev": [
+                    "function",
+                    "switch",
+                    "if",
+                    "let",
+                    "const",
+                    "import"
+                ],
+                "next": "*"
+            },
+            {
+                "blankLine": "any",
+                "prev": "if",
+                "next": "if"
+            },
+            {
+                "blankLine": "any",
+                "prev": "import",
+                "next": "import"
+            },
+            {
+                "blankLine": "any",
+                "prev": [
+                    "const",
+                    "let"
+                ],
+                "next": [
+                    "const",
+                    "let"
+                ]
+            }
         ],
         "prefer-const": "error",
         "prefer-template": "error",

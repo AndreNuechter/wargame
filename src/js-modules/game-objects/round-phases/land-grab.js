@@ -1,8 +1,8 @@
 import { cell_info, general_info, selection_highlight } from '../../dom-selections';
 import BIOMES from '../../map-generation/biomes';
-import { setup_cell_info } from '../../setup-sidebar-content';
 import outline_hexregion from '../board/outline-hexregion';
 import { initial_resources } from '../resources';
+import STRUCTURES from '../structures';
 
 let start_position_candidate = null;
 
@@ -40,4 +40,32 @@ function end_turn_action(game) {
     start_position_candidate = null;
 
     return true;
+}
+
+function setup_cell_info(hex_obj, { wood, stone, cloth, food }) {
+    // TODO it sucks to create/discard this piece of dom repeatedly...it would be nicer to only set the values
+    const supported_structures = Object.values(STRUCTURES)
+        .filter((structure) => !structure.unsupported_biomes.has(hex_obj.biome))
+        .map(({ display_name }) => `<li>${display_name}</li>`)
+        .join('');
+
+    cell_info.innerHTML = `
+        <h2>Cell Info</h2>
+        <ul>
+            <li>Biome: ${hex_obj.biome.name}</li>
+            <li>Movement modifier: ${hex_obj.biome.movement_speed}</li>
+            <li>Pleasantness: ${hex_obj.biome.pleasantness}</li>
+            <li>...</li>
+        </ul>
+        <h3>Production</h3>
+        <ul>
+            <li>Wood: ${wood}</li>
+            <li>Stone: ${stone}</li>
+            <li>Cloth: ${cloth}</li>
+            <li>Food: ${food}</li>
+        </ul>
+        <h3>Supported structures</h3>
+        <ul>${supported_structures}</ul>
+    `;
+    cell_info.classList.remove('hidden');
 }

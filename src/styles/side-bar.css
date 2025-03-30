@@ -15,7 +15,7 @@
     }
 }
 
-#overall-production-forecast,
+#total-production-forecast,
 #cell-production-forecast {
     [data-current_phase="land_grab"] & {
         display: none;

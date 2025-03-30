@@ -12,7 +12,7 @@ const BIOMES = {
         [RESOURCES.food]: 3,
     }),
     high_mountain: make_biome('high_mountain', {
-        [RESOURCES.stone]: 5
+        [RESOURCES.stone]: 5,
     }),
     ice: make_biome('ice', {
         [RESOURCES.food]: 2,
@@ -40,7 +40,7 @@ const BIOMES = {
         [RESOURCES.wood]: 10,
         [RESOURCES.stone]: 3,
         [RESOURCES.food]: 5,
-    }), // taiga, should be most common
+    }),
     forest: make_biome('forest', {
         [RESOURCES.cloth]: 2,
         [RESOURCES.wood]: 10,
@@ -125,12 +125,23 @@ const biome_matrix = {
 export default BIOMES;
 export {
     assign_biomes,
-    make_ice_and_sea
+    make_ice_and_sea,
 };
 
 function assign_biomes(hex_arr) {
-    hex_arr.forEach((hex_obj) => {
-        hex_obj.biome = pick_biome(hex_obj);
+    hex_arr.forEach((hex) => {
+        if (hex.biome) return;
+
+        hex.biome = (() => {
+            if (hex.elevation > 1) {
+                if (hex.elevation > 2) return BIOMES.high_mountain;
+
+                // TODO give mountains small chance to be volcano
+                return BIOMES.mountain;
+            }
+
+            return biome_matrix[hex.temperature][hex.humidity];
+        })();
     });
 }
 
@@ -201,16 +212,4 @@ function pick_water_based_tile(hex, height = board_dimensions.height) {
     }
 
     return BIOMES.sea;
-}
-
-function pick_biome(hex) {
-    if (hex.biome) return hex.biome;
-
-    if (hex.elevation > 1) {
-        if (hex.elevation > 2) return BIOMES.high_mountain;
-        // TODO give mountains small chance to be volcano?
-        return BIOMES.mountain;
-    }
-
-    return biome_matrix[hex.temperature][hex.humidity];
 }

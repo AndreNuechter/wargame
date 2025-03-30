@@ -51,7 +51,7 @@ function* execute_moves(game) {
                     move.target,
                     planned_settlements.has(move.target)
                         ? planned_settlements.get(move.target).add(move.player_id)
-                        : new Set([move.player_id])
+                        : new Set([move.player_id]),
                 );
             }
 
@@ -71,6 +71,7 @@ function* execute_moves(game) {
             // check for conflict (= there're more than one player's troops at target)
             if (armies.length === 1) {
                 const { player_id, units } = armies[0];
+
                 // give cell to player if they wanted to settle it
                 if (planned_settlements.get(move_target)?.has(player_id)) {
                     // FIXME cell is first marked as encamped
@@ -88,7 +89,7 @@ function* execute_moves(game) {
                 move_target,
                 armies,
                 game.players,
-                planned_settlements.get(move_target)
+                planned_settlements.get(move_target),
             );
         }
     }
@@ -113,7 +114,7 @@ function move_units_from_origin_to_target(move, game) {
         } else {
             player.add_encampment(
                 move.origin,
-                new_encampment_size
+                new_encampment_size,
             );
         }
     }
@@ -128,7 +129,7 @@ function move_units_from_origin_to_target(move, game) {
         // FIXME cell may show units in wrong player color
         player.add_encampment(
             move.target,
-            new_encampment_size
+            new_encampment_size,
         );
     }
 }
@@ -159,15 +160,16 @@ function get_armies_at_cell(cell, players) {
             if (player.encampments.has(cell)) {
                 result.push({
                     player_id,
-                    units: player.encampments.get(cell)
+                    units: player.encampments.get(cell),
                 });
             } else if (player_id === cell.owner_id) {
                 result.push({
                     player_id: cell.owner_id,
                     units: cell.resources[RESOURCES.people],
-                    is_owner: true
+                    is_owner: true,
                 });
             }
+
             return result;
         }, []);
 }
@@ -215,7 +217,7 @@ function resolve_battle(battle_field, armies, players, planned_settlements) {
             // the random winner will possibly get the encampment again further on
             losing_armies
                 .forEach(
-                    (army_id) => players[armies[army_id].player_id].delete_encampment(battle_field)
+                    (army_id) => players[armies[army_id].player_id].delete_encampment(battle_field),
                 );
             armies = [Object.assign(random_pick(armies), { units: 1 })];
             break;
@@ -239,6 +241,7 @@ function resolve_battle(battle_field, armies, players, planned_settlements) {
     // owner won, update the population
     if (battle_field.owner_id === winner_id) {
         battle_field.resources[RESOURCES.people] = surviving_units;
+
         return;
     }
 

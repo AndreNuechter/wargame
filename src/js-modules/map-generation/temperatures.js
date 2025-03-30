@@ -8,14 +8,14 @@ const TEMPERATURES = make_frozen_null_obj({
     cold: 'cold',
     temperate: 'temperate',
     warm: 'warm',
-    hot: 'hot'
+    hot: 'hot',
 });
 
 export default TEMPERATURES;
 export {
     assign_temperature,
     decrease_temperature,
-    increase_temperature
+    increase_temperature,
 };
 
 function assign_temperature(hex_arr) {
@@ -31,6 +31,7 @@ function assign_temperature(hex_arr) {
         const hex_relative_height = ((value) => {
             if (value < 0) return 0;
             if (value > board_dimensions.height - 1) return board_dimensions.height - 1;
+
             return value;
         })(hex_obj.y + noise + bias);
 

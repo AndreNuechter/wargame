@@ -25,11 +25,11 @@ function draw_movement_arrow(origin, target, units, player_id) {
     // TODO start/end further from the center to not overlay the population count and returing arrow
     const path_start = {
         x: origin.cx + half_hex_size,
-        y: origin.cy + half_hex_size
+        y: origin.cy + half_hex_size,
     };
     const path_end = {
         x: target.cx + half_hex_size,
-        y: target.cy + half_hex_size
+        y: target.cy + half_hex_size,
     };
     const path_data = `M${path_start.x} ${path_start.y}A 3 3 0 0 0 ${path_end.x} ${path_end.y}`;
     const movement_indicator = /** @type {SVGGElement} */ (movement_indicator_tmpl.cloneNode(true));
@@ -73,7 +73,7 @@ function make_player_move(player_id, origin, target, units, season, type = 'unsp
             arrow.lastElementChild.lastElementChild.textContent = value.toString();
         },
         type,
-        arrow
+        arrow,
     };
 }
 
@@ -88,28 +88,28 @@ function reapply_move_queue(game) {
         // reconnect the stored values with the live cells
         ...stored_queue.map(
             ({
-                player_id, origin, target, units, season
+                player_id, origin, target, units, season,
             }) => make_player_move(
                 player_id,
                 cells.find(({ cx, cy }) => cx === origin.cx && cy === origin.cy),
                 cells.find(({ cx, cy }) => cx === target.cx && cy === target.cy),
                 units,
-                season
-            )
-        )
+                season,
+            ),
+        ),
     );
 }
 
 function save_move_queue() {
     localStorage.setItem(storage_keys.move_queue, JSON.stringify(
         move_queue.map(({
-            player_id, origin, target, units, season
+            player_id, origin, target, units, season,
         }) => ({
             player_id,
             origin: { cx: origin.cx, cy: origin.cy },
             target: { cx: target.cx, cy: target.cy },
             units,
-            season
-        }))
+            season,
+        })),
     ));
 }

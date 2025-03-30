@@ -1,4 +1,4 @@
-import { board, board_size_select } from '../../dom-selections';
+import { board_element, board_size_select } from '../../dom-selections';
 import { make_sealed_null_obj } from '../../helper-functions';
 import storage_keys from '../storage-keys';
 
@@ -12,52 +12,58 @@ const board_sizes = {
 
 export default board_dimensions;
 export {
+    change_boardsize,
     initialize_board_dimensions,
     save_board_dimensions,
-    set_board_dimensions
 };
 
 function board_size_to_board_dimensions({ width, height }) {
     return {
         width,
-        height
+        height,
+    };
+}
+
+function change_boardsize({ board }, reroll_map) {
+    return () => {
+        const size = board_size_select.value;
+
+        Object.assign(board_dimensions, board_size_to_board_dimensions(board_sizes[size]));
+        board_element.setAttribute('viewBox', board_sizes[size].viewBox);
+        reroll_map(board, board_dimensions);
     };
 }
 
 function initialize_board_dimensions() {
-    const size_saved_earlier = JSON.parse(localStorage.getItem(storage_keys.board_dimensions));
+    const size_saved_earlier = JSON.parse(
+        localStorage.getItem(storage_keys.board_dimensions),
+    );
 
-    if (size_saved_earlier !== null) {
-        // if there's a saved value, use that and set the select to the corresponding key
+    if (size_saved_earlier === null) {
+        // if there's no saved value,
+        // set the board_dimensions to the value set in the select
+        const size_configured_in_ui = board_size_select.value;
+
         Object.assign(
             board_dimensions,
-            size_saved_earlier
+            board_size_to_board_dimensions(board_sizes[size_configured_in_ui]),
+        );
+    } else {
+        // else use the saved value and set the select to that key
+        Object.assign(
+            board_dimensions,
+            size_saved_earlier,
         );
 
         board_size_select.value = Object
             .keys(board_sizes)
             .find((key) => board_sizes[key].width === board_dimensions.width);
-    } else {
-        // else set the board_dimensions to the value set in the select (which might be the default)
-        const size_configured_in_ui = board_size_select.value;
-
-        Object.assign(
-            board_dimensions,
-            board_size_to_board_dimensions(board_sizes[size_configured_in_ui])
-        );
     }
 
     // set the board's viewbox accordingly
-    board.setAttribute('viewBox', board_sizes[board_size_select.value].viewBox);
+    board_element.setAttribute('viewBox', board_sizes[board_size_select.value].viewBox);
 }
 
 function save_board_dimensions() {
     localStorage.setItem(storage_keys.board_dimensions, board_dimensions);
-}
-
-function set_board_dimensions() {
-    const size = board_size_select.value;
-
-    Object.assign(board_dimensions, board_size_to_board_dimensions(board_sizes[size]));
-    board.setAttribute('viewBox', board_sizes[size].viewBox);
 }

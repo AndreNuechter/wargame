@@ -8,9 +8,8 @@ import {
     phase_label,
     player_name,
     selection_highlight,
-    toggle_menu_btn
+    toggle_menu_btn,
 } from '../dom-selections.js';
-import { setup_overall_production_forecast } from '../setup-sidebar-content.js';
 import { calculate_resource_production, update_player_resources } from './resources.js';
 import board, { reapply_board, save_board } from './board/board.js';
 import players, { reapply_players, save_players } from './player.js';
@@ -20,6 +19,7 @@ import storage_keys from './storage-keys.js';
 import { reapply_move_queue, save_move_queue } from './move-queue.js';
 import { make_hex_map } from './board/hex-grid.js';
 import board_dimensions, { initialize_board_dimensions, save_board_dimensions } from './board/board-dimensions.js';
+import setup_total_production_forecast from '../setup-total-production-forecast.js';
 
 let round = 0;
 let current_phase = ROUND_PHASES.land_grab.name;
@@ -67,7 +67,7 @@ const game = {
     set current_phase(phase) {
         current_phase = phase;
     },
-    update_resource_display,
+    update_resource_display: update_bottom_resource_display,
     next_turn() {
         // rm highlighting of clicked cells neighbors
         selection_highlight.setAttribute('d', '');
@@ -83,19 +83,20 @@ const game = {
                 if (round > 0) {
                     const winner = is_the_game_over_and_who_won();
 
-                    if (winner !== null) {
-                        // ensure the finished game wont be saved
-                        current_phase = ROUND_PHASES.game_over.name;
-                        // visually disable continue btn
-                        document.body.dataset.current_phase = ROUND_PHASES.game_over.name;
-                        // TODO show stats/game summary
-                        document.getElementById('winner-name').textContent = winner.name;
-                        main_overlay.showModal();
-                        toggle_menu_btn.click();
+                    if (winner === null) {
+                        update_player_resources(players);
+
                         return;
                     }
 
-                    update_player_resources(players);
+                    // ensure the finished game wont be saved
+                    current_phase = ROUND_PHASES.game_over.name;
+                    // visually disable continue btn
+                    document.body.dataset.current_phase = ROUND_PHASES.game_over.name;
+                    // TODO show stats/game summary
+                    document.getElementById('winner-name').textContent = winner.name;
+                    main_overlay.showModal();
+                    toggle_menu_btn.click();
                 }
 
                 round += 1;
@@ -106,15 +107,15 @@ const game = {
 
         adjust_ui();
     },
-    run: adjust_ui
+    run: adjust_ui,
 };
 
 export default game;
 export {
+    continue_game_or_open_main_overlay,
     close_window,
     delete_savegame,
     save_game,
-    start_game
 };
 
 function adjust_ui() {
@@ -140,24 +141,22 @@ function adjust_ui() {
             general_info.classList.remove('hidden');
             break;
         case ROUND_PHASES.development.name:
-            // hide info panels for landgrab phase
-            cell_info.classList.add('hidden');
-            general_info.classList.add('hidden');
-            // show overall resource production
+            // calc total production
             current_player_total_production = calculate_resource_production(
                 game.active_player.cells,
-                game.active_player.tax_rate
+                game.active_player.tax_rate,
             );
+            setup_total_production_forecast(
+                current_player_total_production,
+                game.active_player.tax_rate,
+            );
+            update_bottom_resource_display();
+            // hide info panels for landgrab phase
             cell_production_forecast.classList.add('hidden');
-            setup_overall_production_forecast(
-                calculate_resource_production(
-                    game.active_player.cells,
-                    game.active_player.tax_rate
-                ),
-                game.active_player.tax_rate
-            );
+            // show panels for this phase
+            cell_info.classList.add('hidden');
+            general_info.classList.add('hidden');
             bottom_bar.classList.remove('content-hidden');
-            update_resource_display();
             break;
         case ROUND_PHASES.movement_execution.name:
             moves = execute_moves(game);
@@ -170,7 +169,7 @@ function apply_savegame(game_data) {
     const {
         round,
         current_phase,
-        current_player_id
+        current_player_id,
     } = JSON.parse(game_data);
 
     Object.assign(game, {
@@ -178,6 +177,28 @@ function apply_savegame(game_data) {
         current_phase,
         current_player_id,
     });
+}
+
+function continue_game_or_open_main_overlay() {
+    const game_data = localStorage.getItem(storage_keys.game);
+    const previously_saved_game = game_data !== null;
+
+    main_overlay.dataset.gameIsRunning = previously_saved_game.toString();
+
+    initialize_board_dimensions();
+
+    if (previously_saved_game) {
+        // there's a saved game, so we apply that and continue
+        apply_savegame(game_data);
+        reapply_board();
+        reapply_players(game);
+        reapply_move_queue(game);
+        game.run();
+    } else {
+        // no prior game so we make a map and show the modal
+        make_hex_map(game.board, board_dimensions);
+        main_overlay.showModal();
+    }
 }
 
 function close_window() {
@@ -221,7 +242,7 @@ function is_the_game_over_and_who_won() {
     const remaining_players = players
         .filter(({ cells, encampments }) =>
             encampments.size > 0 ||
-            cells.size > 0
+            cells.size > 0,
         );
 
     if (remaining_players.length === 1) {
@@ -238,33 +259,11 @@ function save_game() {
             round: game.round,
             current_phase: game.current_phase,
             current_player_id: game.current_player_id,
-        })
+        }),
     );
 }
 
-function start_game() {
-    const game_data = localStorage.getItem(storage_keys.game);
-    const previously_saved_game = game_data !== null;
-
-    main_overlay.dataset.gameIsRunning = previously_saved_game.toString();
-
-    initialize_board_dimensions();
-
-    if (previously_saved_game) {
-        // there's a saved game, so we apply that and continue
-        apply_savegame(game_data);
-        reapply_board();
-        reapply_players(game);
-        reapply_move_queue(game);
-        game.run();
-    } else {
-        // no prior game so we make a map and show the modal
-        make_hex_map(game.board, board_dimensions);
-        main_overlay.showModal();
-    }
-}
-
-function update_resource_display() {
+function update_bottom_resource_display() {
     bottom_bar.replaceChildren(
         ...Object
             .entries(game.active_player.resources)
@@ -274,9 +273,9 @@ function update_resource_display() {
                     {
                         title: name,
                         innerHTML: `<svg class="icon"><use href="#${name}"></use></svg>
-                        <span>${value}</span>`
-                    }
+                        <span>${value}</span>`,
+                    },
                 );
-            })
+            }),
     );
 }

@@ -5,13 +5,13 @@ const SEASONS = make_frozen_null_obj({
     spring: 'spring',
     summer: 'summer',
     autumn: 'autumn',
-    winter: 'winter'
+    winter: 'winter',
 });
 
 export default SEASONS;
 export {
     increment_season,
-    is_season_before
+    is_season_before,
 };
 
 function increment_season(season) {

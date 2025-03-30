@@ -76,7 +76,7 @@ interface Structure {
     display_name: string;
     construction_cost: Resource_Amount[];
     space_requirement: number;
-    unsupported_biomes: Biome[];
+    unsupported_biomes: Set<Biome>;
     // TODO refine effects
     effects: object;
     output: Resource_Amount[];

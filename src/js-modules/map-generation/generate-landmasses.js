@@ -4,7 +4,7 @@ import { random_int, random_pick } from '../helper-functions.js';
 
 // TODO instead of sharp cutoffs, use a chance-based approach so this is unlikely and not impossible
 const offlimit_rows = new Set(
-    [0, 1, 2, board_dimensions.height - 1, board_dimensions.height - 2, board_dimensions.height - 3]
+    [0, 1, 2, board_dimensions.height - 1, board_dimensions.height - 2, board_dimensions.height - 3],
 );
 
 export default generate_landmasses;
@@ -30,10 +30,10 @@ function generate_landmasses(hex_grid) {
         // start by picking a cell, that's not too close to a pole
         const seed_coord = {
             x: random_int(board_dimensions.width),
-            y: random_int(board_dimensions.height - 3, 3)
+            y: random_int(board_dimensions.height - 3, 3),
         };
         const seed = hex_grid.find(
-            ({ x, y }) => x === seed_coord.x && y === seed_coord.y
+            ({ x, y }) => x === seed_coord.x && y === seed_coord.y,
         );
         // only consider adding neighbors, that aren't too close to a pole
         const candidates = new Set(seed.neighbors.filter(({ y }) => !offlimit_rows.has(y)));

@@ -18,6 +18,7 @@ async function request() {
 
 async function release() {
     if (!wakeLockSentinel) return;
+
     await wakeLockSentinel.release();
     wakeLockSentinel = undefined;
 }

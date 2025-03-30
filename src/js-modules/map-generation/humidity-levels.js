@@ -5,7 +5,7 @@ const HUMIDITY_LEVELS = make_frozen_null_obj({
     dry: 'dry',
     moderate: 'moderate',
     moist: 'moist',
-    wet: 'wet'
+    wet: 'wet',
 });
 
 export default HUMIDITY_LEVELS;

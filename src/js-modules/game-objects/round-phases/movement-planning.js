@@ -5,7 +5,7 @@ import {
     troop_select_input,
     troop_select_max_value,
     troop_select_min_value,
-    troop_select_output
+    troop_select_output,
 } from '../../dom-selections';
 import BIOMES from '../../map-generation/biomes';
 import move_queue, { make_player_move } from '../move-queue';
@@ -23,6 +23,7 @@ function click_on_cell_action(hex_obj, game) {
     // player picked origin
     if (move_origin === null) {
         set_move_origin(hex_obj, game);
+
         return;
     }
 
@@ -32,6 +33,7 @@ function click_on_cell_action(hex_obj, game) {
     // player unselected origin
     if (move_origin === hex_obj) {
         move_origin = null;
+
         return;
     }
 
@@ -45,13 +47,13 @@ function click_on_cell_action(hex_obj, game) {
         ({ player_id, origin, target }) =>
             player_id === game.current_player_id &&
             origin === move_origin &&
-            target === move_target
+            target === move_target,
     );
     const player_owns_origin = move_origin.owner_id === game.current_player_id;
     const player_owns_target = move_target.owner_id === game.current_player_id;
     const form_config = {
         settle_cell: false,
-        season: SEASONS.spring
+        season: SEASONS.spring,
     };
 
     // enable all season options
@@ -75,6 +77,7 @@ function click_on_cell_action(hex_obj, game) {
     // TODO can this be checked earlier?
     if (form_config.max_value <= 0) {
         move_target = null;
+
         return;
     }
 
@@ -87,8 +90,8 @@ function click_on_cell_action(hex_obj, game) {
         {
             value: form_config.current_value,
             min: form_config.min_value,
-            max: form_config.max_value
-        }
+            max: form_config.max_value,
+        },
     );
     troop_select_output.value = form_config.current_value;
     troop_select_min_value.value = form_config.min_value;
@@ -113,7 +116,7 @@ function prepare_configure_move_form(configured_move, game, player_owns_origin, 
         .filter(
             ({ season: season_of_move, origin }) =>
                 is_season_before(configured_move.season, season_of_move) &&
-                configured_move.target === origin
+                configured_move.target === origin,
         )
         .reduce((sent_troops, { season, origin, units }) => {
             // a follow up, that wouldnt have enough troops, if this move didnt exist,
@@ -126,7 +129,7 @@ function prepare_configure_move_form(configured_move, game, player_owns_origin, 
                     season,
                     origin.owner_id === game.current_player_id
                         ? origin.resources[RESOURCES.people]
-                        : 0
+                        : 0,
                 ) - configured_move.units) < units
             ) {
                 sent_troops += units;
@@ -145,14 +148,14 @@ function prepare_configure_move_form(configured_move, game, player_owns_origin, 
             player_moves,
             move_origin,
             form_config.season,
-            move_origin.resources[RESOURCES.people]
+            move_origin.resources[RESOURCES.people],
         ) - 1 + form_config.current_value;
     } else {
         form_config.max_value = count_of_units_on_cell_at_season(
             player_moves,
             move_origin,
             form_config.season,
-            game.active_player.get_encampment(move_origin) || 0
+            game.active_player.get_encampment(move_origin) || 0,
         ) - Number(form_config.settle_cell) + form_config.current_value;
     }
 }
@@ -169,7 +172,7 @@ function prepare_make_move_form(game, player_owns_origin, form_config) {
             player_moves,
             move_origin,
             form_config.season,
-            move_origin.resources[RESOURCES.people]
+            move_origin.resources[RESOURCES.people],
         ) - 1;
     } else {
         // set season to the one after that of the earliest move to the origin
@@ -190,13 +193,14 @@ function prepare_make_move_form(game, player_owns_origin, form_config) {
                 .find(
                     ({ target, type, season }) => target === move_origin &&
                         season === season_of_earliest_move_to_origin &&
-                        type === 'settle'
-                )
+                        type === 'settle',
+                ),
         );
 
         // do nothing if the earliest move is in winter
         if (season_of_earliest_move_to_origin === SEASONS.winter) {
             move_target = null;
+
             return;
         }
 
@@ -206,7 +210,7 @@ function prepare_make_move_form(game, player_owns_origin, form_config) {
             Object.values(SEASONS)
                 .filter((season) =>
                     season === season_of_earliest_move_to_origin ||
-                    is_season_before(season, season_of_earliest_move_to_origin)
+                    is_season_before(season, season_of_earliest_move_to_origin),
                 )
                 .forEach((season) => {
                     /** @type {HTMLInputElement} */ (
@@ -220,7 +224,7 @@ function prepare_make_move_form(game, player_owns_origin, form_config) {
             player_moves,
             move_origin,
             form_config.season,
-            game.active_player.get_encampment(move_origin) || 0
+            game.active_player.get_encampment(move_origin) || 0,
         ) - Number(player_wants_to_settle_origin);
     }
 }
@@ -255,7 +259,7 @@ function count_of_units_on_cell_at_season(
     player_moves,
     cell,
     season_in_question,
-    initial_count = 0
+    initial_count = 0,
 ) {
     return player_moves
         .filter(
@@ -264,7 +268,7 @@ function count_of_units_on_cell_at_season(
                 (
                     season_of_move === season_in_question ||
                     is_season_before(season_of_move, season_in_question)
-                )
+                ),
         )
         .reduce(
             (count, move) => {
@@ -276,7 +280,7 @@ function count_of_units_on_cell_at_season(
 
                 return count;
             },
-            initial_count
+            initial_count,
         );
 }
 
@@ -289,7 +293,7 @@ function plan_move(game) {
             .findIndex(({ player_id, origin, target }) =>
                 player_id === game.current_player_id &&
                 origin === move_origin &&
-                target === move_target
+                target === move_target,
             );
 
         // zero or invalid input dismisses the move
@@ -300,6 +304,7 @@ function plan_move(game) {
             // rm move from queue and arrow from dom
             if (configured_move_index > -1) {
                 const [{ arrow }] = move_queue.splice(configured_move_index, 1);
+
                 arrow.remove();
             }
 
@@ -308,6 +313,7 @@ function plan_move(game) {
 
         if (configured_move_index > -1) {
             const configured_move = move_queue[configured_move_index];
+
             // TODO update season
             // TODO update movement type
             configured_move.units = sent_troops;
@@ -319,8 +325,8 @@ function plan_move(game) {
                     move_target,
                     sent_troops,
                     season_of_move,
-                    settle_target_cell ? 'settle' : 'unspecified'
-                )
+                    settle_target_cell ? 'settle' : 'unspecified',
+                ),
             );
         }
 

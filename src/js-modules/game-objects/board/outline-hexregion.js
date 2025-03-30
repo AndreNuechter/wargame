@@ -11,8 +11,8 @@ function outline_hexregion(
     outline_element,
     {
         color = 'white',
-        stroked_outline = false
-    } = {}
+        stroked_outline = false,
+    } = {},
 ) {
     const line_segments = [];
 
@@ -30,7 +30,7 @@ function outline_hexregion(
         if (neighbors.find(
             (neighbor) =>
                 neighbor.r === hex.r &&
-                neighbor.s === (hex.s + 1)
+                neighbor.s === (hex.s + 1),
         )) {
             result.push(`M${bottom_left}L${top_left}`);
         }
@@ -39,7 +39,7 @@ function outline_hexregion(
         if (neighbors.find(
             (neighbor) =>
                 neighbor.q === hex.q &&
-                neighbor.s === (hex.s + 1)
+                neighbor.s === (hex.s + 1),
         )) {
             result.push(`M${top_left}L${top}`);
         }
@@ -48,7 +48,7 @@ function outline_hexregion(
         if (neighbors.find(
             (neighbor) =>
                 neighbor.s === hex.s &&
-                neighbor.r === (hex.r - 1)
+                neighbor.r === (hex.r - 1),
         )) {
             result.push(`M${top}L${top_right}`);
         }
@@ -57,7 +57,7 @@ function outline_hexregion(
         if (neighbors.find(
             (neighbor) =>
                 neighbor.r === hex.r &&
-                neighbor.s === (hex.s - 1)
+                neighbor.s === (hex.s - 1),
         )) {
             result.push(`M${top_right}L${bottom_right}`);
         }
@@ -66,7 +66,7 @@ function outline_hexregion(
         if (neighbors.find(
             (neighbor) =>
                 neighbor.q === hex.q &&
-                neighbor.s === (hex.s - 1)
+                neighbor.s === (hex.s - 1),
         )) {
             result.push(`M${bottom_right}L${bottom}`);
         }
@@ -75,7 +75,7 @@ function outline_hexregion(
         if (neighbors.find(
             (neighbor) =>
                 neighbor.s === hex.s &&
-                neighbor.r === (hex.r + 1)
+                neighbor.r === (hex.r + 1),
         )) {
             result.push(`M${bottom}L${bottom_left}`);
         }

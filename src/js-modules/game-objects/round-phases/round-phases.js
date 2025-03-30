@@ -1,6 +1,6 @@
 import {
     click_on_cell_action as handle_land_grab,
-    end_turn_action as assign_starting_position
+    end_turn_action as assign_starting_position,
 } from './land-grab';
 import { click_on_cell_action as handle_development } from './development';
 import { click_on_cell_action as handle_movement_planning } from './movement-planning';
@@ -21,30 +21,30 @@ const ROUND_PHASES = {
         'land_grab',
         'Pick your origin',
         'Confirm choice',
-        handle_land_grab
+        handle_land_grab,
     ),
     development: make_round_phase(
         'development',
         'Pick one of your cells and develop it',
         undefined,
-        handle_development
+        handle_development,
     ),
     movement_planning: make_round_phase(
         'movement_planning',
         'Make your moves',
         undefined,
-        handle_movement_planning
+        handle_movement_planning,
     ),
     movement_execution: make_round_phase(
         'movement_execution',
         '',
-        'Start Movement Phase'
+        'Start Movement Phase',
     ),
     game_over: make_round_phase(
         'game_over',
         '',
-        'Pick your origin'
-    )
+        'Pick your origin',
+    ),
 };
 
 export default ROUND_PHASES;
@@ -77,6 +77,6 @@ function make_round_phase(
         name,
         call_to_action,
         end_turn_btn_label,
-        handle_click_on_cell
+        handle_click_on_cell,
     };
 }

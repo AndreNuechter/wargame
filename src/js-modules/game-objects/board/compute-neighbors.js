@@ -7,7 +7,7 @@ const direction_vectors = [
     { q: 0, r: 1, s: -1 },
     { q: 0, r: -1, s: 1 },
     { q: -1, r: 0, s: 1 },
-    { q: -1, r: 1, s: 0 }
+    { q: -1, r: 1, s: 0 },
 ];
 
 export default compute_neighbors;
@@ -17,7 +17,7 @@ function compute_neighbors(hex_arr = []) {
         hex_obj.neighbors = get_neighboring_cells(
             hex_obj,
             hex_arr,
-            board_dimensions
+            board_dimensions,
         );
     });
 }
@@ -29,17 +29,17 @@ function get_neighboring_cells(
         r,
         s,
         x,
-        y
+        y,
     },
     cells,
-    board_dimensions
+    board_dimensions,
 ) {
     const neighbors = direction_vectors
         .map((vec) => cells
             .find((cell) =>
                 cell.q === q + vec.q &&
                 cell.r === r + vec.r &&
-                cell.s === s + vec.s
+                cell.s === s + vec.s,
             ))
         .filter(Boolean);
 
@@ -47,7 +47,7 @@ function get_neighboring_cells(
     if (x === 0) {
         // add the rightmost cell on the same row
         neighbors.push(
-            cells.find((cell) => y === cell.y && cell.x === board_dimensions.width - 1)
+            cells.find((cell) => y === cell.y && cell.x === board_dimensions.width - 1),
         );
 
         // add the, at most two, cells above and below that as well
@@ -60,8 +60,8 @@ function get_neighboring_cells(
                         : null,
                     y > 0
                         ? cells.find((cell) => y - 1 === cell.y && cell.x === board_dimensions.width - 1)
-                        : null
-                ].filter(Boolean)
+                        : null,
+                ].filter(Boolean),
             );
         }
     }
@@ -81,8 +81,8 @@ function get_neighboring_cells(
                         : null,
                     y > 0
                         ? cells.find((cell) => y - 1 === cell.y && cell.x === 0)
-                        : null
-                ].filter(Boolean)
+                        : null,
+                ].filter(Boolean),
             );
         }
     }

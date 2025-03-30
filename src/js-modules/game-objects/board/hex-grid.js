@@ -4,8 +4,8 @@ import BIOMES, { assign_biomes, make_ice_and_sea } from '../../map-generation/bi
 import generate_landmasses from '../../map-generation/generate-landmasses.js';
 import { is_even } from '../../helper-functions.js';
 import compute_neighbors from './compute-neighbors.js';
-import make_hex_cell from './hex-cell.js';
-import { board } from '../../dom-selections.js';
+import { make_hex_cell } from './hex-cell.js';
+import { board_element } from '../../dom-selections.js';
 
 const cell_size = 6;
 const half_cell_size = cell_size * 0.5;
@@ -43,8 +43,8 @@ function make_hex_grid({ height, width }) {
                     row,
                     q,
                     row,
-                    -q - row
-                )
+                    -q - row,
+                ),
             );
         }
     }
@@ -74,7 +74,7 @@ function reinstate_hex_map(board_state = [], board_map) {
             humidity,
             temperature,
             owner_id,
-            resources
+            resources,
         }) => {
             const hex_cell = make_hex_cell(cx, cy, x, y, q, r, s);
 
@@ -88,7 +88,7 @@ function reinstate_hex_map(board_state = [], board_map) {
                     resources: Object.assign(hex_cell.resources, resources),
                     temperature,
                     owner_id,
-                }
+                },
             );
         });
 
@@ -98,7 +98,7 @@ function reinstate_hex_map(board_state = [], board_map) {
     hex_arr
         .filter((hex_obj) =>
             hex_obj.elevation === 0 &&
-            hex_obj.neighbors.some((neighboring_hex_obj) => neighboring_hex_obj.elevation > 0)
+            hex_obj.neighbors.some((neighboring_hex_obj) => neighboring_hex_obj.elevation > 0),
         )
         .forEach((sea_tile_bordering_land) => sea_tile_bordering_land.cell.classList.add('shore'));
 
@@ -110,7 +110,7 @@ function reroll_map(board_map, board_dimensions) {
     // rm data
     board_map.clear();
     // rm cells while keeping the utils
-    board.replaceChildren(board.lastElementChild);
+    board_element.replaceChildren(board_element.lastElementChild);
     // create a new board
     make_hex_map(board_map, board_dimensions);
 }

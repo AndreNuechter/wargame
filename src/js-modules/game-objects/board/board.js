@@ -6,7 +6,7 @@ const board = new Map;
 export default board;
 export {
     save_board,
-    reapply_board
+    reapply_board,
 };
 
 // TODO structures and developable_land arent saved yet
@@ -20,7 +20,7 @@ function save_board() {
                 humidity,
                 temperature,
                 owner_id,
-                resources
+                resources,
             }) => ({
                 cx,
                 cy,
@@ -34,8 +34,8 @@ function save_board() {
                 humidity,
                 temperature,
                 owner_id,
-                resources
-            }))
+                resources,
+            })),
     ));
 }
 

@@ -1,4 +1,4 @@
-import { player_borders_container, player_encampments, player_setup } from '../dom-selections.js';
+import { player_borders_container, player_configs, player_encampments, player_setup } from '../dom-selections.js';
 import { player_border_path, player_config_tmpl } from '../dom-creations.js';
 import RESOURCES from './resources.js';
 import outline_hexregion from './board/outline-hexregion.js';
@@ -7,18 +7,28 @@ import storage_keys from './storage-keys.js';
 /** @type { {[K in Player_Type]: Player_Type} } */
 const PLAYER_TYPES = {
     human: 'human',
-    ai: 'ai'
+    ai: 'ai',
 };
 /** @type { Player[] } */
 const players = [];
+const min_player_count = 2;
+const max_player_count = 5;
 
 export default players;
 export {
+    add_player,
+    delete_player,
     make_player,
     make_player_config,
     reapply_players,
     save_players,
 };
+
+function add_player() {
+    if (player_configs.length === max_player_count) return;
+
+    make_player_config(player_configs.length + 1);
+}
 
 function deduplicate_name(name) {
     const name_is_duplicate = players.some((player) => player.name === name);
@@ -31,6 +41,34 @@ function deduplicate_name(name) {
 
     return deduplicate_name(`${name_has_postfix.groups.name}_${(Number(name_has_postfix.groups.id) || 0) + 1}`);
 }
+
+function delete_player({ target }) {
+    if (
+        !(target instanceof Element) ||
+            target.closest('.delete-player-btn') === null ||
+            player_configs.length === min_player_count
+    ) return;
+
+    // rm config
+    target.closest('.player-config').remove();
+    // rewrite names etc on other player-configs
+    [...player_configs]
+        .forEach((config, id) => {
+            id = id + 1;
+            Object.assign(
+                config.querySelector('.player-name-input'),
+                {
+                    name: `player-${id}-name`,
+                    value: `Player ${id}`,
+                },
+            );
+            config.querySelectorAll('.player-type-select-radio')
+                .forEach((/** @type {HTMLInputElement} */ radio) => {
+                    radio.name = `player-${id}-type`;
+                });
+        });
+}
+
 /** Create a player.
  * @param {number} id
  * @param {string} name
@@ -44,7 +82,7 @@ function make_player(
     name = 'Player Name',
     type = PLAYER_TYPES.ai,
     owned_cells = [],
-    active_encampments = []
+    active_encampments = [],
 ) {
     const cells = new Set(owned_cells);
     const border_outline = /** @type {SVGPathElement} */ (player_border_path.cloneNode(true));
@@ -59,7 +97,7 @@ function make_player(
     outline_hexregion(
         cells,
         border_outline,
-        { color: player_custom_prop }
+        { color: player_custom_prop },
     );
     // re-apply encampments in a loop to have the other logic run too
     active_encampments.forEach(([cell, units]) => add_encampment(cell, units));
@@ -71,6 +109,7 @@ function make_player(
 
         if (cell.has_owner) {
             cell.cell.classList.add('contested');
+
             return;
         }
 
@@ -82,6 +121,7 @@ function make_player(
             cell.pop_size_display.textContent = '';
             // this causes the other player to redraw their encampments wo this cell
             first_other_encamped_player.outline_encampments();
+
             return;
         }
 
@@ -94,10 +134,10 @@ function make_player(
         outline_hexregion(
             new Set(
                 [...encampments.keys()]
-                    .filter(({ cell }) => !cell.classList.contains('contested'))
+                    .filter(({ cell }) => !cell.classList.contains('contested')),
             ),
             encampment_outline,
-            { color: player_custom_prop, stroked_outline: true }
+            { color: player_custom_prop, stroked_outline: true },
         );
     }
 
@@ -111,6 +151,7 @@ function make_player(
                 Object.entries(resources).forEach(([resource, amount]) => {
                     result[resource] += amount;
                 });
+
                 return result;
             }, {
                 [RESOURCES.people]: 0,
@@ -121,7 +162,7 @@ function make_player(
                 [RESOURCES.iron]: 0,
                 [RESOURCES.food]: 0,
                 [RESOURCES.alcohol]: 0,
-                [RESOURCES.coal]: 0
+                [RESOURCES.coal]: 0,
             });
         },
         border_path_container: border_outline,
@@ -134,7 +175,7 @@ function make_player(
             outline_hexregion(
                 cells,
                 border_outline,
-                { color: player_custom_prop }
+                { color: player_custom_prop },
             );
         },
         delete_cell(cell) {
@@ -143,7 +184,7 @@ function make_player(
             outline_hexregion(
                 cells,
                 border_outline,
-                { color: player_custom_prop }
+                { color: player_custom_prop },
             );
         },
         get encampments() {
@@ -156,6 +197,7 @@ function make_player(
         delete_encampment(cell) {
             encampments.delete(cell);
             outline_encampments();
+
             // rm size output
             if (
                 cell.owner_id === -1 &&
@@ -170,7 +212,7 @@ function make_player(
             encampments.clear();
             border_outline.remove();
             encampment_outline.remove();
-        }
+        },
     };
 }
 
@@ -182,8 +224,8 @@ function make_player_config(id) {
         config.querySelector('.player-name-input'),
         {
             name: `player-${id}-name`,
-            value: `Player ${id}`
-        }
+            value: `Player ${id}`,
+        },
     );
     config.querySelectorAll('.player-type-select-radio')
         .forEach((/** @type {HTMLInputElement} */ radio) => {
@@ -206,10 +248,10 @@ function reapply_players(game) {
                 cells.filter((cell) => cell.owner_id === id),
                 encampments.map(({ cx, cy, units }) => [
                     cells.find((cell) => cell.cx === cx && cell.cy === cy),
-                    units
-                ])
-            )
-        )
+                    units,
+                ]),
+            ),
+        ),
     );
 }
 
@@ -221,8 +263,8 @@ function save_players() {
                 name,
                 type,
                 encampments: [...encampments.entries()]
-                    .map(([{ cx, cy }, units]) => ({ cx, cy, units }))
-            }))
-        )
+                    .map(([{ cx, cy }, units]) => ({ cx, cy, units })),
+            })),
+        ),
     );
 }

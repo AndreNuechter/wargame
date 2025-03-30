@@ -1,11 +1,15 @@
-import { board } from '../../dom-selections.js';
+import { board_element, selection_highlight } from '../../dom-selections.js';
 import { cell_group_tmpl } from '../../dom-creations.js';
 import TEMPERATURES from '../../map-generation/temperatures.js';
 import HUMIDITY_LEVELS from '../../map-generation/humidity-levels.js';
 import STRUCTURES from '../structures.js';
 import RESOURCES from '../resources.js';
+import ROUND_PHASES from '../round-phases/round-phases.js';
 
-export default make_hex_cell;
+export {
+    make_hex_cell,
+    select_cell,
+};
 
 /**
  * Create a Hex_Cell object.
@@ -25,7 +29,7 @@ function make_hex_cell(
     y,
     q,
     r,
-    s
+    s,
 ) {
     const cell = render_hex_cell(cx, cy);
     const pop_size_display = /** @type {SVGTextElement} */ (cell.querySelector('.population-size'));
@@ -71,7 +75,7 @@ function make_hex_cell(
             [RESOURCES.iron]: 0,
             [RESOURCES.food]: 0,
             [RESOURCES.alcohol]: 0,
-            [RESOURCES.coal]: 0
+            [RESOURCES.coal]: 0,
         },
         get biome() {
             return biome;
@@ -79,6 +83,7 @@ function make_hex_cell(
         set biome(new_biome) {
             if (biome !== null) cell.classList.remove(biome.name);
             if (new_biome !== null) cell.classList.add(new_biome.name);
+
             biome = new_biome;
         },
         get owner_id() {
@@ -89,7 +94,7 @@ function make_hex_cell(
             cell.dataset.owner_id = id === -1 ? '' : id.toString();
         },
         // TODO randomnly/procedurally define this
-        developable_land: 10
+        developable_land: 10,
     };
 }
 
@@ -98,7 +103,33 @@ function render_hex_cell(cx, cy) {
 
     cell_wrapper.setAttribute('transform', `translate(${cx}, ${cy})`);
 
-    board.prepend(cell_wrapper);
+    board_element.prepend(cell_wrapper);
 
     return cell_wrapper;
+}
+
+function select_cell(game) {
+    return ({ target }) => {
+        if (!(target instanceof Element)) return;
+
+        const cell_element = /** @type {SVGGElement} */ (target.closest('.cell-wrapper'));
+
+        if (cell_element === null) return;
+
+        const previously_clicked_cell = board_element.querySelector('.clicked');
+        const hex_obj = game.board.get(cell_element);
+
+        if (previously_clicked_cell) {
+            previously_clicked_cell.classList.remove('clicked');
+            // clear focus highlighting
+            selection_highlight.replaceChildren();
+        }
+
+        // player de-selected a cell
+        if (previously_clicked_cell !== cell_element) {
+            cell_element.classList.add('clicked');
+        }
+
+        ROUND_PHASES[game.current_phase].handle_click_on_cell(hex_obj, game);
+    };
 }

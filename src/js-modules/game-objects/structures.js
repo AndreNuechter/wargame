@@ -22,7 +22,7 @@ const STRUCTURES = {
                 cell.housing_capacity -= 5;
             },
         },
-        []
+        new Set,
     ),
     textile_factory: make_structure(
         'Textile Factory',
@@ -33,7 +33,7 @@ const STRUCTURES = {
         [
             make_resource_amount(RESOURCES.cloth, 5),
         ],
-        5
+        5,
     ),
     lumber_mill: make_structure(
         'Lumber Mill',
@@ -42,8 +42,8 @@ const STRUCTURES = {
             make_resource_amount(RESOURCES.stone, 15),
         ],
         [
-            make_resource_amount(RESOURCES.wood, 5)
-        ]
+            make_resource_amount(RESOURCES.wood, 5),
+        ],
     ),
     quarry: make_structure(
         'Quarry',
@@ -53,7 +53,7 @@ const STRUCTURES = {
         ],
         [
             make_resource_amount(RESOURCES.stone, 5),
-        ]
+        ],
     ),
     mine: make_structure(
         'Mine',
@@ -63,7 +63,7 @@ const STRUCTURES = {
         ],
         [
             make_resource_amount(RESOURCES.coal, 5),
-        ]
+        ],
     ),
     forge: make_structure(
         'Forge',
@@ -73,7 +73,7 @@ const STRUCTURES = {
         ],
         [
             make_resource_amount(RESOURCES.iron, 1),
-        ]
+        ],
     ),
     farm: make_structure(
         'Farm',
@@ -83,7 +83,7 @@ const STRUCTURES = {
         ],
         [
             make_resource_amount(RESOURCES.food, 5),
-        ]
+        ],
     ),
     distillery: make_structure(
         'Distillery',
@@ -93,8 +93,8 @@ const STRUCTURES = {
         ],
         [
             make_resource_amount(RESOURCES.alcohol, 1),
-        ]
-    )
+        ],
+    ),
 };
 
 export default STRUCTURES;
@@ -105,7 +105,7 @@ export default STRUCTURES;
  * @param { Resource_Amount [] } output
  * @param { number } required_workers
  * @param { object } effects
- * @param { Biome[] } unsupported_biomes
+ * @param { Set<Biome> } unsupported_biomes
  * @param { Resource_Amount[] } input
  * @param { number } space_requirement
  * @returns { Structure }
@@ -121,11 +121,11 @@ function make_structure(
         },
         off(cell) {
             cell.foo -= 5;
-        }
+        },
     },
-    unsupported_biomes = [BIOMES.swamp],
+    unsupported_biomes = new Set([BIOMES.swamp]),
     input = [make_resource_amount(RESOURCES.wood, 1)],
-    space_requirement = 1
+    space_requirement = 1,
 ) {
     return {
         display_name,
@@ -135,7 +135,7 @@ function make_structure(
         effects,
         output,
         input,
-        required_workers
+        required_workers,
     };
 }
 
