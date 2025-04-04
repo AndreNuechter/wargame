@@ -4,7 +4,7 @@ import RESOURCES from './resources.js';
 import outline_hexregion from './board/outline-hexregion.js';
 import storage_keys from './storage-keys.js';
 
-/** @type { {[K in Player_Type]: Player_Type} } */
+/** @type {Player_Types} */
 const PLAYER_TYPES = {
     human: 'human',
     ai: 'ai',
@@ -24,29 +24,38 @@ export {
     save_players,
 };
 
+/** Create a new player config if the limit isnt yet reached. */
 function add_player() {
     if (player_configs.length === max_player_count) return;
 
     make_player_config(player_configs.length + 1);
 }
 
-function deduplicate_name(name) {
+/**
+ * @param {string} name
+ * @returns {string}
+ */
+function deduplicate_player_name(name) {
     const name_is_duplicate = players.some((player) => player.name === name);
 
     if (!name_is_duplicate) return name;
 
     const name_has_postfix = /^(?<name>.+)_(?<id>\d+)$/.exec(name);
 
-    if (name_has_postfix === null) return deduplicate_name(`${name}_2`);
+    if (name_has_postfix === null) return deduplicate_player_name(`${name}_2`);
 
-    return deduplicate_name(`${name_has_postfix.groups.name}_${(Number(name_has_postfix.groups.id) || 0) + 1}`);
+    return deduplicate_player_name(`${name_has_postfix.groups.name}_${(Number(name_has_postfix.groups.id) || 0) + 1}`);
 }
 
+/**
+ * Handle clicks on delete btns in the player config.
+ * @param {Event} param0
+ */
 function delete_player({ target }) {
     if (
         !(target instanceof Element) ||
-            target.closest('.delete-player-btn') === null ||
-            player_configs.length === min_player_count
+        target.closest('.delete-player-btn') === null ||
+        player_configs.length === min_player_count
     ) return;
 
     // rm config
@@ -73,8 +82,8 @@ function delete_player({ target }) {
  * @param {number} id
  * @param {string} name
  * @param {Player_Type} [type=PLAYER_TYPES.ai]
- * @param {any[]} [owned_cells=[]]
- * @param {any[]} [active_encampments=[]]
+ * @param {Hex_Cell[]} [owned_cells=[]]
+ * @param {[Hex_Cell, number][]} [active_encampments=[]]
  * @returns {Player}
 */
 function make_player(
@@ -102,6 +111,12 @@ function make_player(
     // re-apply encampments in a loop to have the other logic run too
     active_encampments.forEach(([cell, units]) => add_encampment(cell, units));
 
+    /**
+     *
+     * @param {Hex_Cell} cell
+     * @param {number} units
+     * @returns
+     */
     function add_encampment(cell, units) {
         encampments.set(cell, units);
 
@@ -130,6 +145,7 @@ function make_player(
         cell.pop_size_display.textContent = units.toString();
     }
 
+    /** Draw a dashed line arround the player's encampments. */
     function outline_encampments() {
         outline_hexregion(
             new Set(
@@ -143,7 +159,7 @@ function make_player(
 
     return {
         id,
-        name: deduplicate_name(name),
+        name: deduplicate_player_name(name),
         type,
         tax_rate: 1,
         get resources() {
@@ -156,7 +172,6 @@ function make_player(
             }, {
                 [RESOURCES.people]: 0,
                 [RESOURCES.gold]: 0,
-                [RESOURCES.cloth]: 0,
                 [RESOURCES.wood]: 0,
                 [RESOURCES.stone]: 0,
                 [RESOURCES.iron]: 0,
@@ -235,6 +250,9 @@ function make_player_config(id) {
     player_setup.append(config);
 }
 
+/**
+ * @param {Game} game
+ */
 function reapply_players(game) {
     const stored_players = JSON.parse(localStorage.getItem(storage_keys.players));
     const cells = [...game.board.values()];
@@ -255,6 +273,7 @@ function reapply_players(game) {
     );
 }
 
+/** Save players to localStorage. */
 function save_players() {
     localStorage.setItem(
         storage_keys.players,

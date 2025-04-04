@@ -18,7 +18,7 @@ function click_on_cell_action(hex_obj, game) {
         total_production_forecast.classList.add('hidden');
         setup_content_for_own_cell(
             calculate_resource_production(
-                [hex_obj],
+                new Set([hex_obj]),
                 game.active_player.tax_rate,
             ),
             make_structure_builder_inputs(hex_obj, game),
@@ -37,6 +37,10 @@ function click_on_cell_action(hex_obj, game) {
     }
 }
 
+/**
+ * @param {Resource_Output} resources
+ * @param {HTMLDivElement[]} structure_builder_inputs
+ */
 function setup_content_for_own_cell(resources, structure_builder_inputs) {
     // TODO enable turning population into other units (on cells w required structures)
     cell_production_forecast.querySelector('ul').replaceChildren(...make_resource_list(resources));

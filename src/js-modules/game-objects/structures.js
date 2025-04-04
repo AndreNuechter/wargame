@@ -9,7 +9,6 @@ const STRUCTURES = {
         'Tent',
         [
             make_resource_amount(RESOURCES.wood, 1),
-            make_resource_amount(RESOURCES.cloth, 3),
         ],
         [],
         0,
@@ -23,17 +22,6 @@ const STRUCTURES = {
             },
         },
         new Set,
-    ),
-    textile_factory: make_structure(
-        'Textile Factory',
-        [
-            make_resource_amount(RESOURCES.wood, 15),
-            make_resource_amount(RESOURCES.stone, 15),
-        ],
-        [
-            make_resource_amount(RESOURCES.cloth, 5),
-        ],
-        5,
     ),
     lumber_mill: make_structure(
         'Lumber Mill',

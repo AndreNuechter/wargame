@@ -12,10 +12,12 @@ export default (() => {
     });
 })();
 
+/** Request a wakelock. */
 async function request() {
     wakeLockSentinel = await navigator.wakeLock?.request?.('screen');
 }
 
+/** Release the current wakelock. */
 async function release() {
     if (!wakeLockSentinel) return;
 

@@ -1,3 +1,30 @@
+interface Board_dimensions {
+    width: number;
+    height: number;
+}
+
+interface Hex_Cell {
+    owner_id: number;
+    biome: Biome;
+    cell: SVGGElement;
+    resources: { [Key in Resource]: number };
+    structures: Map<Structure, number>;
+    cx: number;
+    cy: number;
+    x: number;
+    y: number;
+    q: number;
+    r: number;
+    s: number;
+    has_owner: boolean;
+    neighbors: Hex_Cell[];
+    elevation: number;
+    humidity: Humidity_Level;
+    temperature: Temperature;
+    pop_size_display: SVGTextElement;
+    developable_land: number;
+}
+
 /** The god-object holding most of the game state. */
 interface Game {
     /** A map from DOM/SVG hex-cells to the objects defining them. */
@@ -16,20 +43,44 @@ interface Game {
     run: () => void;
 }
 
+interface Round_Phase {
+    // TODO note possible values
+    name: string;
+    call_to_action: string;
+    end_turn_btn_label: string;
+    handle_click_on_cell: (arg0: Hex_Cell, arg1: Game) => void;
+}
+
+type Humidity_Level = "arid" | "dry" | "moderate" | "moist" | "wet";
+type Humidity_Levels = { [Level in Humidity_Level]: Level };
+
+type Temperature = "freezing" | "cold" | "temperate" | "warm" | "hot";
+type Temperatures = { [Level in Temperature]: Level };
+
+type Resource = "wood" | "stone" | "food" | "people" | "gold" | "alcohol" | "iron" | "coal";
+type Gatherable_Resources = { [Key in "wood" | "stone" | "food"]?: number };
+type Resources = { [Key in Resource]: Key };
+// TODO can we find a better name?
+type Resource_Output = { [Key in Resource]?: number };
+
+// TODO can we get rid of this?
+interface Resource_Amount {
+    resource_name: string;
+    amount: number;
+}
+
 type Biome_Name = "ice" | "sea" | "mountain" | "high_mountain" | "tundra" | "grassland" | "savanna" | "boreal_forest" | "forest" | "tropical_rainforest" | "cold_swamp" | "swamp" | "tropical_swamp" | "desert" | "extreme_desert";
+// TODO can we be more specific? the value should be the Biome w the name === Key
+// TODO same issue w structures
+type Biomes = { [Key in Biome_Name]: Biome; };
 
 interface Biome {
     name: Biome_Name;
-    resource_production: object;
+    resource_production: Gatherable_Resources;
 }
 
-// TODO can we be more specific? the value should be the Biome w the name === Key
-// TODO same issue w player_types in player.js
-type Biomes = {
-    [Key in Biome_Name]: Biome;
-};
-
 type Player_Type = "human" | "ai";
+type Player_Types = { [Key in Player_Type]: Key };
 
 interface Player {
     id: number;
@@ -39,11 +90,11 @@ interface Player {
     add_cell: (cell: Hex_Cell) => void;
     delete_cell: (cell: Hex_Cell) => void;
     /** Returns the combined values from all the player's cells. */
-    get resources(): Resources;
+    get resources(): Resource_Output;
     tax_rate: number;
     encampments: Map<Hex_Cell, number>;
     get_encampment: (cell: Hex_Cell) => number;
-    add_encampment: (cell: Hex_Cell) => void;
+    add_encampment: (cell: Hex_Cell, units: number) => void;
     delete_encampment: (cell: Hex_Cell) => void;
     outline_encampments: () => void;
     border_path_container: SVGPathElement;
@@ -51,26 +102,11 @@ interface Player {
     destroy: () => void;
 }
 
-type Move_Queue = Player_Move[]
-
 type Season = "spring" | "summer" | "autumn" | "winter";
+type Seasons = { [Key in Season]: Key; };
 
-type Seasons = {
-    [Key in Season]: Key;
-};
-
-type Resource = "people" | "wood" | "stone" | "food" | "alcohol" | "gold" | "cloth" | "iron" | "coal";
-
-type Resources = {
-    [Key in Resource]: Key
-};
-
-interface Resource_Amount {
-    resource_name: string;
-    amount: number;
-}
-
-type Structure_Name = "tent" | "textile_factory" | "lumber_mill" | "quarry" | "forge" | "farm" | "distillery" | "mine";
+type Structure_Name = "tent" | "lumber_mill" | "quarry" | "forge" | "farm" | "distillery" | "mine";
+type Structures = { [Key in Structure_Name]: Structure; };
 
 interface Structure {
     display_name: string;
@@ -84,35 +120,13 @@ interface Structure {
     required_workers: number;
 }
 
-type Structures = {
-    [Key in Structure_Name]: Structure;
+interface Army {
+    player_id: number;
+    unit_count: number;
+    is_defender?: boolean;
+    // TODO increase this ea turn and use this to give "prepared" army bonuses
+    turns_on_cell?: number;
 };
-
-interface Hex_Cell {
-    owner_id: number;
-    biome: Biome;
-    cell: SVGGElement;
-    resources: { [Key in Resource]: number };
-    structures: Map<Structure, number>;
-    cx: number;
-    cy: number;
-    x: number;
-    y: number;
-    q: number;
-    r: number;
-    s: number;
-    has_owner: boolean;
-    neighbors: Hex_Cell[];
-    elevation: number;
-    // TODO refine humidity
-    humidity: string;
-    // TODO refine temp
-    temperature: string;
-    pop_size_display: SVGTextElement;
-    developable_land: number;
-}
-
-type Move_Type = "settle" | "unspecified"
 
 /** A move from one cell to another. */
 interface Player_Move {
@@ -127,7 +141,17 @@ interface Player_Move {
     /** The number of units sent. */
     units: number;
     /** The type of movement, one of [settle | unspecified]. */
-    type: Move_Type;
+    type: "settle" | "unspecified";
     /** The SVG element visualizing the move. */
     arrow: SVGGElement;
-}
+};
+
+interface Movement_Planning_Form_Config {
+    settle_cell: boolean;
+    season: Season;
+    min_value?: number;
+    max_value?: number;
+    current_value?: number;
+};
+
+type Move_Queue = Player_Move[];

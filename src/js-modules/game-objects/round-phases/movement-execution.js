@@ -6,6 +6,9 @@ import { random_int, random_pick } from '../../helper-functions';
 
 export { execute_moves };
 
+/**
+ * @param {Game} game
+ */
 function* execute_moves(game) {
     for (const season in SEASONS) {
         const moves_in_this_season = move_queue
@@ -26,7 +29,8 @@ function* execute_moves(game) {
         // TODO persist move_targets and planned_settlements
         /** @type {Set<Hex_Cell>} */
         const move_targets = new Set();
-        const planned_settlements = new Map();
+        /** @type {Map<Hex_Cell, Set<number>>} */
+        const players_planning_to_settle = new Map();
 
         // output season in top-bar instead of cta
         phase_label.textContent = `Move(s) in ${season}`;
@@ -47,10 +51,10 @@ function* execute_moves(game) {
             yield 'init_move';
 
             if (move.type === 'settle') {
-                planned_settlements.set(
+                players_planning_to_settle.set(
                     move.target,
-                    planned_settlements.has(move.target)
-                        ? planned_settlements.get(move.target).add(move.player_id)
+                    players_planning_to_settle.has(move.target)
+                        ? players_planning_to_settle.get(move.target).add(move.player_id)
                         : new Set([move.player_id]),
                 );
             }
@@ -70,12 +74,12 @@ function* execute_moves(game) {
 
             // check for conflict (= there're more than one player's troops at target)
             if (armies.length === 1) {
-                const { player_id, units } = armies[0];
+                const { player_id, unit_count } = armies[0];
 
                 // give cell to player if they wanted to settle it
-                if (planned_settlements.get(move_target)?.has(player_id)) {
+                if (players_planning_to_settle.get(move_target)?.has(player_id)) {
                     // FIXME cell is first marked as encamped
-                    take_ownership_of_cell(game.players[player_id], move_target, units);
+                    take_ownership_of_cell(game.players[player_id], move_target, unit_count);
                 }
 
                 continue;
@@ -89,18 +93,27 @@ function* execute_moves(game) {
                 move_target,
                 armies,
                 game.players,
-                planned_settlements.get(move_target),
+                players_planning_to_settle.get(move_target),
             );
         }
     }
 }
 
+/**
+ * @param {Player} player
+ * @param {Hex_Cell} cell
+ * @param {number} population
+ */
 function take_ownership_of_cell(player, cell, population) {
     player.delete_encampment(cell);
     player.add_cell(cell);
     cell.resources[RESOURCES.people] = population;
 }
 
+/**
+ * @param {Player_Move} move
+ * @param {Game} game
+ */
 function move_units_from_origin_to_target(move, game) {
     // decrease population/encampment-size on origin
     if (move.player_id === move.origin.owner_id) {
@@ -134,7 +147,12 @@ function move_units_from_origin_to_target(move, game) {
     }
 }
 
-function is_move_still_possible(move = {}, game) {
+/**
+ * @param {Player_Move} move
+ * @param {Game} game
+ * @returns {boolean}
+ */
+function is_move_still_possible(move, game) {
     const available_troops = move.origin.owner_id === move.player_id
         ? move.origin.resources[RESOURCES.people] - 1
         : game.players[move.player_id].encampments.get(move.origin);
@@ -143,7 +161,11 @@ function is_move_still_possible(move = {}, game) {
     return move.units <= available_troops;
 }
 
-function delete_move_from_queue(move, queue = []) {
+/**
+ * @param {Player_Move} move
+ * @param {Move_Queue} queue
+ */
+function delete_move_from_queue(move, queue) {
     const index = queue.findIndex((item) => item === move);
 
     if (index < 0) return;
@@ -154,6 +176,11 @@ function delete_move_from_queue(move, queue = []) {
     queue.splice(index, 1);
 }
 
+/**
+ * @param {Hex_Cell} cell
+ * @param {Player[]} players
+ * @returns {Army[]}
+ */
 function get_armies_at_cell(cell, players) {
     return players
         .reduce((result, player, player_id) => {
@@ -174,7 +201,13 @@ function get_armies_at_cell(cell, players) {
         }, []);
 }
 
-function resolve_battle(battle_field, armies, players, planned_settlements) {
+/**
+ * @param {Hex_Cell} battle_field
+ * @param {Army[]} armies
+ * @param {Player[]} players
+ * @param {Set<number>} players_wanting_to_settle
+ */
+function resolve_battle(battle_field, armies, players, players_wanting_to_settle) {
     // let armies fight until there's only one left
     // TODO stop after fixed # of iterations to model sieges that may span multiple years?!
     while (armies.length > 1) {
@@ -196,8 +229,8 @@ function resolve_battle(battle_field, armies, players, planned_settlements) {
 
                 // TODO allow player to learn techniques that modulate this?!
                 previous_attack = previous_attack === undefined
-                    ? random_int(attacker_army.units)
-                    : random_int(attacker_army.units - previous_attack);
+                    ? random_int(attacker_army.unit_count)
+                    : random_int(attacker_army.unit_count - previous_attack);
 
                 attacks.push({ target_id: defender_id, attack_strength: previous_attack });
             });
@@ -205,9 +238,9 @@ function resolve_battle(battle_field, armies, players, planned_settlements) {
 
         // attacks are "pre-recorded" so that ea player gets a shot
         for (const { target_id, attack_strength } of attacks) {
-            armies[target_id].units -= attack_strength;
+            armies[target_id].unit_count -= attack_strength;
 
-            if (armies[target_id].units <= 0) {
+            if (armies[target_id].unit_count <= 0) {
                 losing_armies.add(target_id);
             }
         }
@@ -235,7 +268,7 @@ function resolve_battle(battle_field, armies, players, planned_settlements) {
     // the conflict is resolved, so the highlighting can be removed
     battle_field.cell.classList.remove('contested');
 
-    const { player_id: winner_id, units: surviving_units } = armies[0];
+    const { player_id: winner_id, unit_count: surviving_units } = armies[0];
     const winner = players[winner_id];
 
     // owner won, update the population
@@ -252,7 +285,7 @@ function resolve_battle(battle_field, armies, players, planned_settlements) {
     }
 
     // give the cell to the winner or update the encampment
-    if (planned_settlements?.has(winner_id)) {
+    if (players_wanting_to_settle?.has(winner_id)) {
         take_ownership_of_cell(winner, battle_field, surviving_units);
     } else {
         winner.add_encampment(battle_field, surviving_units);

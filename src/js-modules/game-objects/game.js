@@ -118,21 +118,24 @@ export {
     save_game,
 };
 
+// TODO split apart and call in appropriate setter above
+/** Configures the ui to current_phase and current_player. */
 function adjust_ui() {
     // TODO add phase viz...string of dots representing phases, active is highlighted...
     // show phase specific end-turn-btn label
     end_turn_btn.textContent = ROUND_PHASES[current_phase].end_turn_btn_label;
     // show phase cta
     phase_label.textContent = ROUND_PHASES[current_phase].call_to_action;
-    // show name of active player
-    player_name.classList.remove('hidden');
-    player_name.textContent = game.active_player.name;
+    // hide or show name of active player
+    player_name.classList.toggle('hidden', current_phase === ROUND_PHASES.movement_execution.name);
+    // hide or show player resources
+    bottom_bar.classList.toggle('content-hidden', current_phase === ROUND_PHASES.development.name);
     // mark current phase in dom (to be used w css)
     document.body.dataset.current_phase = ROUND_PHASES[current_phase].name;
     // set player color
     document.documentElement.style.setProperty('--active-player-color', `var(--player-${current_player_id + 1}`);
-    // hide player resources
-    bottom_bar.classList.add('content-hidden');
+    // output player name on top
+    player_name.textContent = game.active_player.name;
 
     switch (current_phase) {
         case ROUND_PHASES.land_grab.name:
@@ -156,15 +159,16 @@ function adjust_ui() {
             // show panels for this phase
             cell_info.classList.add('hidden');
             general_info.classList.add('hidden');
-            bottom_bar.classList.remove('content-hidden');
             break;
         case ROUND_PHASES.movement_execution.name:
             moves = execute_moves(game);
-            // hide player name
-            player_name.classList.add('hidden');
     }
 }
 
+/**
+ * Apply the game state loaded from localStorage.
+ * @param {string} game_data
+ */
 function apply_savegame(game_data) {
     const {
         round,
@@ -179,6 +183,7 @@ function apply_savegame(game_data) {
     });
 }
 
+/** Attempt to load game state from localStorage, initialize board_dimensions and continue game or open config. */
 function continue_game_or_open_main_overlay() {
     const game_data = localStorage.getItem(storage_keys.game);
     const previously_saved_game = game_data !== null;
@@ -201,6 +206,7 @@ function continue_game_or_open_main_overlay() {
     }
 }
 
+/** Delete or save data when the window could be closed. */
 function close_window() {
     if (document.visibilityState !== 'hidden') return;
 
@@ -220,11 +226,16 @@ function close_window() {
     }
 }
 
+/** Delete every bit of game data. */
 function delete_savegame() {
     Object.values(storage_keys)
         .forEach((key) => localStorage.removeItem(key));
 }
 
+// TODO clarify return type
+/** Return the name of the phase following the current one.
+ * @returns {string} "development" | "movement_planning" | "movement_execution"
+*/
 function increment_phase() {
     switch (current_phase) {
         case ROUND_PHASES.development.name:
@@ -236,7 +247,9 @@ function increment_phase() {
     }
 }
 
-/** Return the winner or null if there isn't one. */
+/**
+ * @returns {Player|null}
+*/
 function is_the_game_over_and_who_won() {
     // TODO check for other win conditions
     const remaining_players = players
@@ -252,6 +265,7 @@ function is_the_game_over_and_who_won() {
     return null;
 }
 
+/** Store the game object to localStorage. */
 function save_game() {
     localStorage.setItem(
         storage_keys.game,
@@ -263,17 +277,18 @@ function save_game() {
     );
 }
 
+// TODO have the containers be static and just update the amount here
+/** Adjust the botttom bar to show the resources of the current player. */
 function update_bottom_resource_display() {
     bottom_bar.replaceChildren(
-        ...Object
-            .entries(game.active_player.resources)
-            .map(([name, value]) => {
+        ...Object.entries(game.active_player.resources)
+            .map(([resource, amount]) => {
                 return Object.assign(
                     document.createElement('div'),
                     {
-                        title: name,
-                        innerHTML: `<svg class="icon"><use href="#${name}"></use></svg>
-                        <span>${value}</span>`,
+                        title: resource,
+                        innerHTML: `<svg class="icon"><use href="#${resource}"></use></svg>
+                        <span>${amount}</span>`,
                     },
                 );
             }),

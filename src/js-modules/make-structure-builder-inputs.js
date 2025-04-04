@@ -6,7 +6,12 @@ import { make_resource_list } from './helper-functions';
 
 export default make_structure_builder_inputs;
 
-/** Create a set of UI elements to build or deconstruct structures supported on the given cell's biome. */
+/**
+ * Create a set of UI elements to build or deconstruct structures supported on the given cell's biome.
+ * @param {Hex_Cell} hex_obj
+ * @param {Game} game
+ * @returns {HTMLDivElement[]}
+ */
 function make_structure_builder_inputs(hex_obj, game) {
     return Object
         .entries(STRUCTURES)
@@ -22,7 +27,7 @@ function make_structure_builder_inputs(hex_obj, game) {
 
             structure_builder.dataset.structure_name = name;
             structure_label.textContent = `${structure.display_name}: `;
-            structure_count_display.textContent = hex_obj.structures.get(structure);
+            structure_count_display.textContent = hex_obj.structures.get(structure).toString();
 
             // TODO optimize event-handlers...attach them once to the parent
             // structure_label.addEventListener('click', () => {
@@ -88,12 +93,12 @@ function make_structure_builder_inputs(hex_obj, game) {
 
                 // update structure count
                 hex_obj.structures.set(structure, structure_count);
-                structure_count_display.textContent = structure_count;
+                structure_count_display.textContent = structure_count.toString();
                 // update cell production
                 cell_production_forecast.querySelector('ul').replaceChildren(
                     ...make_resource_list(
                         calculate_resource_production(
-                            [hex_obj],
+                            new Set([hex_obj]),
                             game.active_player.tax_rate,
                         )),
                 );

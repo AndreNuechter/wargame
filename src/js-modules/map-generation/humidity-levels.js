@@ -1,5 +1,6 @@
 import { make_frozen_null_obj } from '../helper-functions';
 
+/** @type {Humidity_Levels} */
 const HUMIDITY_LEVELS = make_frozen_null_obj({
     arid: 'arid',
     dry: 'dry',
@@ -11,6 +12,9 @@ const HUMIDITY_LEVELS = make_frozen_null_obj({
 export default HUMIDITY_LEVELS;
 export { assign_humidity };
 
+/**
+ * @param {Hex_Cell[]} hex_arr
+ */
 function assign_humidity(hex_arr) {
     // TODO finish me
     // humidity of a land-tile is based on 3 factors:
@@ -34,6 +38,10 @@ function assign_humidity(hex_arr) {
     // TODO should temperature and wind influence humidity (carry it off)? rn there's very little dryness...
 }
 
+/**
+ * @param {Humidity_Level} level
+ * @returns {Humidity_Level}
+ */
 function increase_humidity_level(level) {
     switch (level) {
         case HUMIDITY_LEVELS.arid:
@@ -42,7 +50,7 @@ function increase_humidity_level(level) {
             return HUMIDITY_LEVELS.moderate;
         case HUMIDITY_LEVELS.moderate:
             return HUMIDITY_LEVELS.moist;
-        default:
+        case HUMIDITY_LEVELS.moist:
             return HUMIDITY_LEVELS.wet;
     }
 }

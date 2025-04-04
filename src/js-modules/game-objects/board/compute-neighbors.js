@@ -12,6 +12,9 @@ const direction_vectors = [
 
 export default compute_neighbors;
 
+/**
+ * @param {Hex_Cell[]} hex_arr
+ */
 function compute_neighbors(hex_arr = []) {
     hex_arr.forEach((hex_obj) => {
         hex_obj.neighbors = get_neighboring_cells(
@@ -23,6 +26,12 @@ function compute_neighbors(hex_arr = []) {
 }
 
 // credits to https://www.redblobgames.com/grids/hexagons/
+/**
+ * @param {Hex_Cell} hex_obj
+ * @param {Hex_Cell[]} cells
+ * @param {{ width: number; height: number; }} board_dimensions
+ * @returns {Hex_Cell[]}
+ */
 function get_neighboring_cells(
     {
         q,
@@ -46,9 +55,9 @@ function get_neighboring_cells(
     // wrap around left edge
     if (x === 0) {
         // add the rightmost cell on the same row
-        neighbors.push(
-            cells.find((cell) => y === cell.y && cell.x === board_dimensions.width - 1),
-        );
+        neighbors.push(cells.find(
+            (cell) => y === cell.y && cell.x === board_dimensions.width - 1,
+        ));
 
         // add the, at most two, cells above and below that as well
         // NOTE: leftmost cells on odd rows only have one neighbor, that's already added

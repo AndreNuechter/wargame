@@ -13,7 +13,7 @@ export {
     start_game,
 };
 
-// NOTE: we use the close-event to actually start the game, as swiping back on mobile closes the dialog no matter what
+/** Handler for the close-event of the main-overlay. */
 function close_main_overlay() {
     // config a minimal viable game, if that's not yet the case
     if (game.players.length === 0) {
@@ -28,6 +28,9 @@ function close_main_overlay() {
     game.run();
 }
 
+/**
+ * @param {SubmitEvent} param0
+ */
 function continue_or_config_new_game({ submitter }) {
     if (submitter.id === 'continue-btn') {
         // the continue-btn only works if there's a saved/running game
@@ -67,14 +70,16 @@ function continue_or_config_new_game({ submitter }) {
     main_overlay.classList.add('game-config');
 }
 
+/** Note whether a game is running and open the main-overlay via the burger-menu btn. */
 function open_main_overlay() {
     main_overlay.dataset.gameIsRunning = (
         game.current_phase !== ROUND_PHASES.game_over.name &&
-            game.players.length > 0
+        game.players.length > 0
     ).toString();
     main_overlay.showModal();
 }
 
+/** Apply configured options and start the game. */
 function start_game() {
     // create players
     Array.from(

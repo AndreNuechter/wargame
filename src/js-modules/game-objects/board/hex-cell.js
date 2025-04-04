@@ -69,7 +69,6 @@ function make_hex_cell(
                     : '';
             },
             [RESOURCES.gold]: 0,
-            [RESOURCES.cloth]: 0,
             [RESOURCES.wood]: 0,
             [RESOURCES.stone]: 0,
             [RESOURCES.iron]: 0,
@@ -94,10 +93,16 @@ function make_hex_cell(
             cell.dataset.owner_id = id === -1 ? '' : id.toString();
         },
         // TODO randomnly/procedurally define this
+        // TODO set to 0 when Biome is sea
         developable_land: 10,
     };
 }
 
+/**
+ * @param {number} cx
+ * @param {number} cy
+ * @returns {SVGGElement}
+ */
 function render_hex_cell(cx, cy) {
     const cell_wrapper = /** @type {SVGGElement} */ (cell_group_tmpl.cloneNode(true));
 
@@ -108,6 +113,11 @@ function render_hex_cell(cx, cy) {
     return cell_wrapper;
 }
 
+/**
+ * Returns a handler for clicks on the board.
+ * @param {Game} game
+ * @returns {() => void}
+ */
 function select_cell(game) {
     return ({ target }) => {
         if (!(target instanceof Element)) return;

@@ -18,67 +18,56 @@ const BIOMES = {
         [RESOURCES.food]: 2,
     }),
     tundra: make_biome('tundra', {
-        [RESOURCES.cloth]: 1,
         [RESOURCES.wood]: 2,
         [RESOURCES.stone]: 1,
         [RESOURCES.food]: 5,
     }),
     grassland: make_biome('grassland', {
-        [RESOURCES.cloth]: 3,
         [RESOURCES.wood]: 2,
         [RESOURCES.stone]: 2,
         [RESOURCES.food]: 5,
     }),
     savanna: make_biome('savanna', {
-        [RESOURCES.cloth]: 5,
         [RESOURCES.wood]: 5,
         [RESOURCES.stone]: 3,
         [RESOURCES.food]: 6,
     }),
     boreal_forest: make_biome('boreal_forest', {
-        [RESOURCES.cloth]: 4,
         [RESOURCES.wood]: 10,
         [RESOURCES.stone]: 3,
         [RESOURCES.food]: 5,
     }),
     forest: make_biome('forest', {
-        [RESOURCES.cloth]: 2,
         [RESOURCES.wood]: 10,
         [RESOURCES.stone]: 2,
         [RESOURCES.food]: 5,
     }),
     tropical_rainforest: make_biome('tropical_rainforest', {
-        [RESOURCES.cloth]: 3,
         [RESOURCES.wood]: 7,
         [RESOURCES.stone]: 1,
         [RESOURCES.food]: 5,
     }),
     cold_swamp: make_biome('cold_swamp', {
-        [RESOURCES.cloth]: 1,
         [RESOURCES.wood]: 2,
         [RESOURCES.stone]: 1,
         [RESOURCES.food]: 2,
     }),
     swamp: make_biome('swamp', {
-        [RESOURCES.cloth]: 1,
         [RESOURCES.wood]: 1,
         [RESOURCES.stone]: 0,
         [RESOURCES.food]: 3,
     }),
     tropical_swamp: make_biome('tropical_swamp', {
-        [RESOURCES.cloth]: 1,
         [RESOURCES.wood]: 3,
         [RESOURCES.stone]: 1,
         [RESOURCES.food]: 3,
     }),
     desert: make_biome('desert', {
-        [RESOURCES.cloth]: 1,
         [RESOURCES.wood]: 0,
         [RESOURCES.stone]: 2,
         [RESOURCES.food]: 1,
     }),
     extreme_desert: make_biome('extreme_desert', {
-        [RESOURCES.cloth]: 0,
         [RESOURCES.wood]: 0,
         [RESOURCES.stone]: 1,
         [RESOURCES.food]: 0,
@@ -128,6 +117,9 @@ export {
     make_ice_and_sea,
 };
 
+/**
+ * @param {Hex_Cell[]} hex_arr
+ */
 function assign_biomes(hex_arr) {
     hex_arr.forEach((hex) => {
         if (hex.biome) return;
@@ -146,9 +138,9 @@ function assign_biomes(hex_arr) {
 }
 
 /** Create a biome object.
- * @param { Biome_Name } [name='sea']
- * @param {{}} [resource_production={}]
- * @returns { Biome }
+ * @param {Biome_Name} [name='sea']
+ * @param {Gatherable_Resources} [resource_production={}]
+ * @returns {Biome}
  */
 function make_biome(
     name = 'sea',
@@ -160,17 +152,16 @@ function make_biome(
     return {
         name,
         resource_production: Object.assign({
-            [RESOURCES.gold]: 0,
-            [RESOURCES.cloth]: 0,
             [RESOURCES.wood]: 0,
             [RESOURCES.stone]: 0,
-            [RESOURCES.iron]: 0,
             [RESOURCES.food]: 0,
-            [RESOURCES.alcohol]: 0,
         }, resource_production),
     };
 }
 
+/**
+ * @param {Hex_Cell[]} hex_arr
+ */
 function make_ice_and_sea(hex_arr) {
     hex_arr
         .filter(({ elevation }) => elevation === 0)
@@ -179,8 +170,12 @@ function make_ice_and_sea(hex_arr) {
         });
 }
 
+/**
+ * @param {Hex_Cell} hex
+ * @param {number} height
+ * @returns {Biome}
+ */
 function pick_water_based_tile(hex, height = board_dimensions.height) {
-    // TODO set developable land to 0 for sea
     // TODO set humidity based on temperature
     // TODO programmatically determine ranges
     const random_num = Math.random();

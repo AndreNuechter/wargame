@@ -5,7 +5,6 @@ import { make_frozen_null_obj } from '../helper-functions.js';
 const RESOURCES = make_frozen_null_obj({
     people: 'people', // population of cell grows ea round, as long as theres food, by 0-2, for every pair of people; if food is not enough, population decreases and chance of uprisings (no taxes, destruction of structures, no soldiers...) rises. needed for resource production (besides that of people), can be turned into soldiers.
     gold: 'gold', // gained by taxing population. taxation may increase chance of uprising. used for moving units
-    cloth: 'cloth', // gained passively from cell and actively thru textile_factory. used for housing
     wood: 'wood', // cell, lumber_mills. housing, soldiers
     stone: 'stone', // cell, quarry. housing, soldiers
     iron: 'iron', // forge. soldiers, housing
@@ -16,7 +15,6 @@ const RESOURCES = make_frozen_null_obj({
 const initial_resources = make_frozen_null_obj({
     [RESOURCES.people]: 5,
     [RESOURCES.gold]: 5,
-    [RESOURCES.cloth]: 25,
     [RESOURCES.wood]: 25,
     [RESOURCES.stone]: 25,
     [RESOURCES.iron]: 0,
@@ -32,10 +30,13 @@ export {
     update_player_resources,
 };
 
+/**
+ * @param {Set<Hex_Cell>} cells
+ * @returns {Resource_Output}
+ */
 function calculate_resource_production(cells, tax_rate = 1) {
     const result = {
         [RESOURCES.gold]: 0,
-        [RESOURCES.cloth]: 0,
         [RESOURCES.wood]: 0,
         [RESOURCES.stone]: 0,
         [RESOURCES.iron]: 0,
@@ -61,7 +62,8 @@ function calculate_resource_production(cells, tax_rate = 1) {
                 result[resource_name] += amount * count;
             });
         });
-    });
+    },
+    );
 
     // calculate gold/taxes
     // TODO homelessness...only housed pop helps w res production, pays taxes and can be used for war
@@ -70,6 +72,9 @@ function calculate_resource_production(cells, tax_rate = 1) {
     return result;
 }
 
+/**
+ * @param {Hex_Cell} cell
+ */
 function increase_population(cell) {
     // TODO scale chances up/down based on how many neighboring cells are inhabited (and other factors like starvation)
     let population_increase = 0;
@@ -157,7 +162,7 @@ function update_player_resources(players) {
                         food_requirement = 0;
                     }
                 }
-                // TODO consume other resources...wood and coal for heat (c Banished); cloth
+                // TODO consume other resources...wood and coal for heat (c Banished)
 
                 // TODO consume alc to decrease unhappiness!?
                 // TODO decay some resources to prevent overstacking?

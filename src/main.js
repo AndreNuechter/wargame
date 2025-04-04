@@ -22,7 +22,6 @@ import game, { close_window, continue_game_or_open_main_overlay } from './js-mod
 import { end_turn_btn_click_handling } from './js-modules/game-objects/round-phases/round-phases.js';
 import { add_player, delete_player } from './js-modules/game-objects/player.js';
 import { plan_move } from './js-modules/game-objects/round-phases/movement-planning.js';
-import { prevent_default_event_behavior } from './js-modules/helper-functions.js';
 import { reroll_map } from './js-modules/game-objects/board/hex-grid.js';
 import { select_cell } from './js-modules/game-objects/board/hex-cell.js';
 import handle_zoom from './js-modules/handle-zoom.js';
@@ -37,7 +36,7 @@ import { close_main_overlay, continue_or_config_new_game, open_main_overlay, sta
 // TODO divide sidebar content into chunks and make it swipable horizontally (use scroll snap...what on larger screens?)
 // TODO in dev phase, empire overview, have list of owned cells w link to them
 // TODO add a way to config map gen
-// TODO rm cloth resource? rm movement_modifier from Biome?
+// TODO rm movement_modifier from Biome?
 
 window.addEventListener(
     'DOMContentLoaded',
@@ -45,7 +44,7 @@ window.addEventListener(
     { once: true },
 );
 document.addEventListener('visibilitychange', close_window);
-document.addEventListener('submit', prevent_default_event_behavior);
+document.addEventListener('submit', (event) => event.preventDefault());
 zoom_btns.addEventListener('click', handle_zoom);
 board_size_select.addEventListener('change', change_boardsize(game, reroll_map));
 // display configured troop size after input

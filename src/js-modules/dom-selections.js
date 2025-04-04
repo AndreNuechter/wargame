@@ -17,7 +17,11 @@ export const reroll_map_btn = document.getElementById('reroll-map-btn');
 export const side_bar = document.getElementById('side-bar');
 export const round_info = document.getElementById('round-info');
 export const season_of_move_select = document.getElementById('season-of-move-select');
-export const selection_highlight = document.getElementById('selection-highlight');
+export const selection_highlight = /** @type {SVGPathElement} */ (
+    /** @type {unknown} */ (
+        document.getElementById('selection-highlight')
+    )
+);
 export const start_game_form = document.getElementById('start-game-form');
 export const main_overlay = /** @type {HTMLDialogElement} */ (document.getElementById('main-overlay'));
 export const movement_arrows = document.getElementById('movement-arrows');

@@ -10,6 +10,7 @@ export {
 };
 
 // TODO structures and developable_land arent saved yet
+/** Save board to localStorage. */
 function save_board() {
     localStorage.setItem(storage_keys.board, JSON.stringify(
         [...board.values()]
@@ -39,6 +40,7 @@ function save_board() {
     ));
 }
 
+/** Load board from localStorage and render it. */
 function reapply_board() {
     const stored_board = JSON.parse(localStorage.getItem(storage_keys.board));
 

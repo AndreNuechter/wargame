@@ -17,13 +17,21 @@ export {
     reroll_map,
 };
 
+/**
+ * Map svg-elements to hexes.
+ * @param {Hex_Cell[]} hex_arr
+ * @param {Map<SVGGElement, Hex_Cell>} board_map
+ */
 function hex_arr_to_map(hex_arr, board_map) {
-    // map svg-elements to hexes
-    hex_arr.forEach((hex) => {
-        board_map.set(hex.cell, hex);
+    hex_arr.forEach((hex_obj) => {
+        board_map.set(hex_obj.cell, hex_obj);
     });
 }
 
+/**
+ * @param {Board_dimensions} param0
+ * @returns {Hex_Cell[]}
+ */
 function make_hex_grid({ height, width }) {
     const hex_grid = [];
 
@@ -52,6 +60,10 @@ function make_hex_grid({ height, width }) {
     return hex_grid;
 }
 
+/**
+ * @param {Map<SVGGElement, Hex_Cell>} board_map
+ * @param {Board_dimensions} board_dimensions
+ */
 function make_hex_map(board_map, board_dimensions) {
     const hex_arr = make_hex_grid(board_dimensions);
 
@@ -64,7 +76,11 @@ function make_hex_map(board_map, board_dimensions) {
     hex_arr_to_map(hex_arr, board_map);
 }
 
-/** Recreate previous boardstate after reload. */
+/**
+ * Recreate previous boardstate after reload.
+ * @param {any[]} board_state
+ * @param {Map<SVGGElement, Hex_Cell>} board_map
+ */
 function reinstate_hex_map(board_state = [], board_map) {
     const hex_arr = board_state
         .map(({
@@ -105,7 +121,11 @@ function reinstate_hex_map(board_state = [], board_map) {
     hex_arr_to_map(hex_arr, board_map);
 }
 
-/** Clear board and create new map. */
+/**
+ * Clear board and create new map.
+ * @param {Map<SVGGElement, Hex_Cell>} board_map
+ * @param {Board_dimensions} board_dimensions
+ */
 function reroll_map(board_map, board_dimensions) {
     // rm data
     board_map.clear();

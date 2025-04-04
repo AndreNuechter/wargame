@@ -3,6 +3,7 @@ import { is_num_between, make_frozen_null_obj } from '../helper-functions.js';
 
 // NOTE: we want our world map to be "freezing" on the poles and "hot" along the equator
 // between those two points we move along a scale w the three values "warm", "temperate" and "cold"
+/** @type {Temperatures} */
 const TEMPERATURES = make_frozen_null_obj({
     freezing: 'freezing',
     cold: 'cold',
@@ -18,6 +19,9 @@ export {
     increase_temperature,
 };
 
+/**
+ * @param {Hex_Cell[]} hex_arr
+ */
 function assign_temperature(hex_arr) {
     hex_arr.forEach((hex_obj) => {
         const random_num = Math.random();
@@ -39,6 +43,10 @@ function assign_temperature(hex_arr) {
     });
 }
 
+/**
+ * @param {Temperature} temperature
+ * @returns {Temperature}
+ */
 function decrease_temperature(temperature) {
     switch (temperature) {
         case TEMPERATURES.hot:
@@ -52,7 +60,13 @@ function decrease_temperature(temperature) {
     }
 }
 
+// TODO how does this interact w increased board size? more warm/hot?
 // TODO derive ranges programmatically
+/**
+ * Returns a temperature based on the "row index" of a cell.
+ * @param {number} hex_relative_height
+ * @returns {Temperature}
+ */
 function get_temperature(hex_relative_height) {
     switch (hex_relative_height) {
         case 0:
@@ -82,6 +96,10 @@ function get_temperature(hex_relative_height) {
     }
 }
 
+/**
+ * @param {Temperature} temperature
+ * @returns {Temperature}
+ */
 function increase_temperature(temperature) {
     switch (temperature) {
         case TEMPERATURES.freezing:

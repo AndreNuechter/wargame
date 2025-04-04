@@ -6,6 +6,10 @@ const edge_offset = stroke_width * 0.5;
 export default outline_hexregion;
 
 // FIXME path segments dont connect so that there's a visible gap and we cant fill a region... figure out a way to sort the line segments, so that we need only one `M` command and we could fill the pathes
+/**
+ * @param {Set<Hex_Cell>} region
+ * @param {SVGPathElement} outline_element
+ */
 function outline_hexregion(
     region,
     outline_element,
@@ -94,26 +98,44 @@ function outline_hexregion(
     return outline_element;
 }
 
-function top_point(hex) {
-    return `${hex.cx + 3} ${hex.cy + edge_offset}`;
+/**
+ * @param {Hex_Cell} hex_obj
+ */
+function top_point(hex_obj) {
+    return `${hex_obj.cx + 3} ${hex_obj.cy + edge_offset}`;
 }
 
-function bottom_point(hex) {
-    return `${hex.cx + 3} ${hex.cy + 6 - edge_offset}`;
+/**
+ * @param {Hex_Cell} hex_obj
+ */
+function bottom_point(hex_obj) {
+    return `${hex_obj.cx + 3} ${hex_obj.cy + 6 - edge_offset}`;
 }
 
-function left_top_point(hex) {
-    return `${hex.cx + edge_offset} ${hex.cy + 1.5 + edge_offset * 0.5}`;
+/**
+ * @param {Hex_Cell} hex_obj
+ */
+function left_top_point(hex_obj) {
+    return `${hex_obj.cx + edge_offset} ${hex_obj.cy + 1.5 + edge_offset * 0.5}`;
 }
 
-function left_bottom_point(hex) {
-    return `${hex.cx + edge_offset} ${hex.cy + 4.5 - edge_offset * 0.5}`;
+/**
+ * @param {Hex_Cell} hex_obj
+ */
+function left_bottom_point(hex_obj) {
+    return `${hex_obj.cx + edge_offset} ${hex_obj.cy + 4.5 - edge_offset * 0.5}`;
 }
 
-function right_top_point(hex) {
-    return `${hex.cx + 6 - edge_offset} ${hex.cy + 1.5 + edge_offset * 0.5}`;
+/**
+ * @param {Hex_Cell} hex_obj
+ */
+function right_top_point(hex_obj) {
+    return `${hex_obj.cx + 6 - edge_offset} ${hex_obj.cy + 1.5 + edge_offset * 0.5}`;
 }
 
-function right_bottom_point(hex) {
-    return `${hex.cx + 6 - edge_offset} ${hex.cy + 4.5 - edge_offset * 0.5}`;
+/**
+ * @param {Hex_Cell} hex_obj
+ */
+function right_bottom_point(hex_obj) {
+    return `${hex_obj.cx + 6 - edge_offset} ${hex_obj.cy + 4.5 - edge_offset * 0.5}`;
 }

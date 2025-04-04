@@ -19,6 +19,10 @@ let move_target = null;
 
 export { click_on_cell_action, plan_move };
 
+/**
+ * @param {Hex_Cell} hex_obj
+ * @param {Game} game
+ */
 function click_on_cell_action(hex_obj, game) {
     // player picked origin
     if (move_origin === null) {
@@ -65,6 +69,7 @@ function click_on_cell_action(hex_obj, game) {
     season_of_move_select.inert = false;
     // disallow settling owned cells and water
     settle_cell_toggle.inert = player_owns_target || move_target.biome === BIOMES.sea;
+    // TODO limit size of army that can be sent over water (increase number when origin has a harbor)
 
     // determine appropriate modal config
     if (configured_move) {
@@ -103,7 +108,13 @@ function click_on_cell_action(hex_obj, game) {
 
 // TODO limit sendable troops by available resources...moving 1 unit costs 1 gold per step (2 over water; 0 inside own territory)...food? people consume 1 food per turn...we'll not consider food here, but give negative effects when starvation occurs, like decreased efficieny or increased chance of revolts...
 
-/** Set up move config for a configured move. */
+/**
+ * Set up move config for a configured move.
+ * @param {Player_Move} configured_move
+ * @param {Game} game
+ * @param {boolean} player_owns_origin
+ * @param {Movement_Planning_Form_Config} form_config
+ */
 function prepare_configure_move_form(configured_move, game, player_owns_origin, form_config) {
     const player_moves = move_queue.filter(({ player_id }) => player_id === game.current_player_id);
 
@@ -160,7 +171,13 @@ function prepare_configure_move_form(configured_move, game, player_owns_origin, 
     }
 }
 
-/** Set up move config for a new move. */
+/**
+ * Set up move config for a new move.
+ * @param {Game} game
+ * @param {boolean} player_owns_origin
+ * @param {Movement_Planning_Form_Config} form_config
+ * @returns {Season}
+ */
 function prepare_make_move_form(game, player_owns_origin, form_config) {
     const player_moves = move_queue.filter(({ player_id }) => player_id === game.current_player_id);
 
@@ -179,15 +196,13 @@ function prepare_make_move_form(game, player_owns_origin, form_config) {
         const season_of_earliest_move_to_origin = player_moves
             .filter(({ target }) => target === move_origin)
             .reduce((earliest_season, { season: season_of_move_to_origin }) => {
-                if (
-                    earliest_season === '' ||
-                    is_season_before(season_of_move_to_origin, earliest_season)
-                ) {
+                if (is_season_before(season_of_move_to_origin, earliest_season)) {
+                    // @ts-ignore
                     earliest_season = season_of_move_to_origin;
                 }
 
                 return earliest_season;
-            }, '');
+            }, SEASONS.winter);
         const player_wants_to_settle_origin = Boolean(
             player_moves
                 .find(
@@ -229,6 +244,10 @@ function prepare_make_move_form(game, player_owns_origin, form_config) {
     }
 }
 
+/**
+ * @param {Hex_Cell} hex_obj
+ * @param {Game} game
+ */
 function set_move_origin(hex_obj, game) {
     const player_moves = move_queue.filter(({ player_id }) => player_id === game.current_player_id);
     // player cant abandon owned cells and therefore has to leave at least one unit behind when moving from there
@@ -255,6 +274,13 @@ function set_move_origin(hex_obj, game) {
 }
 
 // TODO this needs to happen when the season in the modal is picked to set the max value of the moved units
+/**
+ * @param {Player_Move[]} player_moves
+ * @param {Hex_Cell} cell
+ * @param {Season} season_in_question
+ * @param {number} initial_count
+ * @returns {number}
+ */
 function count_of_units_on_cell_at_season(
     player_moves,
     cell,
@@ -284,6 +310,11 @@ function count_of_units_on_cell_at_season(
         );
 }
 
+/**
+ * Return a handler for closing the move_planning overlay.
+ * @param {Game} game
+ * @returns {() => void}
+ */
 function plan_move(game) {
     return () => {
         const season_of_move = /** @type {Season} */(/** @type {HTMLInputElement} */ (movement_config.querySelector('[name="season-of-move"]:checked')).value);

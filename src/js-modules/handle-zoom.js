@@ -2,6 +2,10 @@ import { board_element } from './dom-selections';
 
 export default handle_zoom;
 
+/**
+ * A handler for clicks on the zoom btns.
+ * @param {Event} param0
+ */
 function handle_zoom({ target }) {
     // TODO rethink zoom...btn placement sucks, limit to 3 lvls [farthest out: show entire map; middle: ???; closest: show a cell large enough to show details] w ea lvl showing different bits of information [closest: pop. split by class; farthest out: just outline?]
     if (!(target instanceof Element)) return;

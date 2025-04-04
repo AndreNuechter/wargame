@@ -13,11 +13,19 @@ export {
     save_move_queue,
 };
 
+/** Empty move_queue and remove all movement indicators. */
 function clear_move_queue() {
     move_queue.length = 0;
     movement_arrows.replaceChildren();
 }
 
+/**
+ * @param {Hex_Cell} origin
+ * @param {Hex_Cell} target
+ * @param {number} units
+ * @param {number} player_id
+ * @returns {SVGGElement}
+ */
 function draw_movement_arrow(origin, target, units, player_id) {
     // TODO how can we better visualize multiple moves from the same origin to the same target (by different players; a player can only do a move once a round)
     // NOTE: adding half_hex_size to center the path...cx is apparently the upper left corner of the hex's viewBox
@@ -37,9 +45,9 @@ function draw_movement_arrow(origin, target, units, player_id) {
 
     movement_indicator.firstElementChild.setAttribute('d', path_data);
     // TODO the marker (arrow) isnt colored dynamically as its only referenced by movement_indicator...do we create one for ea player?
-    movement_indicator.dataset.owner_id = player_id;
+    movement_indicator.dataset.owner_id = player_id.toString();
     sent_units_display.setAttribute('path', path_data);
-    sent_units_display.textContent = units;
+    sent_units_display.textContent = units.toString();
 
     movement_arrows.append(movement_indicator);
 
@@ -52,7 +60,7 @@ function draw_movement_arrow(origin, target, units, player_id) {
  * @param {Hex_Cell} target - The hex-cell being moved to.
  * @param {Number} units - The number of units sent.
  * @param {Season} season - The season of the move.
- * @param {Move_Type} type - The type of move being made.
+ * @param {"settle" | "unspecified"} type - The type of move being made.
  * @returns {Player_Move}
  */
 function make_player_move(player_id, origin, target, units, season, type = 'unspecified') {
@@ -100,6 +108,7 @@ function reapply_move_queue(game) {
     );
 }
 
+/** Save move_queue to localStorage. */
 function save_move_queue() {
     localStorage.setItem(storage_keys.move_queue, JSON.stringify(
         move_queue.map(({

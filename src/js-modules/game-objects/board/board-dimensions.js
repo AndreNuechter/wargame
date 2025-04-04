@@ -17,6 +17,10 @@ export {
     save_board_dimensions,
 };
 
+/**
+ * @param {object} param0
+ * @returns {Board_dimensions}
+ */
 function board_size_to_board_dimensions({ width, height }) {
     return {
         width,
@@ -24,6 +28,12 @@ function board_size_to_board_dimensions({ width, height }) {
     };
 }
 
+/**
+ * Return a handler for changes of the board size select.
+ * @param {Game} param0
+ * @param {Function} reroll_map
+ * @returns {() => void}
+ */
 function change_boardsize({ board }, reroll_map) {
     return () => {
         const size = board_size_select.value;
@@ -34,6 +44,7 @@ function change_boardsize({ board }, reroll_map) {
     };
 }
 
+/** Load or initialize board_dimensions, set the select's value and the boards viewBox. */
 function initialize_board_dimensions() {
     const size_saved_earlier = JSON.parse(
         localStorage.getItem(storage_keys.board_dimensions),
@@ -64,6 +75,7 @@ function initialize_board_dimensions() {
     board_element.setAttribute('viewBox', board_sizes[board_size_select.value].viewBox);
 }
 
+/** Save board_dimensions to localStorage. */
 function save_board_dimensions() {
     localStorage.setItem(storage_keys.board_dimensions, board_dimensions);
 }

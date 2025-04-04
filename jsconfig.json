@@ -5,7 +5,8 @@
         "moduleResolution": "node",
         "lib": [
             "webworker",
-            "dom"
+            "dom",
+            "dom.iterable"
         ]
     }
 }

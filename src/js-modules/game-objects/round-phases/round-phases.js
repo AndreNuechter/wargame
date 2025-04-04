@@ -50,6 +50,10 @@ const ROUND_PHASES = {
 export default ROUND_PHASES;
 export { end_turn_btn_click_handling };
 
+/**
+ * @param {Game} game
+ * @returns {() => void}
+ */
 function end_turn_btn_click_handling(game) {
     return () => {
         // player did not choose a viable starting cell, so they cant end their turn
@@ -66,6 +70,13 @@ function end_turn_btn_click_handling(game) {
     };
 }
 
+/**
+ * @param {String} name
+ * @param {String} call_to_action
+ * @param {String} end_turn_btn_label
+ * @param {(Hex_Cell, Game) => void} handle_click_on_cell
+ * @returns {Round_Phase}
+ */
 function make_round_phase(
     name = 'round_phase',
     call_to_action = '',

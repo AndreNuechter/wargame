@@ -14,6 +14,10 @@ export {
     is_season_before,
 };
 
+/**
+ * @param {Season} season
+ * @returns {Season}
+ */
 function increment_season(season) {
     switch (season) {
         case SEASONS.spring:
@@ -27,7 +31,12 @@ function increment_season(season) {
     }
 }
 
-/** Is season_a before season_b? */
+/**
+ * Is season_a before season_b?
+ * @param {Season} season_a
+ * @param {Season} season_b
+ * @returns {boolean}
+ */
 function is_season_before(season_a, season_b) {
     return !(
         season_a === season_b ||

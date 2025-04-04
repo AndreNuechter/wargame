@@ -9,6 +9,9 @@ const offlimit_rows = new Set(
 
 export default generate_landmasses;
 
+/**
+ * @param {Hex_Cell} hex
+ */
 function elevate_cell(hex) {
     hex.elevation += 1;
 
@@ -17,6 +20,9 @@ function elevate_cell(hex) {
     }
 }
 
+/**
+ * @param {Hex_Cell[]} hex_grid
+ */
 function generate_landmasses(hex_grid) {
     const min_landmass_size = 4;
     const max_landmass_size = 13;
@@ -81,6 +87,9 @@ function generate_landmasses(hex_grid) {
     // TODO erode mountains?
 }
 
+/**
+ * @param {Hex_Cell} hex
+ */
 function lower_cell(hex) {
     hex.elevation = Math.max(0, hex.elevation - 1);
 
