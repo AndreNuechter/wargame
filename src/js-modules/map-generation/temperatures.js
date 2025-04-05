@@ -60,8 +60,7 @@ function decrease_temperature(temperature) {
     }
 }
 
-// TODO how does this interact w increased board size? more warm/hot?
-// TODO derive ranges programmatically
+// TODO derive ranges programmatically...the middle hot section is too wide
 /**
  * Returns a temperature based on the "row index" of a cell.
  * @param {number} hex_relative_height

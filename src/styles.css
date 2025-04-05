@@ -10,6 +10,7 @@
 @import url("styles/info-bar.css");
 @import url("styles/side-bar.css");
 @import url("styles/zoom.css");
+@import url("styles/temperature.css");
 
 #board-container {
     padding: 8px;

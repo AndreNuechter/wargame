@@ -1,0 +1,21 @@
+.show-temperature {
+    [data-temperature="freezing"] {
+        fill: rgb(255, 0, 251);
+    }
+
+    [data-temperature="cold"] {
+        fill: rgb(0, 204, 255);
+    }
+
+    [data-temperature="temperate"] {
+        fill: greenyellow;
+    }
+
+    [data-temperature="warm"] {
+        fill: yellow;
+    }
+
+    [data-temperature="hot"] {
+        fill: darkred;
+    }
+}

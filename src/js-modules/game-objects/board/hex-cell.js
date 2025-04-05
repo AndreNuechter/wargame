@@ -34,6 +34,7 @@ function make_hex_cell(
     const cell = render_hex_cell(cx, cy);
     const pop_size_display = /** @type {SVGTextElement} */ (cell.querySelector('.population-size'));
     let biome = null;
+    let temperature = TEMPERATURES.freezing;
     let owner_id = -1;
     let population = 0;
 
@@ -55,7 +56,13 @@ function make_hex_cell(
         cell,
         elevation: 0,
         humidity: HUMIDITY_LEVELS.arid,
-        temperature: TEMPERATURES.freezing,
+        get temperature() {
+            return temperature;
+        },
+        set temperature(temp) {
+            temperature = temp;
+            cell.dataset.temperature = temp;
+        },
         structures: new Map(Object.values(STRUCTURES).map((structure) => [structure, 0])),
         pop_size_display,
         resources: {
