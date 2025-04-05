@@ -77,5 +77,5 @@ function initialize_board_dimensions() {
 
 /** Save board_dimensions to localStorage. */
 function save_board_dimensions() {
-    localStorage.setItem(storage_keys.board_dimensions, board_dimensions);
+    localStorage.setItem(storage_keys.board_dimensions, JSON.stringify(board_dimensions));
 }
