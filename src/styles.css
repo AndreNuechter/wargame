@@ -73,7 +73,6 @@
     align-items: flex-end;
 }
 
-
 .movement-indicator {
     text {
         font-size: 0.1em;
@@ -87,6 +86,11 @@
     [data-current_phase="movement_execution"] & {
         display: none;
     }
+}
+
+.player-border,
+#selection-highlight {
+    fill: none;
 }
 
 @keyframes blink {

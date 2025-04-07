@@ -25,6 +25,13 @@ interface Hex_Cell {
     developable_land: number;
 }
 
+type Point = {
+    x: number;
+    y: number;
+}
+
+type Edge = [Point, Point]
+
 /** The god-object holding most of the game state. */
 interface Game {
     /** A map from DOM/SVG hex-cells to the objects defining them. */
