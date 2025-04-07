@@ -2,11 +2,12 @@ import BIOMES from '../map-generation/biomes.js';
 import RESOURCES from './resources.js';
 
 // TODO finish this...required workers, input, unsupported biomes, space-req, effects
+// TODO before a player has structures, we can consider them hunter/gatherers o nomads...give hunter/gatherers more strength?
 // TODO add more structures...offensive (eg citadel, spy_academy...)/defensive structures (eg wall...), others like streets and storage, schools (see Banished, trade slower pop growth for higher productivity)...
 /** @type {Structures} */
 const STRUCTURES = {
-    tent: make_structure(
-        'Tent',
+    house: make_structure(
+        'House',
         [
             make_resource_amount(RESOURCES.wood, 1),
         ],

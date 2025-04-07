@@ -121,18 +121,18 @@ export {
  * @param {Hex_Cell[]} hex_arr
  */
 function assign_biomes(hex_arr) {
-    hex_arr.forEach((hex) => {
-        if (hex.biome) return;
+    hex_arr.forEach((hex_obj) => {
+        if (hex_obj.biome) return;
 
-        hex.biome = (() => {
-            if (hex.elevation > 1) {
-                if (hex.elevation > 2) return BIOMES.high_mountain;
+        hex_obj.biome = (() => {
+            if (hex_obj.elevation > 1) {
+                if (hex_obj.elevation > 2) return BIOMES.high_mountain;
 
                 // TODO give mountains small chance to be volcano
                 return BIOMES.mountain;
             }
 
-            return biome_matrix[hex.temperature][hex.humidity];
+            return biome_matrix[hex_obj.temperature][hex_obj.humidity];
         })();
     });
 }
@@ -165,24 +165,24 @@ function make_biome(
 function make_ice_and_sea(hex_arr) {
     hex_arr
         .filter(({ elevation }) => elevation === 0)
-        .forEach((hex) => {
-            hex.biome = pick_water_based_tile(hex);
+        .forEach((hex_obj) => {
+            hex_obj.biome = pick_water_based_tile(hex_obj);
         });
 }
 
 /**
- * @param {Hex_Cell} hex
+ * @param {Hex_Cell} hex_obj
  * @param {number} height
  * @returns {Biome}
  */
-function pick_water_based_tile(hex, height = board_dimensions.height) {
+function pick_water_based_tile(hex_obj, height = board_dimensions.height) {
     // TODO set humidity based on temperature
     // TODO programmatically determine ranges
     const random_num = Math.random();
 
     // are we close to a pole
     // top and bottom row should be almost completely covered in ice
-    if ([0, height - 1].includes(hex.y)) {
+    if ([0, height - 1].includes(hex_obj.y)) {
         if (random_num <= 0.1) {
             return BIOMES.sea;
         }
@@ -190,7 +190,7 @@ function pick_water_based_tile(hex, height = board_dimensions.height) {
         return BIOMES.ice;
     }
 
-    if ([1, height - 2].includes(hex.y)) {
+    if ([1, height - 2].includes(hex_obj.y)) {
         if (random_num <= 0.75) {
             return BIOMES.sea;
         }
@@ -198,7 +198,7 @@ function pick_water_based_tile(hex, height = board_dimensions.height) {
         return BIOMES.ice;
     }
 
-    if ([2, height - 3].includes(hex.y)) {
+    if ([2, height - 3].includes(hex_obj.y)) {
         if (random_num <= 0.9) {
             return BIOMES.sea;
         }

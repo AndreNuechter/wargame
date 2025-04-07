@@ -105,7 +105,7 @@ interface Player {
 type Season = "spring" | "summer" | "autumn" | "winter";
 type Seasons = { [Key in Season]: Key; };
 
-type Structure_Name = "tent" | "lumber_mill" | "quarry" | "forge" | "farm" | "distillery" | "mine";
+type Structure_Name = "house" | "lumber_mill" | "quarry" | "forge" | "farm" | "distillery" | "mine";
 type Structures = { [Key in Structure_Name]: Structure; };
 
 interface Structure {

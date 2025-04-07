@@ -20,14 +20,14 @@ function assign_humidity(hex_arr) {
     // humidity of a land-tile is based on 3 factors:
     // 1. proximity to the sea (tiles adjacent to sea-tiles get +1 level for each)
     hex_arr
-        .filter((hex) => hex.elevation > 0)
-        .forEach((hex) => {
-            hex.neighbors
-                .filter((neighboring_hex) => neighboring_hex.elevation === 0)
+        .filter((hex_obj) => hex_obj.elevation > 0)
+        .forEach((hex_obj) => {
+            hex_obj.neighbors
+                .filter((neighboring_hex_obj) => neighboring_hex_obj.elevation === 0)
                 .forEach((sea_tile) => {
                     // sea-tiles neighboring land get a different color
                     sea_tile.cell.classList.add('shore');
-                    hex.humidity = increase_humidity_level(hex.humidity);
+                    hex_obj.humidity = increase_humidity_level(hex_obj.humidity);
                 });
         });
 
@@ -50,7 +50,7 @@ function increase_humidity_level(level) {
             return HUMIDITY_LEVELS.moderate;
         case HUMIDITY_LEVELS.moderate:
             return HUMIDITY_LEVELS.moist;
-        case HUMIDITY_LEVELS.moist:
+        default:
             return HUMIDITY_LEVELS.wet;
     }
 }

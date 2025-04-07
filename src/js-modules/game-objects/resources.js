@@ -76,6 +76,7 @@ function calculate_resource_production(cells, tax_rate = 1) {
  * @param {Hex_Cell} cell
  */
 function increase_population(cell) {
+    // TODO introduce additions as children that are counted seperately and need to grow up before being "useful"
     // TODO scale chances up/down based on how many neighboring cells are inhabited (and other factors like starvation)
     let population_increase = 0;
 

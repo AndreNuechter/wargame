@@ -33,7 +33,7 @@ function hex_arr_to_map(hex_arr, board_map) {
  * @returns {Hex_Cell[]}
  */
 function make_hex_grid({ height, width }) {
-    const hex_grid = [];
+    const hex_arr = [];
 
     for (let row = 0; row < height; row += 1) {
         // shift every other row by half the cell size
@@ -43,7 +43,7 @@ function make_hex_grid({ height, width }) {
             // thx to https://www.redblobgames.com/grids/hexagons/#conversions-offset
             const q = col - (row - (row & 1)) * 0.5;
 
-            hex_grid.push(
+            hex_arr.push(
                 make_hex_cell(
                     (col * cell_size) + (odd_row * half_cell_size),
                     row * three_quarter_cell_size,
@@ -57,7 +57,7 @@ function make_hex_grid({ height, width }) {
         }
     }
 
-    return hex_grid;
+    return hex_arr;
 }
 
 /**
@@ -127,6 +127,7 @@ function reinstate_hex_map(board_state = [], board_map) {
  * @param {Board_dimensions} board_dimensions
  */
 function reroll_map(board_map, board_dimensions) {
+    // TODO it'd be nice to keep as much as we can...use a pool for cells and only create new objects when it's smaller than the desired board?
     // rm data
     board_map.clear();
     // rm cells while keeping the utils

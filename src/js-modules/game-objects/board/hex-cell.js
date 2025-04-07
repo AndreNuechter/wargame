@@ -101,6 +101,7 @@ function make_hex_cell(
         },
         // TODO randomnly/procedurally define this
         // TODO set to 0 when Biome is sea
+        // TODO also give limited space for food production?
         developable_land: 10,
     };
 }

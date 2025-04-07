@@ -10,25 +10,25 @@ const offlimit_rows = new Set(
 export default generate_landmasses;
 
 /**
- * @param {Hex_Cell} hex
+ * @param {Hex_Cell} hex_obj
  */
-function elevate_cell(hex) {
-    hex.elevation += 1;
+function elevate_cell(hex_obj) {
+    hex_obj.elevation += 1;
 
-    if (hex.elevation > 1) {
-        hex.temperature = decrease_temperature(hex.temperature);
+    if (hex_obj.elevation > 1) {
+        hex_obj.temperature = decrease_temperature(hex_obj.temperature);
     }
 }
 
 /**
- * @param {Hex_Cell[]} hex_grid
+ * @param {Hex_Cell[]} hex_arr
  */
-function generate_landmasses(hex_grid) {
+function generate_landmasses(hex_arr) {
     const min_landmass_size = 4;
     const max_landmass_size = 13;
     // about 2/3 of the map should be covered by water
     // we divide by 2.5 and not 3 as we'll remove some land further down
-    const desired_coverage = hex_grid.length / 2.5;
+    const desired_coverage = hex_arr.length / 2.5;
     let generated_land = 0;
 
     while (generated_land < desired_coverage) {
@@ -38,7 +38,7 @@ function generate_landmasses(hex_grid) {
             x: random_int(board_dimensions.width),
             y: random_int(board_dimensions.height - 3, 3),
         };
-        const seed = hex_grid.find(
+        const seed = hex_arr.find(
             ({ x, y }) => x === seed_coord.x && y === seed_coord.y,
         );
         // only consider adding neighbors, that aren't too close to a pole
@@ -59,17 +59,17 @@ function generate_landmasses(hex_grid) {
             candidates.delete(picked_cell);
             // add eligible neighbors to next possible candidates
             picked_cell.neighbors
-                .filter((hex) => !picked_additions.has(hex))
+                .filter((hex_obj) => !picked_additions.has(hex_obj))
                 .filter(({ y }) => !offlimit_rows.has(y))
-                .forEach((hex) => candidates.add(hex));
+                .forEach((hex_obj) => candidates.add(hex_obj));
         }
     }
 
     // erode cells w only 1-2 neighbors
-    hex_grid
-        .filter((hex) => hex.elevation > 0)
-        .forEach((hex) => {
-            const count_of_neighbors_above_sea_level = hex.neighbors
+    hex_arr
+        .filter((hex_obj) => hex_obj.elevation > 0)
+        .forEach((hex_obj) => {
+            const count_of_neighbors_above_sea_level = hex_obj.neighbors
                 .filter((neighbor) => neighbor.elevation > 0)
                 .length;
 
@@ -81,19 +81,19 @@ function generate_landmasses(hex_grid) {
                 (count_of_neighbors_above_sea_level === 2 && random_num > 0.7) ||
                 (count_of_neighbors_above_sea_level === 1 && random_num < 0.7)
             ) {
-                lower_cell(hex);
+                lower_cell(hex_obj);
             }
         });
     // TODO erode mountains?
 }
 
 /**
- * @param {Hex_Cell} hex
+ * @param {Hex_Cell} hex_obj
  */
-function lower_cell(hex) {
-    hex.elevation = Math.max(0, hex.elevation - 1);
+function lower_cell(hex_obj) {
+    hex_obj.elevation = Math.max(0, hex_obj.elevation - 1);
 
-    if (hex.elevation > 0) {
-        hex.temperature = increase_temperature(hex.temperature);
+    if (hex_obj.elevation > 0) {
+        hex_obj.temperature = increase_temperature(hex_obj.temperature);
     }
 }
