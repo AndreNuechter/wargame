@@ -1,9 +1,9 @@
 import {
     click_on_cell_action as handle_land_grab,
     end_turn_action as assign_starting_position,
-} from './land-grab';
-import { click_on_cell_action as handle_development } from './development';
-import { click_on_cell_action as handle_movement_planning } from './movement-planning';
+} from './land-grab.js';
+import { click_on_cell_action as handle_development } from './development.js';
+import { click_on_cell_action as handle_movement_planning } from './movement-planning.js';
 
 // the game starts in the land_grab phase where the players should pick their starting positions (their capitol).
 // after initial positions are picked, the first round starts.

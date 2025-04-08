@@ -1,8 +1,8 @@
-import { structure_builder_tmpl } from './dom-creations';
-import { cell_production_forecast } from './dom-selections';
-import { calculate_resource_production } from './game-objects/resources';
-import STRUCTURES from './game-objects/structures';
-import { make_resource_list } from './helper-functions';
+import { structure_builder_tmpl } from './dom-creations.js';
+import { cell_production_forecast } from './dom-selections.js';
+import { calculate_resource_production } from './game-objects/resources.js';
+import STRUCTURES from './game-objects/structures.js';
+import { make_resource_list } from './helper-functions.js';
 
 export default make_structure_builder_inputs;
 

@@ -1,6 +1,6 @@
-import { board_element, board_size_select } from '../../dom-selections';
-import { make_sealed_null_obj } from '../../helper-functions';
-import storage_keys from '../storage-keys';
+import { board_element, board_size_select } from '../../dom-selections.js';
+import { make_sealed_null_obj } from '../../helper-functions.js';
+import storage_keys from '../storage-keys.js';
 
 const board_dimensions = make_sealed_null_obj({ width: 0, height: 0 });
 const board_sizes = {

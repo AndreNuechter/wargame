@@ -1,8 +1,8 @@
-import { cell_production_forecast, total_production_forecast } from '../../dom-selections';
-import { make_resource_list } from '../../helper-functions';
-import make_structure_builder_inputs from '../../make-structure-builder-inputs';
-import setup_total_production_forecast from '../../setup-total-production-forecast';
-import { calculate_resource_production } from '../resources';
+import { cell_production_forecast, total_production_forecast } from '../../dom-selections.js';
+import { make_resource_list } from '../../helper-functions.js';
+import make_structure_builder_inputs from '../../make-structure-builder-inputs.js';
+import setup_total_production_forecast from '../../setup-total-production-forecast.js';
+import { calculate_resource_production } from '../resources.js';
 
 export { click_on_cell_action };
 

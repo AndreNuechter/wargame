@@ -1,5 +1,5 @@
 // @ts-ignore
-// eslint-disable-next-line import/no-unresolved
+// eslint-disable-next-line import/no-unresolved, import/extensions
 import serviceWorkerUrl from './service-worker?worker&url';
 
 export default (() => window.navigator.serviceWorker

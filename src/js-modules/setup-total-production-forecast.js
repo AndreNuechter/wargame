@@ -1,5 +1,5 @@
-import { total_production_forecast } from './dom-selections';
-import { make_resource_list } from './helper-functions';
+import { total_production_forecast } from './dom-selections.js';
+import { make_resource_list } from './helper-functions.js';
 
 export default setup_total_production_forecast;
 

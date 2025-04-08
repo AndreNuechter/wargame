@@ -1,4 +1,4 @@
-import { make_frozen_null_obj } from '../helper-functions';
+import { make_frozen_null_obj } from '../helper-functions.js';
 
 /** @type {Humidity_Levels} */
 const HUMIDITY_LEVELS = make_frozen_null_obj({

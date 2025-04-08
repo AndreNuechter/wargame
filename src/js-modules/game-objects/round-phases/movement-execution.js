@@ -1,8 +1,8 @@
-import SEASONS from '../seasons';
-import RESOURCES from '../resources';
-import move_queue from '../move-queue';
-import { end_turn_btn, phase_label } from '../../dom-selections';
-import { random_int, random_pick } from '../../helper-functions';
+import SEASONS from '../seasons.js';
+import RESOURCES from '../resources.js';
+import move_queue from '../move-queue.js';
+import { end_turn_btn, phase_label } from '../../dom-selections.js';
+import { random_int, random_pick } from '../../helper-functions.js';
 
 export { execute_moves };
 

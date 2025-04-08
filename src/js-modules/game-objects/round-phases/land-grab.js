@@ -1,8 +1,8 @@
-import { cell_info, general_info, selection_highlight } from '../../dom-selections';
-import BIOMES from '../../map-generation/biomes';
-import outline_hexregion from '../board/outline-hexregion';
-import { initial_resources } from '../resources';
-import STRUCTURES from '../structures';
+import { cell_info, general_info, selection_highlight } from '../../dom-selections.js';
+import BIOMES from '../../map-generation/biomes.js';
+import outline_hexregion from '../board/outline-hexregion.js';
+import { initial_resources } from '../resources.js';
+import STRUCTURES from '../structures.js';
 
 /** @type {Hex_Cell|null} */
 let start_position_candidate = null;

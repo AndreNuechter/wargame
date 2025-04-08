@@ -1,4 +1,4 @@
-import { board_element } from './dom-selections';
+import { board_element } from './dom-selections.js';
 
 export default handle_zoom;
 

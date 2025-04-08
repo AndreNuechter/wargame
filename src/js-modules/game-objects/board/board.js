@@ -1,5 +1,5 @@
-import storage_keys from '../storage-keys';
-import { reinstate_hex_map } from './hex-grid';
+import storage_keys from '../storage-keys.js';
+import { reinstate_hex_map } from './hex-grid.js';
 
 const board = new Map;
 

@@ -1,5 +1,5 @@
-import board_dimensions from './board-dimensions';
-import { is_even } from '../../helper-functions';
+import board_dimensions from './board-dimensions.js';
+import { is_even } from '../../helper-functions.js';
 
 const direction_vectors = [
     { q: 1, r: 0, s: -1 },

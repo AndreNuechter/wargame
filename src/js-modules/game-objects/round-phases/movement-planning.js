@@ -6,11 +6,11 @@ import {
     troop_select_max_value,
     troop_select_min_value,
     troop_select_output,
-} from '../../dom-selections';
-import BIOMES from '../../map-generation/biomes';
-import move_queue, { make_player_move } from '../move-queue';
-import RESOURCES from '../resources';
-import SEASONS, { increment_season, is_season_before } from '../seasons';
+} from '../../dom-selections.js';
+import BIOMES from '../../map-generation/biomes.js';
+import move_queue, { make_player_move } from '../move-queue.js';
+import RESOURCES from '../resources.js';
+import SEASONS, { increment_season, is_season_before } from '../seasons.js';
 
 // TODO enable settling an encampment created in an earlier round
 

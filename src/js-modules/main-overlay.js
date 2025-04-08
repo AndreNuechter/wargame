@@ -1,10 +1,10 @@
-import { main_overlay, player_configs } from './dom-selections';
-import board_dimensions from './game-objects/board/board-dimensions';
-import { reroll_map } from './game-objects/board/hex-grid';
-import game from './game-objects/game';
-import { clear_move_queue } from './game-objects/move-queue';
-import { make_player, make_player_config } from './game-objects/player';
-import ROUND_PHASES from './game-objects/round-phases/round-phases';
+import { main_overlay, player_configs } from './dom-selections.js';
+import board_dimensions from './game-objects/board/board-dimensions.js';
+import { reroll_map } from './game-objects/board/hex-grid.js';
+import game from './game-objects/game.js';
+import { clear_move_queue } from './game-objects/move-queue.js';
+import { make_player, make_player_config } from './game-objects/player.js';
+import ROUND_PHASES from './game-objects/round-phases/round-phases.js';
 
 export {
     close_main_overlay,
@@ -29,7 +29,7 @@ function close_main_overlay() {
 }
 
 /**
- * @param {SubmitEvent} param0
+ .js* @param {SubmitEvent} param0
  */
 function continue_or_config_new_game({ submitter }) {
     if (submitter.id === 'continue-btn') {
