@@ -187,12 +187,12 @@ function get_armies_at_cell(cell, players) {
             if (player.encampments.has(cell)) {
                 result.push({
                     player_id,
-                    units: player.encampments.get(cell),
+                    unit_count: player.encampments.get(cell),
                 });
             } else if (player_id === cell.owner_id) {
                 result.push({
                     player_id: cell.owner_id,
-                    units: cell.resources[RESOURCES.people],
+                    unit_count: cell.resources[RESOURCES.people],
                     is_owner: true,
                 });
             }
@@ -252,7 +252,7 @@ function resolve_battle(battle_field, armies, players, players_wanting_to_settle
                 .forEach(
                     (army_id) => players[armies[army_id].player_id].delete_encampment(battle_field),
                 );
-            armies = [Object.assign(random_pick(armies), { units: 1 })];
+            armies = [Object.assign(random_pick(armies), { unit_count: 1 })];
             break;
         }
 

@@ -147,7 +147,7 @@ interface Player_Move {
     target: Hex_Cell;
     /** The number of units sent. */
     units: number;
-    /** The type of movement, one of [settle | unspecified]. */
+    /** The type of movement. */
     type: "settle" | "unspecified";
     /** The SVG element visualizing the move. */
     arrow: SVGGElement;

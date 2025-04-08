@@ -12,6 +12,8 @@ import move_queue, { make_player_move } from '../move-queue';
 import RESOURCES from '../resources';
 import SEASONS, { increment_season, is_season_before } from '../seasons';
 
+// TODO enable settling an encampment created in an earlier round
+
 /** @type {Hex_Cell} */
 let move_origin = null;
 /** @type {Hex_Cell} */
@@ -34,19 +36,19 @@ function click_on_cell_action(hex_obj, game) {
     // rm highlight from targeted cell
     hex_obj.cell.classList.remove('clicked');
 
-    // player unselected origin
+    // did the player unselect the origin?
     if (move_origin === hex_obj) {
         move_origin = null;
 
         return;
     }
 
-    // player can only move one cell at a time
+    // player can only move to a neighboring cell
     if (!hex_obj.neighbors.includes(move_origin)) return;
 
     move_target = hex_obj;
 
-    // NOTE: to maintain visibility of the arrows, the player can only move one time from one specific cell to another during a round
+    // NOTE: to maintain visibility of the arrows, the player can only move one time from one specific cell to another during a round and clicking such a combination lets the player configure that move
     const configured_move = move_queue.find(
         ({ player_id, origin, target }) =>
             player_id === game.current_player_id &&
@@ -55,6 +57,7 @@ function click_on_cell_action(hex_obj, game) {
     );
     const player_owns_origin = move_origin.owner_id === game.current_player_id;
     const player_owns_target = move_target.owner_id === game.current_player_id;
+    /** @type{Movement_Planning_Form_Config} */
     const form_config = {
         settle_cell: false,
         season: SEASONS.spring,
@@ -73,9 +76,9 @@ function click_on_cell_action(hex_obj, game) {
 
     // determine appropriate modal config
     if (configured_move) {
-        prepare_configure_move_form(configured_move, game, player_owns_origin, form_config);
+        prepare_form_to_configure_move(configured_move, game, player_owns_origin, form_config);
     } else {
-        prepare_make_move_form(game, player_owns_origin, form_config);
+        prepare_form_to_make_move(game, player_owns_origin, form_config);
     }
 
     // if the move turns out to be invalid, unset target and do nothing else
@@ -98,9 +101,9 @@ function click_on_cell_action(hex_obj, game) {
             max: form_config.max_value,
         },
     );
-    troop_select_output.value = form_config.current_value;
-    troop_select_min_value.value = form_config.min_value;
-    troop_select_max_value.value = form_config.max_value;
+    troop_select_output.value = form_config.current_value.toString();
+    troop_select_min_value.value = form_config.min_value.toString();
+    troop_select_max_value.value = form_config.max_value.toString();
     settle_cell_toggle.checked = form_config.settle_cell;
     // open the modal
     movement_config.showModal();
@@ -109,13 +112,13 @@ function click_on_cell_action(hex_obj, game) {
 // TODO limit sendable troops by available resources...moving 1 unit costs 1 gold per step (2 over water; 0 inside own territory)...food? people consume 1 food per turn...we'll not consider food here, but give negative effects when starvation occurs, like decreased efficieny or increased chance of revolts...
 
 /**
- * Set up move config for a configured move.
+ * Set up form_config for configuring a move.
  * @param {Player_Move} configured_move
  * @param {Game} game
  * @param {boolean} player_owns_origin
  * @param {Movement_Planning_Form_Config} form_config
  */
-function prepare_configure_move_form(configured_move, game, player_owns_origin, form_config) {
+function prepare_form_to_configure_move(configured_move, game, player_owns_origin, form_config) {
     const player_moves = move_queue.filter(({ player_id }) => player_id === game.current_player_id);
 
     form_config.settle_cell = configured_move.type === 'settle';
@@ -172,13 +175,13 @@ function prepare_configure_move_form(configured_move, game, player_owns_origin, 
 }
 
 /**
- * Set up move config for a new move.
+ * Set up form_config for making a new move.
  * @param {Game} game
  * @param {boolean} player_owns_origin
  * @param {Movement_Planning_Form_Config} form_config
  * @returns {Season}
  */
-function prepare_make_move_form(game, player_owns_origin, form_config) {
+function prepare_form_to_make_move(game, player_owns_origin, form_config) {
     const player_moves = move_queue.filter(({ player_id }) => player_id === game.current_player_id);
 
     form_config.current_value = 0;
@@ -192,35 +195,35 @@ function prepare_make_move_form(game, player_owns_origin, form_config) {
             move_origin.resources[RESOURCES.people],
         ) - 1;
     } else {
-        // set season to the one after that of the earliest move to the origin
-        const season_of_earliest_move_to_origin = player_moves
-            .filter(({ target }) => target === move_origin)
-            .reduce((earliest_season, { season: season_of_move_to_origin }) => {
-                if (is_season_before(season_of_move_to_origin, earliest_season)) {
-                    // @ts-ignore
-                    earliest_season = season_of_move_to_origin;
-                }
+        const moves_to_origin = player_moves
+            .filter(({ target }) => target === move_origin);
 
-                return earliest_season;
-            }, SEASONS.winter);
-        const player_wants_to_settle_origin = Boolean(
-            player_moves
-                .find(
-                    ({ target, type, season }) => target === move_origin &&
-                        season === season_of_earliest_move_to_origin &&
-                        type === 'settle',
-                ),
-        );
+        // is the origin an encampment from an earlier round?
+        if (moves_to_origin.length > 0) {
+            const season_of_earliest_move_to_origin = moves_to_origin
+                .reduce((earliest_season, { season: season_of_move_to_origin }) => {
+                    if (is_season_before(season_of_move_to_origin, earliest_season)) {
+                        // @ts-ignore
+                        earliest_season = season_of_move_to_origin;
+                    }
 
-        // do nothing if the earliest move is in winter
-        if (season_of_earliest_move_to_origin === SEASONS.winter) {
-            move_target = null;
+                    return earliest_season;
+                }, SEASONS.winter);
+            const player_wants_to_settle_origin = player_moves.some(
+                ({ target, type, season }) =>
+                    target === move_origin &&
+                    season === season_of_earliest_move_to_origin &&
+                    type === 'settle',
+            );
 
-            return;
-        }
+            // do nothing if the earliest move to the origin happened in winter
+            // TODO what if there's an encampment from earlier at this point?
+            if (season_of_earliest_move_to_origin === SEASONS.winter) {
+                move_target = null;
 
-        // dont disable season select when the origin is an encampment from an earlier round
-        if (season_of_earliest_move_to_origin !== '') {
+                return;
+            }
+
             // disable season options before the earliest move to the origin
             Object.values(SEASONS)
                 .filter((season) =>
@@ -232,15 +235,26 @@ function prepare_make_move_form(game, player_owns_origin, form_config) {
                         season_of_move_select.querySelector(`input[value="${season}"]`)
                     ).disabled = true;
                 });
+
+            // set season to the one after that of the earliest move to the origin
+            form_config.season = increment_season(season_of_earliest_move_to_origin);
+            form_config.max_value = count_of_units_on_cell_at_season(
+                player_moves,
+                move_origin,
+                form_config.season,
+                game.active_player.get_encampment(move_origin) || 0,
+            ) - Number(player_wants_to_settle_origin);
+
+            return;
         }
 
-        form_config.season = increment_season(season_of_earliest_move_to_origin);
+        form_config.season = SEASONS.spring;
         form_config.max_value = count_of_units_on_cell_at_season(
             player_moves,
             move_origin,
             form_config.season,
             game.active_player.get_encampment(move_origin) || 0,
-        ) - Number(player_wants_to_settle_origin);
+        );
     }
 }
 
