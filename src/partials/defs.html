@@ -28,17 +28,17 @@
         <symbol id="x" viewBox="0 -1 10 10">
             <path d="M2 2 L8 8 M8 2 L 2 8"></path>
         </symbol>
-        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="2.2" markerHeight="2.2" stroke="none"
-            fill="var(--owner-color)" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" />
-        </marker>
         <g class="movement-indicator">
-            <path marker-end="url(#arrow)"></path>
+            <path marker-end="url(#arrow-head)"></path>
             <!-- TODO give text a background rect for better legibility -->
             <text>
                 <textPath text-anchor="middle" startOffset="50%"></textPath>
             </text>
         </g>
+        <marker id="arrow-head" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="2.2" markerHeight="2.2" stroke="none"
+            fill="context-stroke" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" />
+        </marker>
         <symbol id="gold" viewBox="150 72 140 285">
             <g fill="none" stroke-width="23" stroke="#000" stroke-linecap="round">
                 <path d="M271.874 205.764a57 45 21.2 1 0-44.206 11.613 57 45 21.2 1 1-51.468 14.968" />

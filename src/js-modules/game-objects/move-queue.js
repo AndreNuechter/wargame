@@ -27,7 +27,7 @@ function clear_move_queue() {
  * @returns {SVGGElement}
  */
 function draw_movement_arrow(origin, target, units, player_id) {
-    // TODO how can we better visualize multiple moves from the same origin to the same target (by different players; a player can only do a move once a round)
+    // TODO how can we better visualize multiple moves from the same origin to the same target? (by different players, since a player can only do a move once a round)
     // NOTE: adding half_hex_size to center the path...cx is apparently the upper left corner of the hex's viewBox
     const half_hex_size = 3;
     // TODO start/end further from the center to not overlay the population count and returing arrow
@@ -44,7 +44,6 @@ function draw_movement_arrow(origin, target, units, player_id) {
     const sent_units_display = movement_indicator.lastElementChild.lastElementChild;
 
     movement_indicator.firstElementChild.setAttribute('d', path_data);
-    // TODO the marker (arrow) isnt colored dynamically as its only referenced by movement_indicator...do we create one for ea player?
     movement_indicator.dataset.owner_id = player_id.toString();
     sent_units_display.setAttribute('path', path_data);
     sent_units_display.textContent = units.toString();
