@@ -1,6 +1,10 @@
-// TODO find a way to use this. rn if we use this, the edges of our hexes dont connect
 // this allows us to draw the outline inside the region and not on top of its border
-const edge_offset = 0;
+const edge_offset = 0.4;
+const half_edge_offset = edge_offset * 0.5;
+const hex_diameter = 6;
+const hex_radius = hex_diameter * 0.5;
+const hex_half_radius = hex_radius * 0.5;
+const hex_three_quarter_diameter = hex_diameter * 0.75;
 
 export default outline_hexregion;
 
@@ -18,77 +22,78 @@ function outline_hexregion(
 ) {
     if (region.size === 0) return;
 
-    // for ea cell in the region, collect edges to neighbors that aren't in the region
-    const line_segments = [...region].reduce((edges, hex_obj) => {
+    // for ea hex in the region, collect edges to neighbors that aren't in the region
+    const edges = [...region].reduce((result, hex_obj) => {
         const outside_neighbors = hex_obj.neighbors.filter((hex) => !region.has(hex));
-        const bottom = bottom_point(hex_obj);
-        const bottom_right = right_bottom_point(hex_obj);
-        const bottom_left = left_bottom_point(hex_obj);
-        const top = top_point(hex_obj);
-        const top_right = right_top_point(hex_obj);
-        const top_left = left_top_point(hex_obj);
-
-        // left
-        if (outside_neighbors.find(
+        // NOTE: our hexes are pointy top and therefore have the following edges...
+        const left_edge_is_border = outside_neighbors.some(
             (neighbor) =>
                 neighbor.r === hex_obj.r &&
                 neighbor.s === (hex_obj.s + 1),
-        )) {
-            edges.push([bottom_left, top_left]);
-        }
-
-        // top left
-        if (outside_neighbors.find(
+        );
+        const top_left_edge_is_border = outside_neighbors.some(
             (neighbor) =>
                 neighbor.q === hex_obj.q &&
                 neighbor.s === (hex_obj.s + 1),
-        )) {
-            edges.push([top_left, top]);
-        }
-
-        // top right
-        if (outside_neighbors.find(
+        );
+        const top_right_edge_is_border = outside_neighbors.some(
             (neighbor) =>
                 neighbor.s === hex_obj.s &&
                 neighbor.r === (hex_obj.r - 1),
-        )) {
-            edges.push([top, top_right]);
-        }
-
-        // right
-        if (outside_neighbors.find(
+        );
+        const right_edge_is_border = outside_neighbors.some(
             (neighbor) =>
                 neighbor.r === hex_obj.r &&
                 neighbor.s === (hex_obj.s - 1),
-        )) {
-            edges.push([top_right, bottom_right]);
-        }
-
-        // bottom right
-        if (outside_neighbors.find(
+        );
+        const bottom_right_edge_is_border = outside_neighbors.some(
             (neighbor) =>
                 neighbor.q === hex_obj.q &&
                 neighbor.s === (hex_obj.s - 1),
-        )) {
-            edges.push([bottom_right, bottom]);
-        }
-
-        // bottom left
-        if (outside_neighbors.find(
+        );
+        const bottom_left_edge_is_border = outside_neighbors.some(
             (neighbor) =>
                 neighbor.s === hex_obj.s &&
                 neighbor.r === (hex_obj.r + 1),
-        )) {
-            edges.push([bottom, bottom_left]);
+        );
+        // NOTE: to inset the outline,
+        // we offset a point, w 2 adjacent edges outside, towards the center of the hex and
+        // a point, w only one adjacent edge outside, towards the center of the edge that's inside
+        const bottom_point = mk_bottom_point(hex_obj, bottom_left_edge_is_border, bottom_right_edge_is_border);
+        const bottom_left_point = mk_left_bottom_point(hex_obj, left_edge_is_border, bottom_left_edge_is_border);
+        const bottom_right_point = mk_right_bottom_point(hex_obj, bottom_right_edge_is_border, right_edge_is_border);
+        const top_point = mk_top_point(hex_obj, top_left_edge_is_border, top_right_edge_is_border);
+        const top_right_point = mk_right_top_point(hex_obj, right_edge_is_border, top_right_edge_is_border);
+        const top_left_point = mk_left_top_point(hex_obj, top_left_edge_is_border, left_edge_is_border);
+
+        if (left_edge_is_border) {
+            result.push([bottom_left_point, top_left_point]);
         }
 
-        return edges;
+        if (top_left_edge_is_border) {
+            result.push([top_left_point, top_point]);
+        }
+
+        if (top_right_edge_is_border) {
+            result.push([top_point, top_right_point]);
+        }
+
+        if (right_edge_is_border) {
+            result.push([top_right_point, bottom_right_point]);
+        }
+
+        if (bottom_right_edge_is_border) {
+            result.push([bottom_right_point, bottom_point]);
+        }
+
+        if (bottom_left_edge_is_border) {
+            result.push([bottom_point, bottom_left_point]);
+        }
+
+        return result;
     }, []);
 
-    outline_element.setAttribute('d', points_to_svg_path(
-        order_edges(line_segments),
-    ));
-    outline_element.setAttribute('stroke-width', '0.5');
+    outline_element.setAttribute('d', points_to_svg_path(order_edges(edges)));
     outline_element.setAttribute('stroke', color);
 
     if (stroked_outline) {
@@ -121,32 +126,32 @@ function order_edges(edges) {
         for (const point of edge) {
             const point_str = stringify_point(point);
 
-            if (!result.has(point_str)) {
-                result.set(point_str, [edge]);
-            } else {
+            if (result.has(point_str)) {
                 result.get(point_str).push(edge);
+            } else {
+                result.set(point_str, [edge]);
             }
         }
 
         return result;
     }, new Map);
-    /** @type{Set<string>} */
+    /** @type{Set<Edge>} */
     const visited_edges = new Set();
     const path = [];
     const [first_edge] = edges;
     let next_point = first_edge[1];
 
     path.push(first_edge[0]);
-    visited_edges.add(stringify_edge(first_edge));
+    visited_edges.add(first_edge);
 
     while (visited_edges.size < edges.length) {
         const next_point_str = stringify_point(next_point);
         const next_edge = point_to_edges
             .get(next_point_str)
-            .find((edge) => !visited_edges.has(stringify_edge(edge)));
+            .find((edge) => !visited_edges.has(edge));
 
         path.push(next_point);
-        visited_edges.add(stringify_edge(next_edge));
+        visited_edges.add(next_edge);
 
         next_point = stringify_point(next_edge[0]) === next_point_str
             ? next_edge[1]
@@ -165,16 +170,6 @@ function stringify_point({ x, y }) {
 }
 
 /**
- * @param {Edge} edge
- * @returns {string}
- */
-function stringify_edge([point1, point2]) {
-    return [stringify_point(point1), stringify_point(point2)]
-        .sort()
-        .join('|');
-}
-
-/**
  * @param {number} x
  * @param {number} y
  * @returns {Point}
@@ -185,48 +180,186 @@ function make_point(x, y) {
 
 /**
  * @param {Hex_Cell} hex_obj
- * @returns {Point}
+ * @param {boolean} bottom_left_edge_is_border
+ * @param {boolean} bottom_right_edge_is_border
+ * @returns {Point|void}
  */
-function top_point(hex_obj) {
-    return make_point(hex_obj.cx + 3, hex_obj.cy + edge_offset);
+function mk_bottom_point(hex_obj, bottom_left_edge_is_border, bottom_right_edge_is_border) {
+    // if these are both false, the point is not on the periphery of our region
+    if (!bottom_left_edge_is_border && !bottom_right_edge_is_border) return;
+
+    const point = make_point(
+        hex_obj.cx + hex_radius,
+        hex_obj.cy + hex_diameter,
+    );
+
+    if (!bottom_left_edge_is_border) {
+        // shift the point along the hexes left bottom edge
+        point.x -= half_edge_offset;
+        point.y -= half_edge_offset;
+    } else if (!bottom_right_edge_is_border) {
+        // shift the point along the hexes right bottom edge
+        point.x += half_edge_offset;
+        point.y -= half_edge_offset;
+    } else {
+        // shift the point towards the hex's center
+        point.y -= edge_offset;
+    }
+
+    return point;
 }
 
 /**
  * @param {Hex_Cell} hex_obj
- * @returns {Point}
+ * @param {boolean} left_edge_is_border
+ * @param {boolean} bottom_left_edge_is_border
+ * @returns {Point|void}
  */
-function bottom_point(hex_obj) {
-    return make_point(hex_obj.cx + 3, hex_obj.cy + 6 - edge_offset);
+function mk_left_bottom_point(hex_obj, left_edge_is_border, bottom_left_edge_is_border) {
+    // if these are both false, the point is not on the periphery of our region
+    if (!left_edge_is_border && !bottom_left_edge_is_border) return;
+
+    const point = make_point(
+        hex_obj.cx,
+        hex_obj.cy + hex_three_quarter_diameter,
+    );
+
+    if (!left_edge_is_border) {
+        // shift the point along the hexes left edge
+        point.y -= half_edge_offset;
+    } else if (!bottom_left_edge_is_border) {
+        // shift the point along the hexes left bottom edge
+        point.x += half_edge_offset;
+        point.y += half_edge_offset;
+    } else {
+        // shift the point towards the hex's center
+        point.x += edge_offset;
+        point.y -= half_edge_offset;
+    }
+
+    return point;
 }
 
 /**
  * @param {Hex_Cell} hex_obj
- * @returns {Point}
+ * @param {boolean} bottom_right_edge_is_border
+ * @param {boolean} right_edge_is_border
+ * @returns {Point|void}
  */
-function left_top_point(hex_obj) {
-    return make_point(hex_obj.cx + edge_offset, hex_obj.cy + 1.5 + edge_offset * 0.5);
+function mk_right_bottom_point(hex_obj, bottom_right_edge_is_border, right_edge_is_border) {
+    // if these are both false, the point is not on the periphery of our region
+    if (!bottom_right_edge_is_border && !right_edge_is_border) return;
+
+    const point = make_point(
+        hex_obj.cx + hex_diameter,
+        hex_obj.cy + hex_three_quarter_diameter,
+    );
+
+    if (!bottom_right_edge_is_border) {
+        // shift the point along the hexes right bottom edge
+        point.x -= half_edge_offset;
+        point.y += half_edge_offset;
+    } else if (!right_edge_is_border) {
+        // shift the point along the hexes right edge
+        point.y -= half_edge_offset;
+    } else {
+        // shift the point towards the hex's center
+        point.x -= edge_offset;
+        point.y -= half_edge_offset;
+    }
+
+    return point;
 }
 
 /**
  * @param {Hex_Cell} hex_obj
- * @returns {Point}
+ * @param {boolean} top_left_edge_is_border
+ * @param {boolean} top_right_edge_is_border
+ * @returns {Point|void}
  */
-function left_bottom_point(hex_obj) {
-    return make_point(hex_obj.cx + edge_offset, hex_obj.cy + 4.5 - edge_offset * 0.5);
+function mk_top_point(hex_obj, top_left_edge_is_border, top_right_edge_is_border) {
+    // if these are both false, the point is not on the periphery of our region
+    if (!top_left_edge_is_border && !top_right_edge_is_border) return;
+
+    const point = make_point(
+        hex_obj.cx + hex_radius,
+        hex_obj.cy,
+    );
+
+    if (!top_left_edge_is_border) {
+        // shift the point along the hexes top left edge
+        point.x -= half_edge_offset;
+        point.y += half_edge_offset;
+    } else if (!top_right_edge_is_border) {
+        // shift the point along the hexes top right edge
+        point.x += half_edge_offset;
+        point.y += half_edge_offset;
+    } else {
+        // shift the point towards the hex's center
+        point.y += edge_offset;
+    }
+
+    return point;
 }
 
 /**
  * @param {Hex_Cell} hex_obj
- * @returns {Point}
+ * @param {boolean} right_edge_is_border
+ * @param {boolean} top_right_edge_is_border
+ * @returns {Point|void}
  */
-function right_top_point(hex_obj) {
-    return make_point(hex_obj.cx + 6 - edge_offset, hex_obj.cy + 1.5 + edge_offset * 0.5);
+function mk_right_top_point(hex_obj, right_edge_is_border, top_right_edge_is_border) {
+    // if these are both false, the point is not on the periphery of our region
+    if (!right_edge_is_border && !top_right_edge_is_border) return;
+
+    const point = make_point(
+        hex_obj.cx + hex_diameter,
+        hex_obj.cy + hex_half_radius,
+    );
+
+    if (!right_edge_is_border) {
+        // shift the point along the hexes right edge
+        point.y += half_edge_offset;
+    } else if (!top_right_edge_is_border) {
+        // shift the point along the hexes top right edge
+        point.x -= half_edge_offset;
+        point.y -= half_edge_offset;
+    } else {
+        // shift the point towards the hex's center
+        point.x -= edge_offset;
+        point.y += half_edge_offset;
+    }
+
+    return point;
 }
 
 /**
  * @param {Hex_Cell} hex_obj
- * @returns {Point}
+ * @param {boolean} top_left_edge_is_border
+ * @param {boolean} left_edge_is_border
+ * @returns {Point|void}
  */
-function right_bottom_point(hex_obj) {
-    return make_point(hex_obj.cx + 6 - edge_offset, hex_obj.cy + 4.5 - edge_offset * 0.5);
+function mk_left_top_point(hex_obj, top_left_edge_is_border, left_edge_is_border) {
+    // if these are both false, the point is not on the periphery of our region
+    if (!top_left_edge_is_border && !left_edge_is_border) return;
+
+    const point = make_point(
+        hex_obj.cx,
+        hex_obj.cy + hex_half_radius,
+    );
+
+    if (!top_left_edge_is_border) {
+        // shift the point along the hexes top left edge
+        point.x += half_edge_offset;
+        point.y -= half_edge_offset;
+    } else if (!left_edge_is_border) {
+        // shift the point along the hexes left edge
+        point.y += half_edge_offset;
+    } else {
+        // shift the point towards the hex's center
+        point.x += edge_offset;
+        point.y += half_edge_offset;
+    }
+
+    return point;
 }
