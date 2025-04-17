@@ -91,6 +91,7 @@
 .player-border,
 #selection-highlight {
     fill: none;
+    stroke-width: 0.5;
 }
 
 @keyframes blink {

@@ -5,6 +5,7 @@ import HUMIDITY_LEVELS from '../../map-generation/humidity-levels.js';
 import STRUCTURES from '../structures.js';
 import RESOURCES from '../resources.js';
 import ROUND_PHASES from '../round-phases/round-phases.js';
+import BIOMES from '../../map-generation/biomes.js';
 
 export {
     make_hex_cell,
@@ -37,9 +38,14 @@ function make_hex_cell(
     let temperature = TEMPERATURES.freezing;
     let owner_id = -1;
     let population = 0;
+    // TODO procedurally define developable_land
+    // TODO modulate biome.resource production by developable_land (multiply values by number of undeveloped land)
+    // TODO also give limited space for food production
+    let developable_land = 10;
 
     return {
         // for positioning in grid
+        // TODO rename these as they describe the top-left edge of the bounding box, not the center
         cx,
         cy,
         // offset coords
@@ -89,6 +95,7 @@ function make_hex_cell(
         set biome(new_biome) {
             if (biome !== null) cell.classList.remove(biome.name);
             if (new_biome !== null) cell.classList.add(new_biome.name);
+            if (new_biome === BIOMES.sea) developable_land = 0;
 
             biome = new_biome;
         },
@@ -99,10 +106,12 @@ function make_hex_cell(
             owner_id = id;
             cell.dataset.owner_id = id === -1 ? '' : id.toString();
         },
-        // TODO randomnly/procedurally define this
-        // TODO set to 0 when Biome is sea
-        // TODO also give limited space for food production?
-        developable_land: 10,
+        get developable_land() {
+            return developable_land;
+        },
+        set developable_land(value) {
+            developable_land = value;
+        },
     };
 }
 

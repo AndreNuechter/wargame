@@ -27,11 +27,11 @@ import { select_cell } from './js-modules/game-objects/board/hex-cell.js';
 import handle_zoom from './js-modules/handle-zoom.js';
 import { close_main_overlay, continue_or_config_new_game, open_main_overlay, start_game } from './js-modules/main-overlay.js';
 
-// TODO rethink what info to show on a cell...
+// TODO rethink what info to show on a cell and when (think zoom level)...
 // - info about population like size and makeup (peasants vs soldiers, homeless, jobless, adults/children)
 // - info about built structures/type of settlement (eg shantytown, village, city...rural vs urban)
 // - info about temporary modifiers like pestilence, starvation, revolt, fire or war
-// ...have settlement signified by path around the perimeter (like a skyline), pop by numbers in the middle and temp mods by an icon somewhere on the cell (perhaps below the pop bit)...and think about zoom levels and which level should show what bit of info...
+// ...have settlement signified by path around the perimeter (like a skyline), pop by numbers in the middle and temp mods by an icon somewhere on the cell (perhaps below the pop bit)...
 // TODO light theme toggle (in bottom of start_game_overlay)
 // TODO divide sidebar content into chunks and make it swipable horizontally (use scroll snap...what on larger screens?)
 // TODO in dev phase, empire overview, have list of owned cells w link to them

@@ -1,3 +1,5 @@
+import { mk_svg_point } from '../../helper-functions.js';
+
 // this allows us to draw the outline inside the region and not on top of its border
 const edge_offset = 0.4;
 const half_edge_offset = edge_offset * 0.5;
@@ -59,12 +61,12 @@ function outline_hexregion(
         // NOTE: to inset the outline,
         // we offset a point, w 2 adjacent edges outside, towards the center of the hex and
         // a point, w only one adjacent edge outside, towards the center of the edge that's inside
-        const bottom_point = mk_bottom_point(hex_obj, bottom_left_edge_is_border, bottom_right_edge_is_border);
         const bottom_left_point = mk_left_bottom_point(hex_obj, left_edge_is_border, bottom_left_edge_is_border);
-        const bottom_right_point = mk_right_bottom_point(hex_obj, bottom_right_edge_is_border, right_edge_is_border);
+        const top_left_point = mk_left_top_point(hex_obj, top_left_edge_is_border, left_edge_is_border);
         const top_point = mk_top_point(hex_obj, top_left_edge_is_border, top_right_edge_is_border);
         const top_right_point = mk_right_top_point(hex_obj, right_edge_is_border, top_right_edge_is_border);
-        const top_left_point = mk_left_top_point(hex_obj, top_left_edge_is_border, left_edge_is_border);
+        const bottom_right_point = mk_right_bottom_point(hex_obj, bottom_right_edge_is_border, right_edge_is_border);
+        const bottom_point = mk_bottom_point(hex_obj, bottom_left_edge_is_border, bottom_right_edge_is_border);
 
         if (left_edge_is_border) {
             result.push([bottom_left_point, top_left_point]);
@@ -149,6 +151,14 @@ function order_edges(edges) {
         const next_edge = point_to_edges
             .get(next_point_str)
             .find((edge) => !visited_edges.has(edge));
+
+        if (!next_edge) {
+            // FIXME find a solution for disjointed regions
+            const point = mk_svg_point(next_point);
+
+            console.log('no next_edge! region couldnt be finished', next_point, point_to_edges, point);
+            break;
+        }
 
         path.push(next_point);
         visited_edges.add(next_edge);
@@ -286,13 +296,13 @@ function mk_top_point(hex_obj, top_left_edge_is_border, top_right_edge_is_border
         hex_obj.cy,
     );
 
-    if (!top_left_edge_is_border) {
-        // shift the point along the hexes top left edge
-        point.x -= half_edge_offset;
-        point.y += half_edge_offset;
-    } else if (!top_right_edge_is_border) {
+    if (!top_right_edge_is_border) {
         // shift the point along the hexes top right edge
         point.x += half_edge_offset;
+        point.y += half_edge_offset;
+    } else if (!top_left_edge_is_border) {
+        // shift the point along the hexes top left edge
+        point.x -= half_edge_offset;
         point.y += half_edge_offset;
     } else {
         // shift the point towards the hex's center

@@ -1,3 +1,5 @@
+import { board_element } from './dom-selections.js';
+
 /**
  * Tell whether the given number is even.
  * @param {number} num
@@ -74,4 +76,20 @@ export function make_sealed_null_obj(obj) {
     return Object.seal(
         Object.assign(Object.create(null), obj),
     );
+}
+
+/**
+ * Create an svg circle and append it to the board.
+ * @param {Point} param0
+ */
+export function mk_svg_point({ x: cx, y: cy }) {
+    const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+
+    point.setAttribute('cx', cx.toString());
+    point.setAttribute('cy', cy.toString());
+    point.setAttribute('r', '0.5');
+
+    board_element.append(point);
+
+    return point;
 }
