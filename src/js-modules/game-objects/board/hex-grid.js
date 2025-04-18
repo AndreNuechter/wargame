@@ -100,7 +100,7 @@ function reinstate_hex_map(board_state = [], board_map) {
                     biome: BIOMES[biome_name],
                     elevation,
                     humidity,
-                    // NOTE: we dont use `resources` directly to not overwrite the setter/getter on resources.people
+                    // NOTE: we dont use `resources` directly to not overwrite the proxy
                     resources: Object.assign(hex_cell.resources, resources),
                     temperature,
                     owner_id,

@@ -12,21 +12,10 @@ const RESOURCES = make_frozen_null_obj({
     alcohol: 'alcohol', // distillery. lowers chance of uprisings
     coal: 'coal', // mine. used in forge to make iron.
 });
-const initial_resources = make_frozen_null_obj({
-    [RESOURCES.people]: 5,
-    [RESOURCES.gold]: 5,
-    [RESOURCES.wood]: 25,
-    [RESOURCES.stone]: 25,
-    [RESOURCES.iron]: 0,
-    [RESOURCES.food]: 50,
-    [RESOURCES.alcohol]: 5,
-    [RESOURCES.coal]: 5,
-});
 
 export default RESOURCES;
 export {
     calculate_resource_production,
-    initial_resources,
     update_player_resources,
 };
 
@@ -35,6 +24,7 @@ export {
  * @returns {Resource_Output}
  */
 function calculate_resource_production(cells, tax_rate = 1) {
+    // TODO consider neighboring cell for gatherable resources
     const result = {
         [RESOURCES.gold]: 0,
         [RESOURCES.wood]: 0,
@@ -44,30 +34,48 @@ function calculate_resource_production(cells, tax_rate = 1) {
         [RESOURCES.alcohol]: 0,
         [RESOURCES.coal]: 0,
     };
-    let total_population = 0;
+    const { total_population, total_required_workers } = [...cells].reduce(
+        (result, cell) => {
+            result.total_population += cell.resources[RESOURCES.people];
+            result.total_required_workers += [...cell.structures.entries()]
+                .reduce(
+                    (required_workers, [structure, count]) =>
+                        required_workers + structure.required_workers * count,
+                    0,
+                );
+
+            return result;
+        },
+        { total_population: 0, total_required_workers: 0 },
+    );
+    // TODO homelessness...iff the player has build a structure...only housed pop helps w res production, pays taxes and can be used for war
+    // TODO do we care about unemployment here?
+    // we scale down output of structures when there arent enough workers
+    const productivity_modifier = Math.min(1.0, total_population / total_required_workers);
+    let player_has_settled = false;
 
     cells.forEach((cell) => {
-        // TODO consume resources needed for production
-        total_population += cell.resources.people;
-
-        // add default production
+        // add default production or gatherable resources
         Object.entries(cell.biome.resource_production).forEach(([resource, gain]) => {
+            // TODO this shouldnt happen unconditionally...only if there are "free hands". in what volume?
             result[resource] += gain;
         });
 
+        // TODO consume resources needed for production
         // add construction based production
-        [...cell.structures.entries()].forEach(([structure, count]) => {
-            // TODO overemployment...lower production if total_population < total_required_workers
+        [...cell.structures.entries()].forEach(([structure, structure_count]) => {
+            player_has_settled = structure_count > 0;
             structure.output.forEach(({ resource_name, amount }) => {
-                result[resource_name] += amount * count;
+                result[resource_name] += Math.trunc(amount * structure_count * productivity_modifier);
             });
         });
     },
     );
 
-    // calculate gold/taxes
-    // TODO homelessness...only housed pop helps w res production, pays taxes and can be used for war
-    result[RESOURCES.gold] = total_population * tax_rate;
+    // calculate gold/taxes if the player has build a structure
+    if (player_has_settled) {
+        result[RESOURCES.gold] = total_population * tax_rate;
+    }
 
     return result;
 }
@@ -76,7 +84,6 @@ function calculate_resource_production(cells, tax_rate = 1) {
  * @param {Hex_Cell} cell
  */
 function increase_population(cell) {
-    // TODO introduce additions as children that are counted seperately and need to grow up before being "useful"
     // TODO scale chances up/down based on how many neighboring cells are inhabited (and other factors like starvation)
     let population_increase = 0;
 
@@ -100,6 +107,7 @@ function increase_population(cell) {
         }
     }
 
+    // TODO introduce additions as children that are counted seperately and need to grow up before being "useful"
     cell.resources[RESOURCES.people] += population_increase;
 }
 
@@ -108,6 +116,7 @@ function increase_population(cell) {
  * @param {Player[]} players
 */
 function update_player_resources(players) {
+    // TODO come up w a more general solution. a lot of the work here is duplicated above in calculate_resource_production
     players.forEach(
         ({ cells, encampments, tax_rate }) => {
             // TODO handle homelessness (total_pop > total_housing_capacity)...only housed population helps w res production
@@ -130,7 +139,6 @@ function update_player_resources(players) {
             // TODO unemployment contributes to unhappiness in the population
             // const unemployment_rate = (total_population - total_required_workers) / total_population;
             // ea person consumes 1 food
-            // TODO do units in encampments consume more food?
             let food_requirement = [...encampments.values()]
                 .reduce((result, encamped_units) => result + encamped_units, total_population);
 
@@ -149,6 +157,7 @@ function update_player_resources(players) {
                         }),
                     );
                 // collect taxes
+                // TODO only if player has build a structure...see above
                 // TODO only tax housed and working population
                 // TODO high taxes contribute to unhappiness in the population
                 cell.resources[RESOURCES.gold] += cell.resources[RESOURCES.people] * tax_rate;
@@ -163,10 +172,11 @@ function update_player_resources(players) {
                         food_requirement = 0;
                     }
                 }
-                // TODO consume other resources...wood and coal for heat (c Banished)
 
+                // TODO consume other resources...wood and coal for heat (c Banished)
                 // TODO consume alc to decrease unhappiness!?
                 // TODO decay some resources to prevent overstacking?
+
                 // increase population
                 increase_population(cell);
             });

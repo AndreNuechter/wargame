@@ -34,10 +34,31 @@ function make_hex_cell(
 ) {
     const cell = render_hex_cell(cx, cy);
     const pop_size_display = /** @type {SVGTextElement} */ (cell.querySelector('.population-size'));
+    const resource_proxy = new Proxy(
+        Object.values(RESOURCES)
+            .reduce((result, resource) => {
+                result[resource] = 0;
+
+                return result;
+            }, {}),
+        {
+            set(target, key, value) {
+                target[key] = value;
+
+                if (key === RESOURCES.people) {
+                    pop_size_display.textContent = value > 0
+                        ? value.toString()
+                        : '';
+                }
+
+                return true;
+            },
+        },
+    );
+
     let biome = null;
     let temperature = TEMPERATURES.freezing;
     let owner_id = -1;
-    let population = 0;
     // TODO procedurally define developable_land
     // TODO modulate biome.resource production by developable_land (multiply values by number of undeveloped land)
     // TODO also give limited space for food production
@@ -46,8 +67,8 @@ function make_hex_cell(
     return {
         // for positioning in grid
         // TODO rename these as they describe the top-left edge of the bounding box, not the center
-        cx,
-        cy,
+        cx, // bounding_box_left
+        cy, // bounding_box_top
         // offset coords
         x,
         y,
@@ -71,24 +92,8 @@ function make_hex_cell(
         },
         structures: new Map(Object.values(STRUCTURES).map((structure) => [structure, 0])),
         pop_size_display,
-        resources: {
-            get [RESOURCES.people]() {
-                return population;
-            },
-            set [RESOURCES.people](value) {
-                population = value;
-                pop_size_display.textContent = population > 0
-                    ? population.toString()
-                    : '';
-            },
-            [RESOURCES.gold]: 0,
-            [RESOURCES.wood]: 0,
-            [RESOURCES.stone]: 0,
-            [RESOURCES.iron]: 0,
-            [RESOURCES.food]: 0,
-            [RESOURCES.alcohol]: 0,
-            [RESOURCES.coal]: 0,
-        },
+        // @ts-ignore
+        resources: resource_proxy,
         get biome() {
             return biome;
         },

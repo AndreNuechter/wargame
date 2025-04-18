@@ -131,7 +131,7 @@ interface Army {
     player_id: number;
     unit_count: number;
     is_defender?: boolean;
-    // TODO increase this ea turn and use this to give "prepared" army bonuses
+    // TODO increase this for some turns (say 3) and use this to give "prepared" army bonuses
     turns_on_cell?: number;
 };
 

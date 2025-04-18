@@ -72,37 +72,37 @@ const game = {
         // rm highlighting of clicked cells neighbors
         selection_highlight.setAttribute('d', '');
 
-        // increase player_id or reset it and move to the next phase
-        if (current_player_id === players.length - 1) {
+        // did we finish a phase?
+        if (current_player_id < players.length - 1) {
+            current_player_id += 1;
+        } else {
             current_player_id = 0;
             current_phase = increment_phase();
 
-            // did we finish a phase?
+            // did we finish a round?
             if (current_phase === ROUND_PHASES.development.name) {
-                // dont give resources (and check for win) after picking origin
+                // dont update resources normally and check for win directly on start/after land_grab
                 if (round > 0) {
                     const winner = is_the_game_over_and_who_won();
 
-                    if (winner === null) {
-                        update_player_resources(players);
+                    update_player_resources(players);
+
+                    if (winner !== null) {
+                        // ensure the finished game wont be saved
+                        current_phase = ROUND_PHASES.game_over.name;
+                        // visually disable continue btn
+                        document.body.dataset.current_phase = ROUND_PHASES.game_over.name;
+                        // TODO show stats/game summary
+                        document.getElementById('winner-name').textContent = winner.name;
+                        main_overlay.showModal();
+                        toggle_menu_btn.click();
 
                         return;
                     }
-
-                    // ensure the finished game wont be saved
-                    current_phase = ROUND_PHASES.game_over.name;
-                    // visually disable continue btn
-                    document.body.dataset.current_phase = ROUND_PHASES.game_over.name;
-                    // TODO show stats/game summary
-                    document.getElementById('winner-name').textContent = winner.name;
-                    main_overlay.showModal();
-                    toggle_menu_btn.click();
                 }
 
                 round += 1;
             }
-        } else {
-            current_player_id += 1;
         }
 
         adjust_ui();
@@ -129,7 +129,7 @@ function adjust_ui() {
     // hide or show name of active player
     player_name.classList.toggle('hidden', current_phase === ROUND_PHASES.movement_execution.name);
     // hide or show player resources
-    bottom_bar.classList.toggle('content-hidden', current_phase === ROUND_PHASES.development.name);
+    bottom_bar.classList.toggle('content-hidden', current_phase !== ROUND_PHASES.development.name);
     // mark current phase in dom (to be used w css)
     document.body.dataset.current_phase = ROUND_PHASES[current_phase].name;
     // set player color
@@ -242,7 +242,8 @@ function increment_phase() {
             return ROUND_PHASES.movement_planning.name;
         case ROUND_PHASES.movement_planning.name:
             return ROUND_PHASES.movement_execution.name;
-        default: case ROUND_PHASES.movement_execution.name:
+        case ROUND_PHASES.movement_execution.name:
+        default:
             return ROUND_PHASES.development.name;
     }
 }
