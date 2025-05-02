@@ -4,7 +4,7 @@ button {
     outline: 0;
     border: 0;
     background-color: var(--btn-color);
-    color: var(--text-color);
+    color: var(--btn-text-color);
     cursor: pointer;
 }
 

@@ -11,6 +11,7 @@
     --bg-color: var(--bright-color);
     --cell-border-color: var(--dark-color);
     --text-color: var(--dark-color);
+    --btn-text-color: var(--dark-color);
     --icon-color: var(--dark-color);
 }
 
