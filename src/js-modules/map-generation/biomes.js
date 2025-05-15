@@ -145,17 +145,33 @@ function assign_biomes(hex_arr) {
 function make_biome(
     name = 'sea',
     resource_production = {},
-    // movement_speed = 1, // modify how fast work gets done here and how long it takes to traverse
+    // movement_speed = 1, // modify how fast work gets done here and how long it takes to traverse...having a mountain behind should confer some protection from invasions...
     // pleasantness = 1 // modify population growth (and maybe maintenance)...a way to make resource rich biomes less attractive...defendability might be another aspect
     // space available for building...
 ) {
+    // ea uninhabited biome confers a resource bonus to its neighbors based on the most plentiful resource it has
+    let highest_payoff = 0;
+    const neighbor_gather_bonus = Object
+        .entries(resource_production)
+        .reduce((result, [resource, amount]) => {
+            if (highest_payoff < amount) {
+                highest_payoff = amount;
+                result = resource;
+            }
+
+            return result;
+        }, '');
+
     return {
         name,
+        display_name: name.replace(/_/g, ' ').toUpperCase(),
         resource_production: Object.assign({
             [RESOURCES.wood]: 0,
             [RESOURCES.stone]: 0,
             [RESOURCES.food]: 0,
         }, resource_production),
+        // @ts-ignore
+        neighbor_gather_bonus,
     };
 }
 

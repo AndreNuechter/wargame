@@ -84,6 +84,8 @@ type Biomes = { [Key in Biome_Name]: Biome; };
 interface Biome {
     name: Biome_Name;
     resource_production: Gatherable_Resources;
+    neighbor_gather_bonus: Resource;
+    display_name: string;
 }
 
 type Player_Type = "human" | "ai";

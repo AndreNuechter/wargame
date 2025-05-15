@@ -34,13 +34,17 @@ function make_hex_cell(
 ) {
     const cell = render_hex_cell(cx, cy);
     const pop_size_display = /** @type {SVGTextElement} */ (cell.querySelector('.population-size'));
-    const resource_proxy = new Proxy(
-        Object.values(RESOURCES)
-            .reduce((result, resource) => {
-                result[resource] = 0;
-
-                return result;
-            }, {}),
+    const resources_proxy = new Proxy(
+        {
+            [RESOURCES.people]: 0,
+            [RESOURCES.gold]: 0,
+            [RESOURCES.wood]: 0,
+            [RESOURCES.stone]: 0,
+            [RESOURCES.iron]: 0,
+            [RESOURCES.food]: 0,
+            [RESOURCES.alcohol]: 0,
+            [RESOURCES.coal]: 0,
+        },
         {
             set(target, key, value) {
                 target[key] = value;
@@ -92,8 +96,7 @@ function make_hex_cell(
         },
         structures: new Map(Object.values(STRUCTURES).map((structure) => [structure, 0])),
         pop_size_display,
-        // @ts-ignore
-        resources: resource_proxy,
+        resources: resources_proxy,
         get biome() {
             return biome;
         },

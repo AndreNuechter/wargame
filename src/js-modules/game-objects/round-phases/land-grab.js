@@ -1,7 +1,7 @@
 import { cell_info, general_info, selection_highlight } from '../../dom-selections.js';
 import BIOMES from '../../map-generation/biomes.js';
 import outline_hexregion from '../board/outline-hexregion.js';
-import { calculate_resource_production } from '../resources.js';
+import RESOURCES, { calculate_neighbor_gather_bonus, calculate_resource_production } from '../resources.js';
 import STRUCTURES from '../structures.js';
 
 /** @type {Hex_Cell|null} */
@@ -66,21 +66,60 @@ function setup_cell_info(hex_obj) {
         .filter((structure) => !structure.unsupported_biomes.has(hex_obj.biome))
         .map(({ display_name }) => `<li>${display_name}</li>`)
         .join('');
+    const neighbor_gather_bonus = calculate_neighbor_gather_bonus(hex_obj);
 
+    // TODO it sucks to create/discard this piece of dom repeatedly...it would be nicer to only set the values...is this also used in dev phase? create new div then
     cell_info.innerHTML = `
         <h2>Cell Info</h2>
         <ul>
-            <li>Biome: ${hex_obj.biome.name}</li>
-            <li>...</li>
+            <li>Biome: ${hex_obj.biome.display_name}</li>
+            <li>Elevation: ${elevation_to_string(hex_obj.elevation).toLocaleUpperCase()}</li>
+            <li>Temperature: ${hex_obj.temperature.toLocaleUpperCase()}</li>
+            <li>Humidity: ${hex_obj.humidity.toLocaleUpperCase()}</li>
+            <li>Size: ${hex_obj.developable_land}</li>
+            <li>Land suitable for food production: TBD</li>
+            <li>Biome related info like pleasantness...</li>
         </ul>
-        <h3>Production</h3>
-        <ul>
-            <li>Wood: ${wood}</li>
-            <li>Stone: ${stone}</li>
-            <li>Food: ${food}</li>
-        </ul>
+        <h3>Resource production</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td>Wood</td>
+                    <td>${wood} * ${hex_obj.developable_land} + ${neighbor_gather_bonus[RESOURCES.wood]}</td>
+                    <td>= ${wood * hex_obj.developable_land + neighbor_gather_bonus[RESOURCES.wood]}</td>
+                </tr>
+                <tr>
+                    <td>Stone</td>
+                    <td>${stone} * ${hex_obj.developable_land} + ${neighbor_gather_bonus[RESOURCES.stone]}</td>
+                    <td>= ${stone * hex_obj.developable_land + neighbor_gather_bonus[RESOURCES.stone]}</td>
+                </tr>
+                <tr>
+                    <td>Food</td>
+                    <td>${food} * ${hex_obj.developable_land} + ${neighbor_gather_bonus[RESOURCES.food]}</td>
+                    <td>= ${food * hex_obj.developable_land + neighbor_gather_bonus[RESOURCES.food]}</td>
+                </tr>
+            </tbody>
+        </table>
         <h3>Supported structures</h3>
         <ul>${supported_structures}</ul>
     `;
     cell_info.classList.remove('hidden');
+}
+
+/**
+ *
+ * @param {number} elevation
+ * @returns {string}
+ */
+function elevation_to_string(elevation) {
+    switch (elevation) {
+        case 0:
+            return 'sea level';
+        case 1:
+            return 'ground level';
+        case 2:
+            return 'mountainous';
+        default:
+            return 'alpine';
+    }
 }

@@ -16,6 +16,7 @@ const RESOURCES = make_frozen_null_obj({
 export default RESOURCES;
 export {
     calculate_resource_production,
+    calculate_neighbor_gather_bonus,
     update_player_resources,
 };
 
@@ -24,7 +25,6 @@ export {
  * @returns {Resource_Output}
  */
 function calculate_resource_production(cells, tax_rate = 1) {
-    // TODO consider neighboring cell for gatherable resources
     const result = {
         [RESOURCES.gold]: 0,
         [RESOURCES.wood]: 0,
@@ -34,6 +34,7 @@ function calculate_resource_production(cells, tax_rate = 1) {
         [RESOURCES.alcohol]: 0,
         [RESOURCES.coal]: 0,
     };
+    // TODO homelessness...iff the player has build a structure...only housed pop helps w res production, pays taxes and can be used for war
     const { total_population, total_required_workers } = [...cells].reduce(
         (result, cell) => {
             result.total_population += cell.resources[RESOURCES.people];
@@ -48,16 +49,19 @@ function calculate_resource_production(cells, tax_rate = 1) {
         },
         { total_population: 0, total_required_workers: 0 },
     );
-    // TODO homelessness...iff the player has build a structure...only housed pop helps w res production, pays taxes and can be used for war
     // TODO do we care about unemployment here?
     // we scale down output of structures when there arent enough workers
     const productivity_modifier = Math.min(1.0, total_population / total_required_workers);
     let player_has_settled = false;
 
     cells.forEach((cell) => {
+        // TODO gathering should consume labor. in what volume?
+        // consider uninhabited neighboring cells for gatherable resources
+        Object.entries(calculate_neighbor_gather_bonus(cell)).forEach(([resource, gain]) => {
+            result[resource] += gain;
+        });
         // add default production or gatherable resources
         Object.entries(cell.biome.resource_production).forEach(([resource, gain]) => {
-            // TODO this shouldnt happen unconditionally...only if there are "free hands". in what volume?
             result[resource] += gain;
         });
 
@@ -78,6 +82,25 @@ function calculate_resource_production(cells, tax_rate = 1) {
     }
 
     return result;
+}
+
+/**
+ * @param {Hex_Cell} hex_obj
+ * @returns {Resource_Output}
+ */
+function calculate_neighbor_gather_bonus(hex_obj) {
+    return hex_obj.neighbors
+        .filter(({ owner_id }) => owner_id === -1)
+        .reduce((result, neighbor) => {
+            result[neighbor.biome.neighbor_gather_bonus] += 1;
+
+            return result;
+        },
+        {
+            [RESOURCES.wood]: 0,
+            [RESOURCES.stone]: 0,
+            [RESOURCES.food]: 0,
+        });
 }
 
 /**
@@ -139,6 +162,7 @@ function update_player_resources(players) {
             // TODO unemployment contributes to unhappiness in the population
             // const unemployment_rate = (total_population - total_required_workers) / total_population;
             // ea person consumes 1 food
+            // TODO increase requirements of encampments...they should be expensive (for sedentary civs at least, maybe just for soldiers)
             let food_requirement = [...encampments.values()]
                 .reduce((result, encamped_units) => result + encamped_units, total_population);
 
